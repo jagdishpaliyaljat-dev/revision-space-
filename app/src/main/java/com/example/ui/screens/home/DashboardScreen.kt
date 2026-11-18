@@ -429,7 +429,7 @@ fun DashboardScreen(
                                 .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(24.dp),
-                            border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(24.dp),
@@ -715,7 +715,7 @@ fun DashboardScreen(
                                 .clickable { onNavigateToTopic(topic.topicId) },
                             colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, Color(0xFFF1F3F9)),
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
                             Column(
@@ -962,7 +962,7 @@ fun StudyToolCard(
             .bounceClick { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Column(
             modifier = Modifier
@@ -1571,7 +1571,7 @@ fun DashboardDrawerContent(
                     center = Offset(0f, 0f)
                 )
                 drawCircle(
-                    color = Color(0xFFE0E7FF).copy(alpha = 0.3f),
+                    color = Color(0xFFE4DBFF).copy(alpha = 0.3f),
                     radius = 200.dp.toPx(),
                     center = Offset(size.width, 200.dp.toPx())
                 )
@@ -1963,7 +1963,7 @@ fun DashboardSubjectCard(
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -2042,7 +2042,7 @@ fun DashboardDeadlineCard(
             .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = color.copy(alpha = 0.15f)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

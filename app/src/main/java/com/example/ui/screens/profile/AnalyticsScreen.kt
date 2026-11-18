@@ -356,7 +356,7 @@ fun StudyRecommendationsCard(metrics: AnalyticsMetrics) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFEEF2FF)),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1EEFF)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {

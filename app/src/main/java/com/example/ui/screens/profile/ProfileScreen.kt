@@ -80,11 +80,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // Styling Color Constants
-val ProfilePurple = Color(0xFF6B4EFF)
+val ProfilePurple = Color(0xFF6C4DFF)
 val ProfilePurpleLight = Color(0xFFE0D8FE)
 val ProfilePurpleSuperLight = Color(0xFFF1EEFF)
-val ProfileBgLight = Color(0xFFF8F9FE)
-val ProfileTextDark = Color(0xFF1E1B4B)
+val ProfileBgLight = Color(0xFFF6F7FB)
+val ProfileTextDark = Color(0xFF0F172A)
 val ProfileTextGray = Color(0xFF5B6478)
 
 // Sparkline trends colors
@@ -376,7 +376,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().shadow(0.dp, RoundedCornerShape(24.dp)),
-                    border = BorderStroke(1.dp, Color(0xFFF1F3F9)),
+                    border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -1078,7 +1078,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                 try {
                                     Color(android.graphics.Color.parseColor(topic.subjectColorHex))
                                 } catch (e: Exception) {
-                                    Color(0xFF6B4EFF)
+                                    Color(0xFF6C4DFF)
                                 }
                             }
                             Card(
@@ -1249,7 +1249,7 @@ fun StatisticSparklineCard(
             .shadow(1.dp, RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -1668,7 +1668,7 @@ fun PhotoOptionsBottomSheet(
 
             ProfileSettingRow(
                 icon = Icons.Default.CameraAlt,
-                iconBg = Color(0xFFEEF2F6),
+                iconBg = Color(0xFFE7EAF3),
                 iconTint = ProfilePurple,
                 title = "Take Photo",
                 onClick = {
@@ -1680,7 +1680,7 @@ fun PhotoOptionsBottomSheet(
 
             ProfileSettingRow(
                 icon = Icons.Default.Image,
-                iconBg = Color(0xFFEEF2F6),
+                iconBg = Color(0xFFE7EAF3),
                 iconTint = ProfilePurple,
                 title = "Choose from Gallery",
                 onClick = {
@@ -1706,7 +1706,7 @@ fun PhotoOptionsBottomSheet(
             HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
             ProfileSettingRow(
                 icon = Icons.Default.Close,
-                iconBg = Color(0xFFEEF2F6),
+                iconBg = Color(0xFFE7EAF3),
                 iconTint = ProfileTextGray,
                 title = "Cancel",
                 onClick = onDismiss

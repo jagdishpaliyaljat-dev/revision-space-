@@ -370,7 +370,7 @@ fun QuickActionCard(title: String, subtitle: String, icon: androidx.compose.ui.g
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -399,7 +399,7 @@ fun CoinTransactionRow(tx: CoinTransaction) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Row(
             modifier = Modifier
@@ -447,7 +447,7 @@ fun WithdrawalRecordListItem(req: WithdrawalRequest) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Row(
             modifier = Modifier
@@ -503,7 +503,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
             .testTag("recent_activity_widget"),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -702,7 +702,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
             .testTag("daily_earnings_chart"),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -761,7 +761,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
                                 .fillMaxWidth(0.6f)
                                 .fillMaxHeight(heightFraction.coerceAtLeast(0.02f))
                                 .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(Brush.verticalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6366F1))))
+                                .background(Brush.verticalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6C4DFF))))
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(

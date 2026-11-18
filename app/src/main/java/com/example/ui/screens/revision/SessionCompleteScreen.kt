@@ -57,7 +57,7 @@ import kotlin.random.Random
 // Redesigned premium colors to match prompt spec
 private val ScreenBackground = Color(0xFFFFFFFF)
 private val CardBackground = Color(0xFFFFFFFF)
-private val TextDark = Color(0xFF1E1B4B)
+private val TextDark = Color(0xFF0F172A)
 private val TextGray = Color(0xFF5B6478)
 
 private val PurplePrimary = Color(0xFF7C4DFF)

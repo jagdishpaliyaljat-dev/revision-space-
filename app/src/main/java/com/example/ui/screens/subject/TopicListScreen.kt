@@ -103,7 +103,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = Color(0xFF6366F1),
+                containerColor = Color(0xFF6C4DFF),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Topic")
@@ -130,7 +130,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                             .clickable { navController.navigate(TopicDetailRoute(topic.topicId)) },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(1.dp, Color(0xFFF1F3F9)),
+                        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
                         Row(
@@ -144,7 +144,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFEEF2FF)),
+                                    .background(Color(0xFFF1EEFF)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(

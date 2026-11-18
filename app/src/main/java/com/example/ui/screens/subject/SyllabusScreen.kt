@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 val BluePrimary = Color(0xFF3B82F6)
-val SyllabusPurplePrimary = Color(0xFF613FE6)
+val SyllabusPurplePrimary = Color(0xFF6C4DFF)
 val SyllabusPurpleLight = Color(0xFFF1EEFF)
 val BackgroundWhite = Color(0xFFF6F7FB) // Image shows a very light off-white background
 val CardWhite = Color(0xFFFFFFFF)
@@ -94,7 +94,7 @@ fun SyllabusMainContent(
             TopAppBar(
                 title = { 
                     Column {
-                        Text("Syllabus", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = TextPrimary)
+                        Text("Syllabus", fontWeight = FontWeight.Bold, fontSize = 22.sp, letterSpacing = (-0.4).sp, color = TextPrimary)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("Track", fontSize = 12.sp, color = TextSecondary)
                             Spacer(modifier = Modifier.width(6.dp))
@@ -109,17 +109,37 @@ fun SyllabusMainContent(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Drawer menu */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextPrimary, modifier = Modifier.size(28.dp))
+                    IconButton(
+                        onClick = { /* Drawer menu */ },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(CardWhite, CircleShape)
+                            .border(1.dp, SurfaceGray, CircleShape)
+                    ) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextPrimary, modifier = Modifier.size(20.dp))
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = TextPrimary, modifier = Modifier.size(28.dp))
+                    IconButton(
+                        onClick = { /* Search */ },
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(CardWhite, CircleShape)
+                            .border(1.dp, SurfaceGray, CircleShape)
+                    ) {
+                        Icon(Icons.Default.Search, contentDescription = "Search", tint = TextPrimary, modifier = Modifier.size(20.dp))
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
                     Box(modifier = Modifier.padding(end = 8.dp)) {
-                        IconButton(onClick = { /* Notifications */ }) {
-                            Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = TextPrimary, modifier = Modifier.size(28.dp))
+                        IconButton(
+                            onClick = { /* Notifications */ },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(CardWhite, CircleShape)
+                                .border(1.dp, SurfaceGray, CircleShape)
+                        ) {
+                            Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = TextPrimary, modifier = Modifier.size(20.dp))
                         }
                         Box(
                             modifier = Modifier
@@ -139,7 +159,9 @@ fun SyllabusMainContent(
                 FloatingActionButton(
                     onClick = { showAddSubjectDialog = true },
                     containerColor = SyllabusPurplePrimary,
-                    contentColor = Color.White
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Subject")
                 }
@@ -488,7 +510,7 @@ fun SubjectItemCard(
     
     // Exact colors from the image
     val colors = listOf(
-        Color(0xFF613FE6), // Purple for Reasoning
+        Color(0xFF6C4DFF), // Purple for Reasoning
         Color(0xFF10B981), // Green for Maths
         Color(0xFFF59E0B), // Orange for General Awareness
         Color(0xFFEF4444), // Red for English
@@ -500,9 +522,10 @@ fun SubjectItemCard(
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp).clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = CardWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        border = androidx.compose.foundation.BorderStroke(1.dp, SurfaceGray),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Top Row
@@ -511,10 +534,28 @@ fun SubjectItemCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(subject.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary, modifier = Modifier.weight(1f), maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    // Colored initial badge keeps the subject colour visible
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(customColor.copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            subject.name.firstOrNull()?.uppercase() ?: "S",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp,
+                            color = customColor
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(subject.name, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = TextPrimary, modifier = Modifier.weight(1f), maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                     
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("$completedTopics / $denominator Topics", fontSize = 12.sp, color = TextSecondary)
+                        Text("$completedTopics/$denominator", fontSize = 12.sp, color = TextSecondary)
                         Spacer(modifier = Modifier.width(12.dp))
                         Text("$progressPercent%", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = customColor)
                         

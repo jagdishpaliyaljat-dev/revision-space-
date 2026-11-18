@@ -32,6 +32,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -114,11 +116,32 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
         ) {
             // Balance Widget
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF6C4DFF))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(
+                            elevation = 14.dp,
+                            shape = RoundedCornerShape(24.dp),
+                            clip = false,
+                            ambientColor = Color(0xFF6C4DFF).copy(alpha = 0.30f),
+                            spotColor = Color(0xFF6C4DFF).copy(alpha = 0.35f)
+                        )
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF))
+                            )
+                        )
                 ) {
+                    // Soft decorative glow
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 40.dp, y = (-44).dp)
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.08f))
+                    )
                     Column(
                         modifier = Modifier.padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -158,7 +181,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                     border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("Payout Setup", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E1B4B))
+                        Text("Payout Setup", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
                         Spacer(modifier = Modifier.height(14.dp))
 
                         // Method Tabs
@@ -398,7 +421,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                     modifier = Modifier.padding(top = 10.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color(0xFF1E1B4B)
+                    color = Color(0xFF0F172A)
                 )
             }
 
@@ -408,7 +431,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+                        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                     ) {
                         Column(
                             modifier = Modifier
@@ -440,7 +463,7 @@ fun WithdrawalRequestRow(req: WithdrawalRequest) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

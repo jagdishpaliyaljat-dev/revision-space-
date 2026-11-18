@@ -69,7 +69,7 @@ fun OfflineNotesScreen(navController: NavController) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }, containerColor = Color(0xFF6366F1)) {
+            FloatingActionButton(onClick = { showDialog = true }, containerColor = Color(0xFF6C4DFF)) {
                 Icon(Icons.Default.Add, contentDescription = "Add Note", tint = Color.White)
             }
         },

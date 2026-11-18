@@ -63,7 +63,7 @@ import java.util.Calendar
 import kotlinx.coroutines.launch
 
 // Colors
-val TdPurplePrimary = Color(0xFF613FE6)
+val TdPurplePrimary = Color(0xFF6C4DFF)
 val TdPurpleLight = Color(0xFFF1EEFF)
 val TdBackgroundWhite = Color(0xFFF6F7FB)
 val TdCardWhite = Color(0xFFFFFFFF)
@@ -310,14 +310,24 @@ fun TopicDetailScreen(
         containerColor = TdBackgroundWhite,
         topBar = {
             TopAppBar(
-                title = { 
-                    Text(
-                        text = subject,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = TdTextPrimary,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
+                title = {
+                    Column {
+                        Text(
+                            text = subject,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            letterSpacing = (-0.3).sp,
+                            color = TdTextPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "Topic details and revisions",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = TdTextSecondary
+                        )
+                    }
                 },
                 navigationIcon = {
                     Box(
@@ -886,7 +896,7 @@ fun TopicDetailScreen(
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
-                                    border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+                                    border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                                 ) {
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,

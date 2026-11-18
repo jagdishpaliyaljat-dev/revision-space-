@@ -198,7 +198,7 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Outlined.EmojiEvents, contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(20.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Monthly Reward Pool", fontWeight = FontWeight.Black, fontSize = 14.sp, color = Color(0xFF1E1B4B))
+                                Text("Monthly Reward Pool", fontWeight = FontWeight.Black, fontSize = 14.sp, color = Color(0xFF0F172A))
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -340,7 +340,7 @@ fun PodiumColumn(user: UserProfile, height: androidx.compose.ui.unit.Dp, rankTex
                     .background(medalColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(rankText, color = if (medalColor == Color(0xFFFFD700)) Color(0xFF1E1B4B) else Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
+                Text(rankText, color = if (medalColor == Color(0xFFFFD700)) Color(0xFF0F172A) else Color.White, fontWeight = FontWeight.Black, fontSize = 14.sp)
             }
         }
         Spacer(modifier = Modifier.height(6.dp))

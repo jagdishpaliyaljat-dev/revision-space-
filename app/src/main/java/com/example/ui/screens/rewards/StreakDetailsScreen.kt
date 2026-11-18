@@ -169,10 +169,10 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                 modifier = Modifier.fillMaxWidth().testTag("streak_stats_card"),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFEEF2F6))
+                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
             ) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Streak Dashboard", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E1B4B))
+                    Text("Streak Dashboard", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -184,7 +184,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(24.dp))
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(currentStreak.toString(), fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1E1B4B))
+                            Text(currentStreak.toString(), fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF0F172A))
                             Text("Current Streak", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                         
@@ -194,7 +194,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFFD97706), modifier = Modifier.size(24.dp))
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(longestStreak.toString(), fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1E1B4B))
+                            Text(longestStreak.toString(), fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF0F172A))
                             Text("Longest Streak", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                         
@@ -204,7 +204,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(22.dp))
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("$consistencyPercentage%", fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1E1B4B))
+                            Text("$consistencyPercentage%", fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF0F172A))
                             Text("Consistency %", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                     }
@@ -218,12 +218,12 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF10B981)))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Studied Days: $totalStudyDays", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E1B4B))
+                            Text("Studied Days: $totalStudyDays", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF6B4EFF)))
+                            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF6C4DFF)))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Revision Days: $totalRevisionDays", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1E1B4B))
+                            Text("Revision Days: $totalRevisionDays", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF0F172A))
                         }
                     }
                 }
@@ -236,7 +236,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                     .testTag("streak_badges_card"),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFEEF2F6))
+                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
@@ -252,7 +252,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 text = "Milestone Badges",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
-                                color = Color(0xFF1E1B4B)
+                                color = Color(0xFF0F172A)
                             )
                             Text(
                                 text = "Earn medals as you make progress",
@@ -265,7 +265,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFFEEF2F6))
+                                .background(Color(0xFFE7EAF3))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
@@ -338,7 +338,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                     text = "28-Day Streak History",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = Color(0xFF1E1B4B)
+                    color = Color(0xFF0F172A)
                 )
                 
                 // Indicators Legend
@@ -354,7 +354,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                 modifier = Modifier.fillMaxWidth().testTag("streak_heatmap_card"),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFEEF2F6))
+                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     historyDays.chunked(7).forEach { weekDays ->

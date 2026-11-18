@@ -758,7 +758,7 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(if (startEnabled) Color(0xFF6B4EFF) else Color(0xFF8A94A6))
+                            .background(if (startEnabled) Color(0xFF6C4DFF) else Color(0xFF8A94A6))
                             .clickable(enabled = startEnabled) {
                                 if (isRunning && !isPaused) {
                                     viewModel.pauseTimer()
@@ -774,7 +774,7 @@ fun TimerScreen(
                                     )
                                 }
                             }
-                            .then(if (startEnabled) Modifier.shadow(4.dp, CircleShape, spotColor = Color(0xFF6B4EFF)) else Modifier)
+                            .then(if (startEnabled) Modifier.shadow(4.dp, CircleShape, spotColor = Color(0xFF6C4DFF)) else Modifier)
                             .testTag("timer_play_pause_button"),
                         contentAlignment = Alignment.Center
                     ) {
@@ -941,7 +941,7 @@ fun TimerScreen(
                     modifier = Modifier.fillMaxWidth().shadow(1.dp, RoundedCornerShape(16.dp)),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+                    border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                 ) {
                     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                         SummaryColumnItem(Icons.Default.Timer, Color(0xFF8B5CF6), Color(0xFFF1EEFF), "Study Time", todayStudyTimeStr)

@@ -526,7 +526,7 @@ fun CoinsAndRewardsTab(viewModel: RevisionViewModel) {
                 .padding(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, Color(0xFFF1F3F9))
+            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Coin Economy & Admin Panel", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimaryAdmin)

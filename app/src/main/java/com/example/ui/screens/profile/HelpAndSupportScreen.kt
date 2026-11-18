@@ -96,7 +96,7 @@ fun HelpAndSupportScreen(navController: NavController) {
                         android.widget.Toast.makeText(context, "No email app found to send support request.", android.widget.Toast.LENGTH_LONG).show()
                     }
                 },
-                containerColor = Color(0xFF6B4EFF),
+                containerColor = Color(0xFF6C4DFF),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Email, contentDescription = "Contact Support")
@@ -106,7 +106,7 @@ fun HelpAndSupportScreen(navController: NavController) {
         LazyColumn(contentPadding = padding, modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Frequently Asked Questions", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E1B4B))
+                Text("Frequently Asked Questions", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                 Spacer(modifier = Modifier.height(16.dp))
             }
             items(faqs) { faq ->

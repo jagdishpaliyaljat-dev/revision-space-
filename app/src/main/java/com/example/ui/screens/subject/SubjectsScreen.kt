@@ -156,7 +156,7 @@ fun SubjectsScreen(
                             Spacer(modifier = Modifier.height(24.dp))
                             Button(
                                 onClick = { showAddSubjectDialog = true },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1)),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = "Add Subject")
@@ -247,7 +247,7 @@ fun SubjectsScreen(
                             showAddSubjectDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
                     enabled = !isSaving
                 ) { Text("Save") }
             },
@@ -278,7 +278,7 @@ fun ExpandableSubjectCard(
     var isDeleting by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
 
-    val customThemeColor = runCatching { Color(android.graphics.Color.parseColor(subject.colorHex)) }.getOrDefault(Color(0xFF6366F1))
+    val customThemeColor = runCatching { Color(android.graphics.Color.parseColor(subject.colorHex)) }.getOrDefault(Color(0xFF6C4DFF))
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { dismissValue ->
@@ -484,7 +484,7 @@ fun ExpandableSubjectCard(
                             showEditDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
                     enabled = !isSaving
                 ) { Text("Save") }
             },
@@ -549,7 +549,7 @@ fun ExpandableSubjectCard(
                             showRenameDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6366F1)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
                     enabled = !isSaving
                 ) { Text("Save") }
             },

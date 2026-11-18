@@ -54,7 +54,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 
 // Shared Colors (Ideally from a central theme, defined here for self-containment matching the image)
-val SubPurplePrimary = Color(0xFF613FE6)
+val SubPurplePrimary = Color(0xFF6C4DFF)
 val SubPurpleLight = Color(0xFFF1EEFF)
 val SubBackgroundWhite = Color(0xFFF6F7FB) // Very light off-white background
 val SubCardWhite = Color(0xFFFFFFFF)
@@ -544,7 +544,7 @@ fun ChapterItemCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F3F9)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE7EAF3)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -558,7 +558,7 @@ fun ChapterItemCard(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFEEF2FF)),
+                    .background(Color(0xFFF1EEFF)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

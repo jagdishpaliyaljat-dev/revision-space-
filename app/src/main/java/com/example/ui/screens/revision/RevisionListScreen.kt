@@ -433,7 +433,7 @@ fun RevisionItemCard(topic: com.example.data.TopicWithSubjectAndChapter, onClick
                             Text(
                                 text = "${topic.subjectName} • ${topic.chapterName}",
                                 fontSize = 12.sp,
-                                color = Color(0xFF6366F1),
+                                color = Color(0xFF6C4DFF),
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(2.dp))
