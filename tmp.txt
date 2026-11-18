@@ -1,0 +1,31 @@
+
+    val analyticsMetrics = combine(
+        allTopicsWithDetails, 
+        activeExamId, 
+        allStudyLogs, 
+        currentUserProfile, 
+        analyticsTimeFilter
+    ) { allTopics, activeId, logs, profile, timeFilter ->
+        com.example.data.AnalyticsMetrics()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.example.data.AnalyticsMetrics())
+    private val _adminAllUsers = MutableStateFlow<List<com.example.data.UserProfile>?>(null)
+    val adminAllUsers: StateFlow<List<com.example.data.UserProfile>?> = _adminAllUsers
+
+    val adminDashboardMetrics: StateFlow<com.example.data.AdminDashboardMetrics> = _adminAllUsers.map { users ->
+        if (users == null) com.example.data.AdminDashboardMetrics()
+        else {
+            val total = users.size
+            val active = users.count { !it.isBanned }
+            val online = users.count { (System.currentTimeMillis() - it.lastActiveTimeMs < 60 * 60 * 1000L) }
+            val revisions = users.sumOf { it.totalRevisions }
+            val study = users.sumOf { it.studyTimeMinutes }
+            val coins = users.sumOf { it.totalCoins }
+            com.example.data.AdminDashboardMetrics(
+                totalUsers = total,
+                activeUsers = active,
+                onlineUsers = online,
+                totalRevisions = revisions,
+                totalStudyTimeMinutes = study,
+                totalCoinsEarned = coins
+            )
+        }

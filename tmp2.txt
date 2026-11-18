@@ -1,0 +1,16 @@
+            val study = users.sumOf { it.studyTimeMinutes }
+            val coins = users.sumOf { it.totalCoins }
+            com.example.data.AdminDashboardMetrics(
+                totalUsers = total,
+                activeUsers = active,
+                onlineUsers = online,
+                totalRevisions = revisions,
+                totalStudyTimeMinutes = study,
+                totalCoinsEarned = coins
+            )
+        }
+    }.catch { e: Throwable -> e.printStackTrace() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.example.data.AdminDashboardMetrics())
+
+    init {
+        viewModelScope.launch {

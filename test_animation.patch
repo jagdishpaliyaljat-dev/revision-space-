@@ -1,0 +1,137 @@
+--- ./app/src/main/java/com/example/ui/TodayRevisionScreen.kt
++++ ./app/src/main/java/com/example/ui/TodayRevisionScreen.kt
+@@ -43,6 +43,12 @@
+ import androidx.compose.ui.text.style.TextOverflow
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
++import androidx.compose.animation.AnimatedVisibility
++import androidx.compose.animation.animateContentSize
++import androidx.compose.animation.core.tween
++import androidx.compose.animation.fadeOut
++import androidx.compose.animation.shrinkVertically
++import kotlinx.coroutines.delay
+ import androidx.lifecycle.compose.collectAsStateWithLifecycle
+ 
+ @OptIn(ExperimentalMaterial3Api::class)
+@@ -248,7 +254,9 @@
+                         }
+                     } else {
+                         Column(
+-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
++                            modifier = Modifier.fillMaxWidth()
++                                .padding(top = 16.dp)
++                                .animateContentSize(),
+                             verticalArrangement = Arrangement.spacedBy(2.dp)
+                         ) {
+                             metrics.todayDue.take(5).forEach { topic ->
+@@ -434,44 +442,56 @@
+ 
+ @Composable
+ fun TodayTopicItem(topic: com.example.data.TopicWithSubjectAndChapter, onComplete: () -> Unit) {
+-    Row(
+-        modifier = Modifier
+-            .fillMaxWidth()
+-            .padding(vertical = 8.dp),
+-        verticalAlignment = Alignment.CenterVertically
++    var isCompleting by remember { mutableStateOf(false) }
++    
++    LaunchedEffect(isCompleting) {
++        if (isCompleting) {
++            delay(400)
++            onComplete()
++        }
++    }
++
++    AnimatedVisibility(
++        visible = !isCompleting,
++        exit = shrinkVertically(animationSpec = tween(400)) + fadeOut(animationSpec = tween(400))
+     ) {
+-        val seed = topic.topicId.hashCode()
+-        val bgColors = listOf(Color(0xFFEDE9FE), Color(0xFFDBEAFE), Color(0xFFD1FAE5), Color(0xFFFEF3C7), Color(0xFFFCE7F3))
+-        val textColors = listOf(Color(0xFF8B5CF6), Color(0xFF3B82F6), Color(0xFF10B981), Color(0xFFF59E0B), Color(0xFFEC4899))
+-        
+-        Box(
++        Row(
+             modifier = Modifier
+-                .size(44.dp)
+-                .clip(RoundedCornerShape(12.dp))
+-                .background(bgColors[Math.abs(seed) % bgColors.size]),
+-            contentAlignment = Alignment.Center
++                .fillMaxWidth()
++                .padding(vertical = 8.dp),
++            verticalAlignment = Alignment.CenterVertically
+         ) {
+-            val initial = topic.topicName.take(1).uppercase()
+-            Text(initial, fontSize = 20.sp, fontWeight = FontWeight.Black, color = textColors[Math.abs(seed) % textColors.size])
+-        }
+-        
+-        Spacer(modifier = Modifier.width(16.dp))
+-        
+-        Column(modifier = Modifier.weight(1f)) {
+-            Text(topic.topicName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = RevTextDark, maxLines = 1, overflow = TextOverflow.Ellipsis)
+-            Spacer(modifier = Modifier.height(4.dp))
+-            Row(verticalAlignment = Alignment.CenterVertically) {
+-                Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = RevTextGray, modifier = Modifier.size(12.dp))
+-                Spacer(modifier = Modifier.width(4.dp))
+-                Text("Rev #${topic.revisionCount}", fontSize = 11.sp, color = RevTextGray)
+-                Spacer(modifier = Modifier.width(8.dp))
+-                Text("•", fontSize = 11.sp, color = Color(0xFFE5E7EB))
+-                Spacer(modifier = Modifier.width(8.dp))
+-                Text("${topic.estimatedRevisionTimeMins} min", fontSize = 11.sp, color = RevTextGray)
++            val seed = topic.topicId.hashCode()
++            val bgColors = listOf(Color(0xFFEDE9FE), Color(0xFFDBEAFE), Color(0xFFD1FAE5), Color(0xFFFEF3C7), Color(0xFFFCE7F3))
++            val textColors = listOf(Color(0xFF8B5CF6), Color(0xFF3B82F6), Color(0xFF10B981), Color(0xFFF59E0B), Color(0xFFEC4899))
++            
++            Box(
++                modifier = Modifier
++                    .size(44.dp)
++                    .clip(RoundedCornerShape(12.dp))
++                    .background(bgColors[Math.abs(seed) % bgColors.size]),
++                contentAlignment = Alignment.Center
++            ) {
++                val initial = topic.topicName.take(1).uppercase()
++                Text(initial, fontSize = 20.sp, fontWeight = FontWeight.Black, color = textColors[Math.abs(seed) % textColors.size])
+             }
+-        }
+-        
+-        Spacer(modifier = Modifier.width(8.dp))
+-        
+-        IconButton(
+-            onClick = onComplete,
+-            modifier = Modifier
+-                .size(36.dp)
+-                .clip(CircleShape)
+-                .background(Color(0xFF10B981).copy(alpha = 0.1f))
+-        ) {
+-            Icon(Icons.Default.Check, contentDescription = "Complete", tint = Color(0xFF10B981), modifier = Modifier.size(20.dp))
++            
++            Spacer(modifier = Modifier.width(16.dp))
++            
++            Column(modifier = Modifier.weight(1f)) {
++                Text(topic.topicName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = RevTextDark, maxLines = 1, overflow = TextOverflow.Ellipsis)
++                Spacer(modifier = Modifier.height(4.dp))
++                Row(verticalAlignment = Alignment.CenterVertically) {
++                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = RevTextGray, modifier = Modifier.size(12.dp))
++                    Spacer(modifier = Modifier.width(4.dp))
++                    Text("Rev #${topic.revisionCount}", fontSize = 11.sp, color = RevTextGray)
++                    Spacer(modifier = Modifier.width(8.dp))
++                    Text("•", fontSize = 11.sp, color = Color(0xFFE5E7EB))
++                    Spacer(modifier = Modifier.width(8.dp))
++                    Text("${topic.estimatedRevisionTimeMins} min", fontSize = 11.sp, color = RevTextGray)
++                }
++            }
++            
++            Spacer(modifier = Modifier.width(8.dp))
++            
++            IconButton(
++                onClick = { isCompleting = true },
++                modifier = Modifier
++                    .size(36.dp)
++                    .clip(CircleShape)
++                    .background(Color(0xFF10B981).copy(alpha = 0.1f))
++            ) {
++                Icon(Icons.Default.Check, contentDescription = "Complete", tint = Color(0xFF10B981), modifier = Modifier.size(20.dp))
++            }
+         }
+     }
+ }

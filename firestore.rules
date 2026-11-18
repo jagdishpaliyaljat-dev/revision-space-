@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+    
+    // Check if a user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Check if the authenticated user matches the provided userId
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Check if the authenticated user is an Admin (based on their profile)
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+    }
+
+    // -------------------------------------------------------------------------
+    // Users & Nested Data (Revision Plans, History, Settings, Notifications)
+    // -------------------------------------------------------------------------
+    
+    match /users/{userId} {
+      // Users can manage their own profile; Admins can manage all profiles
+      // Signed-in users can read profiles for calculating leaderboard and rank badges
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId) || isAdmin();
+      
+      // All nested collections under a user document inherit the same ownership rules
+      match /{document=**} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Core Educational Data (Subjects, Chapters, Topics, Tests, Exams)
+    // -------------------------------------------------------------------------
+    
+    match /subjects/{subjectId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    match /chapters/{chapterId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    match /topics/{topicId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    match /subject_tests/{testId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    match /exams/{examId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    // -------------------------------------------------------------------------
+    // Progress, Analytics & Logs
+    // -------------------------------------------------------------------------
+    
+    match /study_logs/{logId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    // -------------------------------------------------------------------------
+    // Economy, Rewards & Referrals
+    // -------------------------------------------------------------------------
+
+    match /coin_history/{transactionId} {
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      // Depending on logic, users might create transactions via client or rely on Cloud Functions. 
+      // If relying on client, allow create but validate amount bounds if possible.
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+      allow update, delete: if isAdmin(); // Users should never alter history
+    }
+
+    match /referrals/{referralId} {
+      // Both referrer and referred users can read the referral record
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.referrerId || request.auth.uid == resource.data.referredId || isAdmin());
+      allow create: if isSignedIn(); 
+      allow update: if isSignedIn() || isAdmin(); 
+      allow delete: if isAdmin();
+    }
+
+    match /withdrawal_requests/{requestId} {
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if isAdmin(); // Only admins approve/reject
+    }
+
+    // -------------------------------------------------------------------------
+    // Admin Controls & Broadcasting
+    // -------------------------------------------------------------------------
+
+    match /admin_logs/{logId} {
+      allow read: if isAdmin();
+      // Allow users to create logs if the client handles logging actions, 
+      // but they cannot edit or delete logs.
+      allow create: if isSignedIn(); 
+      allow update, delete: if false;
+    }
+
+    match /broadcast_requests/{requestId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /broadcast_analytics/{analyticsId} {
+      allow read: if isAdmin();
+      allow update: if isSignedIn(); // Allow users to mark broadcasts as opened
+      allow create, delete: if isAdmin();
+    }
+  }
+}

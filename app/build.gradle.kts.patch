@@ -1,0 +1,10 @@
+--- app/build.gradle.kts
++++ app/build.gradle.kts
+@@ -142,3 +142,3 @@
+ android.sourceSets {
+-    getByName("main") {
+-        java.srcDir(File("app/build/generated/ksp/debug/kotlin"))
++    getByName("debug") {
++        java.srcDirs(File("build/generated/ksp/debug/kotlin"))
+     }
+ }

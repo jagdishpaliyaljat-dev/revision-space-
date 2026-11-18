@@ -1,0 +1,798 @@
+L221 [lvl 0->-1]: description = "", )
+L222 [lvl -1->-2]: sessionId = "")
+L223 [lvl -2->-2]: 
+L224 [lvl -2->-2]: }
+L225 [lvl -2->-2]: }
+L226 [lvl -2->-2]: }
+L227 [lvl -2->-2]: }
+L228 [lvl -2->-2]: }
+L229 [lvl -2->-2]: 
+L230 [lvl -2->-2]: fun startTimer(topicId: String = "" ) {
+L231 [lvl -2->-2]: if (topicId.isNotEmpty( && activeTimerTopicId.value != topicId && timerElapsedMs.value == 0L )) {
+L232 [lvl -2->-2]: activeTimerTopicId.value = topicId
+L233 [lvl -2->-2]: }
+L234 [lvl -2->-2]: 
+L235 [lvl -2->-2]: val context = com.google.firebase.FirebaseApp.getInstance(.applicationContext)
+L236 [lvl -2->-2]: val intent = android.content.Intent(context, com.example.services.FocusTimerService::class.java.apply ) {
+L237 [lvl -2->-2]: action = com.example.services.FocusTimerService.ACTION_START
+L238 [lvl -2->-2]: val durationMin = currentUserProfile.value?.focusSettings?.studyModeDurationMins?.toLong( ?: 45L)
+L239 [lvl -2->-2]: putExtra(com.example.services.FocusTimerService.EXTRA_DURATION, durationMin * 60 * 1000L)
+L240 [lvl -2->-2]: putExtra(com.example.services.FocusTimerService.EXTRA_TITLE, "")
+L241 [lvl -2->-2]: val pTopic = allTopicsWithDetails.value.find { it.topicId == topicId }
+L242 [lvl -2->-2]: putExtra(com.example.services.FocusTimerService.EXTRA_SUBJECT, pTopic?.topicName ?: "")
+L243 [lvl -2->-2]: }
+L244 [lvl -2->-2]: try {
+L245 [lvl -2->-2]: androidx.core.content.ContextCompat.startForegroundService(context, intent)
+L246 [lvl -2->-2]: } catch (e: Exception ) {
+L247 [lvl -2->-2]: e.printStackTrace()
+L248 [lvl -2->-2]: }
+L249 [lvl -2->-2]: }
+L250 [lvl -2->-2]: 
+L251 [lvl -2->-2]: fun pauseTimer( ) {
+L252 [lvl -2->-2]: val context = com.google.firebase.FirebaseApp.getInstance(.applicationContext)
+L253 [lvl -2->-2]: val intent = android.content.Intent(context, com.example.services.FocusTimerService::class.java.apply ) {
+L254 [lvl -2->-2]: action = com.example.services.FocusTimerService.ACTION_PAUSE
+L255 [lvl -2->-2]: }
+L256 [lvl -2->-2]: try {
+L257 [lvl -2->-2]: context.startService(intent)
+L258 [lvl -2->-2]: } catch (e: Exception ) {
+L259 [lvl -2->-2]: e.printStackTrace()
+L260 [lvl -2->-2]: }
+L261 [lvl -2->-2]: }
+L262 [lvl -2->-2]: 
+L263 [lvl -2->-2]: fun resetTimer( ) {
+L264 [lvl -2->-2]: activeTimerTopicId.value = ""
+L265 [lvl -2->-2]: timerElapsedMs.value = 0L
+L266 [lvl -2->-2]: activeTimerSessionCount.value = 1
+L267 [lvl -2->-2]: lastAwardedMins = 0
+L268 [lvl -2->-2]: 
+L269 [lvl -2->-2]: val context = com.google.firebase.FirebaseApp.getInstance(.applicationContext)
+L270 [lvl -2->-2]: val intent = android.content.Intent(context, com.example.services.FocusTimerService::class.java.apply ) {
+L271 [lvl -2->-2]: action = com.example.services.FocusTimerService.ACTION_STOP
+L272 [lvl -2->-2]: }
+L273 [lvl -2->-2]: try {
+L274 [lvl -2->-2]: context.startService(intent)
+L275 [lvl -2->-2]: } catch (e: Exception ) {
+L276 [lvl -2->-2]: e.printStackTrace()
+L277 [lvl -2->-2]: }
+L278 [lvl -2->-2]: }
+L279 [lvl -2->-2]: 
+L280 [lvl -2->-2]: val allStudyLogs = repository.allStudyLogs
+L281 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L282 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L283 [lvl -2->-2]: 
+L284 [lvl -2->-2]: private val rawExams = repository.allExams
+L285 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L286 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L287 [lvl -2->-2]: 
+L288 [lvl -2->-2]: val allExams = combine()
+L289 [lvl -2->-2]: rawExams,
+L290 [lvl -2->-2]: allTopics
+L291 [lvl -2->-2]: { exams, topics ->
+L292 [lvl -2->-2]: exams.map { exam ->
+L293 [lvl -2->-2]: val examTopics = topics.filter { it.examIds.contains(exam.id })
+L294 [lvl -2->-2]: val completed = examTopics.count { it.status == "" }
+L295 [lvl -2->-2]: val total = examTopics.size
+L296 [lvl -2->-2]: val progressPercent = if (total > 0 (completed.toFloat( * 100f / total else 0f)))
+L297 [lvl -2->-2]: exam.copy(progress = progressPercent)
+L298 [lvl -2->-2]: }
+L299 [lvl -2->-2]: }.catch { e: Throwable -> e.printStackTrace() }
+L300 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L301 [lvl -2->-2]: 
+L302 [lvl -2->-2]: private val _selectedExamId = MutableStateFlow<String>("")
+L303 [lvl -2->-2]: val selectedExamId = _selectedExamId.asStateFlow()
+L304 [lvl -2->-2]: 
+L305 [lvl -2->-2]: val activeExamId = combine(_selectedExamId, allExams { selectedId, exams ->)
+L306 [lvl -2->-2]: if (exams.isEmpty( )) {
+L307 [lvl -2->-2]: ""
+L308 [lvl -2->-2]: } else if (selectedId.isEmpty( || selectedId == "" || exams.none { it.id == selectedId } )) {
+L309 [lvl -2->-2]: exams.first(.id)
+L310 [lvl -2->-2]: } else {
+L311 [lvl -2->-2]: selectedId
+L312 [lvl -2->-2]: }
+L313 [lvl -2->-2]: }.catch { e: Throwable -> e.printStackTrace() }
+L314 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000, ""))
+L315 [lvl -2->-2]: 
+L316 [lvl -2->-2]: fun selectExam(examId: String ) {
+L317 [lvl -2->-2]: }
+L318 [lvl -2->-2]: private val _analyticsTimeFilter = MutableStateFlow("")
+L319 [lvl -2->-2]: val analyticsTimeFilter = _analyticsTimeFilter.asStateFlow()
+L320 [lvl -2->-2]: fun setAnalyticsTimeFilter(filter: String ) {
+L321 [lvl -2->-2]: _analyticsTimeFilter.value = filter
+L322 [lvl -2->-2]: }
+L323 [lvl -2->-2]: 
+L324 [lvl -2->-2]: fun insertExam(name: String, examDateMs: Long?, targetStudyHours: Int?, category: String = "", targetRank: String = "" ) {
+L325 [lvl -2->-2]: viewModelScope.launch { repository.insertExam(name, examDateMs, targetStudyHours, category, targetRank })
+L326 [lvl -2->-2]: }
+L327 [lvl -2->-2]: 
+L328 [lvl -2->-2]: fun insertExtendedSyllabus(examId: String, subjectName: String, topicName: String, totalChapters: Int, estimatedRevisionTimeMins: Int ) {
+L329 [lvl -2->-2]: viewModelScope.launch { repository.insertExtendedSyllabus(examId, subjectName, topicName, totalChapters, estimatedRevisionTimeMins })
+L330 [lvl -2->-2]: }
+L331 [lvl -2->-2]: 
+L332 [lvl -2->-2]: fun updateExam(exam: ExamCountdown ) {
+L333 [lvl -2->-2]: viewModelScope.launch { repository.updateExam(exam })
+L334 [lvl -2->-2]: }
+L335 [lvl -2->-2]: 
+L336 [lvl -2->-2]: fun deleteExam(examId: String ) {
+L337 [lvl -2->-2]: viewModelScope.launch { repository.deleteExam(examId })
+L338 [lvl -2->-2]: }
+L339 [lvl -2->-2]: 
+L340 [lvl -2->-2]: val coinTransactions = repository.coinTransactions
+L341 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L342 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L343 [lvl -2->-2]: 
+L344 [lvl -2->-2]: val allCoinTransactions = repository.getAllCoinTransactions()
+L345 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L346 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L347 [lvl -2->-2]: 
+L348 [lvl -2->-2]: val referrals = repository.referrals
+L349 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L350 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L351 [lvl -2->-2]: 
+L352 [lvl -2->-2]: val allReferrals = repository.getAllReferrals()
+L353 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L354 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L355 [lvl -2->-2]: 
+L356 [lvl -2->-2]: val withdrawalRequests = repository.withdrawalRequests
+L357 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L358 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L359 [lvl -2->-2]: 
+L360 [lvl -2->-2]: val allWithdrawalRequests = repository.getAllWithdrawalRequests()
+L361 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L362 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L363 [lvl -2->-2]: 
+L364 [lvl -2->-2]: val adminLogs = repository.getAdminLogs()
+L365 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L366 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L367 [lvl -2->-2]: 
+L368 [lvl -2->-2]: val broadcastAnalytics = repository.getBroadcastAnalytics()
+L369 [lvl -2->-2]: .catch { e: Throwable -> e.printStackTrace() }
+L370 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+L371 [lvl -2->-2]: 
+L372 [lvl -2->-2]: fun sendBroadcastNotification(title: String, message: String, audience: String, adminEmail: String, onResult: (Boolean, String -> Unit )) {
+L373 [lvl -2->-2]: viewModelScope.launch {
+L374 [lvl -2->-2]: try {
+L375 [lvl -2->-2]: repository.sendBroadcastNotification(title, message, audience, adminEmail)
+L376 [lvl -2->-2]: onResult(true, "")
+L377 [lvl -2->-2]: } catch (e: Exception ) {
+L378 [lvl -2->-2]: onResult(false, e.message ?: "")
+L379 [lvl -2->-2]: }
+L380 [lvl -2->-2]: }
+L381 [lvl -2->-2]: }
+L382 [lvl -2->-2]: 
+L383 [lvl -2->-2]: fun markBroadcastAsOpened(broadcastId: String ) {
+L384 [lvl -2->-2]: viewModelScope.launch {
+L385 [lvl -2->-2]: repository.markBroadcastAsOpened(broadcastId)
+L386 [lvl -2->-2]: }
+L387 [lvl -2->-2]: }
+L388 [lvl -2->-2]: 
+L389 [lvl -2->-2]: fun submitReferralCode(code: String, onResult: (String -> Unit )) {
+L390 [lvl -2->-2]: viewModelScope.launch {
+L391 [lvl -2->-2]: val res = repository.submitReferralCode(code)
+L392 [lvl -2->-2]: onResult(res)
+L393 [lvl -2->-2]: repository.evaluateReferralPayouts()
+L394 [lvl -2->-2]: }
+L395 [lvl -2->-2]: }
+L396 [lvl -2->-2]: 
+L397 [lvl -2->-2]: fun logSystemAction(action: String, details: String) = viewModelScope.launch {
+L398 [lvl -2->-2]: var uid = ""
+L399 [lvl -2->-2]: var email = ""
+L400 [lvl -2->-2]: try {
+L401 [lvl -2->-2]: uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+L402 [lvl -2->-2]: email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+L403 [lvl -2->-2]: } catch (e: Exception { e.printStackTrace() })
+L404 [lvl -2->-2]: repository.logSystemAction(uid, email, action, details)
+L405 [lvl -2->-2]: }
+L406 [lvl -2->-2]: 
+L407 [lvl -2->-2]: fun submitWithdrawalRequest(req: com.example.data.WithdrawalRequest, onResult: (Boolean -> Unit )) {
+L408 [lvl -2->-2]: viewModelScope.launch {
+L409 [lvl -2->-2]: val res = repository.submitWithdrawalRequest(req)
+L410 [lvl -2->-2]: onResult(res)
+L411 [lvl -2->-2]: }
+L412 [lvl -2->-2]: }
+L413 [lvl -2->-2]: 
+L414 [lvl -2->-2]: fun approveWithdrawal(reqId: String, adminId: String, adminEmail: String, onResult: (Boolean -> Unit )) {
+L415 [lvl -2->-2]: viewModelScope.launch {
+L416 [lvl -2->-2]: val res = repository.approveWithdrawal(reqId, adminId, adminEmail)
+L417 [lvl -2->-2]: onResult(res)
+L418 [lvl -2->-2]: }
+L419 [lvl -2->-2]: }
+L420 [lvl -2->-2]: 
+L421 [lvl -2->-2]: fun rejectWithdrawal(reqId: String, reason: String, adminId: String, adminEmail: String, onResult: (Boolean -> Unit )) {
+L422 [lvl -2->-2]: viewModelScope.launch {
+L423 [lvl -2->-2]: val res = repository.rejectWithdrawal(reqId, reason, adminId, adminEmail)
+L424 [lvl -2->-2]: onResult(res)
+L425 [lvl -2->-2]: }
+L426 [lvl -2->-2]: }
+L427 [lvl -2->-2]: 
+L428 [lvl -2->-2]: fun evaluateReferralPayouts( ) {
+L429 [lvl -2->-2]: viewModelScope.launch {
+L430 [lvl -2->-2]: repository.evaluateReferralPayouts()
+L431 [lvl -2->-2]: }
+L432 [lvl -2->-2]: }
+L433 [lvl -2->-2]: 
+L434 [lvl -2->-2]: fun updateVerificationStatus(emailVerified: Boolean, mobileVerified: Boolean ) {
+L435 [lvl -2->-2]: viewModelScope.launch {
+L436 [lvl -2->-2]: val current = currentUserProfile.value ?: return@launch
+L437 [lvl -2->-2]: val updated = current.copy(isEmailVerified = emailVerified, isMobileVerified = mobileVerified)
+L438 [lvl -2->-2]: repository.updateUserProfile(updated)
+L439 [lvl -2->-2]: repository.evaluateReferralPayouts()
+L440 [lvl -2->-2]: }
+L441 [lvl -2->-2]: }
+L442 [lvl -2->-2]: 
+L443 [lvl -2->-2]: fun awardCoins(amount: Int, description: String, sessionId: String? = null ) {
+L444 [lvl -2->-2]: viewModelScope.launch {
+L445 [lvl -2->-2]: repository.awardCoins(amount, description, sessionId)
+L446 [lvl -2->-2]: }
+L447 [lvl -2->-2]: }
+L448 [lvl -2->-2]: 
+L449 [lvl -2->-2]: fun recordRevisionEarnings(topicId: String, topicName: String, coins: Int ) {
+L450 [lvl -2->-2]: viewModelScope.launch {
+L451 [lvl -2->-2]: repository.recordRevisionEarnings(topicId, topicName, coins)
+L452 [lvl -2->-2]: }
+L453 [lvl -2->-2]: }
+L454 [lvl -2->-2]: 
+L455 [lvl -2->-2]: fun recordStreakReward(streakDays: Int, coins: Int ) {
+L456 [lvl -2->-2]: viewModelScope.launch {
+L457 [lvl -2->-2]: repository.recordStreakReward(streakDays, coins)
+L458 [lvl -2->-2]: }
+L459 [lvl -2->-2]: }
+L460 [lvl -2->-2]: 
+L461 [lvl -2->-2]: fun recordAchievementBonus(achievementId: String, achievementName: String, coins: Int ) {
+L462 [lvl -2->-2]: viewModelScope.launch {
+L463 [lvl -2->-2]: repository.recordAchievementBonus(achievementId, achievementName, coins)
+L464 [lvl -2->-2]: }
+L465 [lvl -2->-2]: }
+L466 [lvl -2->-2]: 
+L467 [lvl -2->-2]: 
+L468 [lvl -2->-2]: val dashboardMetrics = combine(allTopicsWithDetails, activeExamId, allStudyLogs { allTopics, activeId, logs ->)
+L469 [lvl -2->-2]: val topics = if (activeId.isEmpty() || activeId == "") {
+L470 [lvl -2->-2]: allTopics
+L471 [lvl -2->-2]: } else {
+L472 [lvl -2->-2]: allTopics.filter { it.examIds.contains(activeId) }
+L473 [lvl -2->-2]: }
+L474 [lvl -2->-2]: val now = System.currentTimeMillis()
+L475 [lvl -2->-2]: val todayStr = currentDayString()
+L476 [lvl -2->-2]: 
+L477 [lvl -2->-2]: val todayLog = logs.find { it.dateString == todayStr }
+L478 [lvl -2->-2]: val todayStudyTimeMs = (todayLog?.studyTimeMs ?: 0L + (todayLog?.revisionTimeMs ?: 0L))
+L479 [lvl -2->-2]: 
+L480 [lvl -2->-2]: val startOfTodayMs = getStartOfDayMs()
+L481 [lvl -2->-2]: val endOfTodayMs = startOfTodayMs + 86400000L
+L482 [lvl -2->-2]: 
+L483 [lvl -2->-2]: val pendingAll = topics.filter { it.status == "" && it.nextRevisionDateMs < now }
+L484 [lvl -2->-2]: val todayDue = topics.filter { it.status == "" && it.nextRevisionDateMs <= endOfTodayMs }
+L485 [lvl -2->-2]: val weakTopics = topics.filter { it.masteryScore in 0..40 && it.status == "" }
+L486 [lvl -2->-2]: 
+L487 [lvl -2->-2]: val todayRevisedCount = topics.filter { (it.lastRevisionDateMs ?: 0L in startOfTodayMs..endOfTodayMs }.size)
+L488 [lvl -2->-2]: 
+L489 [lvl -2->-1]: DashboardMetrics(
+L490 [lvl -1->-1]: todayDue = todayDue,
+L491 [lvl -1->-1]: pendingRevisions = pendingAll,
+L492 [lvl -1->-1]: completedTotal = topics.filter { it.status == "" },
+L493 [lvl -1->-1]: studyTimeTodayStr = formatTime(todayStudyTimeMs),
+L494 [lvl -1->-1]: weakTopics = weakTopics,
+L495 [lvl -1->-1]: todayRevisedCount = todayRevisedCount
+L496 [lvl -1->-2]: )
+L497 [lvl -2->-2]: }.catch { e: Throwable -> e.printStackTrace() }
+L498 [lvl -2->-2]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DashboardMetrics())
+L499 [lvl -2->-2]: 
+L500 [lvl -2->-1]: val analyticsMetrics = combine(
+L501 [lvl -1->-1]: allTopicsWithDetails,
+L502 [lvl -1->-1]: activeExamId,
+L503 [lvl -1->-1]: allStudyLogs,
+L504 [lvl -1->-1]: currentUserProfile,
+L505 [lvl -1->-1]: analyticsTimeFilter
+L506 [lvl -1->-2]: ) { allTopics, activeId, logs, profile, timeFilter ->
+L507 [lvl -2->-2]: val topics = if (activeId.isEmpty() || activeId == "") {
+L508 [lvl -2->-2]: allTopics
+L509 [lvl -2->-2]: } else {
+L510 [lvl -2->-2]: allTopics.filter { it.examIds.contains(activeId) }
+L511 [lvl -2->-2]: }
+L512 [lvl -2->-2]: val cal = java.util.Calendar.getInstance()
+L513 [lvl -2->-2]: val sdfLocal = java.text.SimpleDateFormat("", java.util.Locale.getDefault())
+L514 [lvl -2->-2]: val todayStrLoc = sdfLocal.format(cal.time)
+L515 [lvl -2->-2]: cal.set(java.util.Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+L516 [lvl -2->-2]: val weekStr = sdfLocal.format(cal.time)
+L517 [lvl -2->-2]: cal.set(java.util.Calendar.DAY_OF_MONTH, 1)
+L518 [lvl -2->-2]: val monthStr = sdfLocal.format(cal.time)
+L519 [lvl -2->-2]: val filteredLogs = when (timeFilter ) {
+L520 [lvl -2->-2]: "" -> logs.filter { it.dateString == todayStrLoc }
+L521 [lvl -2->-2]: "" -> logs.filter { it.dateString >= weekStr }
+L522 [lvl -2->-2]: "" -> logs.filter { it.dateString >= monthStr }
+L523 [lvl -2->-2]: else -> logs
+L524 [lvl -2->-2]: }
+L525 [lvl -2->-2]: 
+L526 [lvl -2->-2]: val totalTimeMs = filteredLogs.sumOf { it.studyTimeMs + it.revisionTimeMs }
+L527 [lvl -2->-2]: val hours = totalTimeMs / (1000 * 60 * 60)
+L528 [lvl -2->-2]: val mins = (totalTimeMs / (1000 * 60)) % 60
+L529 [lvl -2->-2]: val totalStudyTimeStr = ""
+L530 [lvl -2->-2]: 
+L531 [lvl -2->-2]: val daysCompleted = filteredLogs.count { it.studyTimeMs > 0 || it.revisionTimeMs > 0 }
+L532 [lvl -2->-2]: val dayStreak = profile?.currentStreak ?: 0
+L533 [lvl -2->-2]: 
+L534 [lvl -2->-2]: val completedTopics = topics.filter { it.status == "" }
+L535 [lvl -2->-2]: val averageScore = if (completedTopics.isNotEmpty( completedTopics.map { it.masteryScore }.average(.toInt( else 0))))
+L536 [lvl -2->-2]: 
+L537 [lvl -2->-2]: val overallProgressPercentage = if (topics.isNotEmpty( (completedTopics.size * 100 / topics.size else 0)))
+L538 [lvl -2->-2]: val subjectGroups = topics.groupBy { it.subjectName }
+L539 [lvl -2->-2]: val totalAllMs = topics.sumOf { it.studyTimeMs + it.revisionTimeMs }
+L540 [lvl -2->-2]: val studyTimeBreakdown = subjectGroups.mapNotNull { (subName, subTopics ->)
+L541 [lvl -2->-2]: if (subName == "" return@mapNotNull null)
+L542 [lvl -2->-2]: val subTotalMs = subTopics.sumOf { it.studyTimeMs + it.revisionTimeMs }
+L543 [lvl -2->-2]: val percentage = if (totalAllMs > 0 (subTotalMs * 100 / totalAllMs.toInt( else 0)))
+L544 [lvl -2->-2]: val color = subTopics.firstOrNull(?.subjectColorHex ?: "")
+L545 [lvl -2->-2]: val h = subTotalMs / (1000 * 60 * 60)
+L546 [lvl -2->-2]: val m = (subTotalMs / (1000 * 60 % 60))
+L547 [lvl -2->-2]: com.example.data.SubjectBreakdown(subName, percentage, color, "")
+L548 [lvl -2->-2]: }.sortedByDescending { it.percentage }
+L549 [lvl -2->-2]: val subjectPerformance = subjectGroups.mapNotNull { (subName, subTopics ->)
+L550 [lvl -2->-2]: if (subName == "" return@mapNotNull null)
+L551 [lvl -2->-2]: 
+L552 [lvl -2->-2]: val comp = subTopics.filter { it.status == "" }
+L553 [lvl -2->-2]: val avg = if (comp.isNotEmpty( comp.map { it.masteryScore }.average(.toInt( else 0))))
+L554 [lvl -2->-2]: val color = subTopics.firstOrNull(?.subjectColorHex ?: "")
+L555 [lvl -2->-2]: val iconStr = subName.take(1.uppercase())
+L556 [lvl -2->-2]: com.example.data.SubjectPerformance(subName, avg, color, iconStr)
+L557 [lvl -2->-2]: }.sortedByDescending { it.percentage }
+L558 [lvl -2->-2]: 
+L559 [lvl -2->-2]: 
+L560 [lvl -2->-2]: val calcTotalMs = filteredLogs.sumOf { it.studyTimeMs + it.revisionTimeMs }
+L561 [lvl -2->-2]: val productivityScore = if (calcTotalMs > 0 ((filteredLogs.sumOf { it.studyTimeMs } * 100f / calcTotalMs.toInt(.coerceIn(0, 100 else 0)))))
+L562 [lvl -2->-2]: val focusSessions = filteredLogs.sumOf { it.focusSessions }
+L563 [lvl -2->-2]: val coinsEarned = profile?.totalCoins ?: 0
+L564 [lvl -2->-2]: 
+L565 [lvl -2->-2]: val totalRevisions = profile?.totalRevisions ?: 0
+L566 [lvl -2->-2]: val completedTopicsCount = completedTopics.size
+L567 [lvl -2->-2]: val pendingTopics = topics.size - completedTopicsCount
+L568 [lvl -2->-2]: val retentionRate = averageScore
+L569 [lvl -2->-2]: 
+L570 [lvl -2->-2]: val deepFocusTimeMs = filteredLogs.sumOf { it.deepFocusTimeMs }
+L571 [lvl -2->-2]: val deepFocusH = deepFocusTimeMs / (1000 * 60 * 60)
+L572 [lvl -2->-2]: val deepFocusM = (deepFocusTimeMs / (1000 * 60 % 60))
+L573 [lvl -2->-2]: val deepFocusTimeStr = ""
+L574 [lvl -2->-2]: 
+L575 [lvl -2->-2]: val avgSessionMins = if (focusSessions > 0 (filteredLogs.sumOf { it.studyTimeMs } / focusSessions / (1000 * 60.toInt( else 0))))
+L576 [lvl -2->-2]: val averageSessionStr = ""
+L577 [lvl -2->-2]: 
+L578 [lvl -2->-2]: val longestSessionMs = filteredLogs.maxOfOrNull { it.longestSessionMs } ?: 0L
+L579 [lvl -2->-2]: val longestH = longestSessionMs / (1000 * 60 * 60)
+L580 [lvl -2->-2]: val longestM = (longestSessionMs / (1000 * 60 % 60))
+L581 [lvl -2->-2]: val longestSessionStr = ""
+L582 [lvl -2->-2]: 
+L583 [lvl -2->-2]: val distractionCount = filteredLogs.sumOf { it.totalDistractions }
+L584 [lvl -2->-2]: 
+L585 [lvl -2->-2]: val currentStreak = dayStreak
+L586 [lvl -2->-2]: val bestStreak = profile?.longestStreak ?: 0
+L587 [lvl -2->-2]: 
+L588 [lvl -2->-2]: 
+L589 [lvl -2->-2]: val subjectProgressList = subjectGroups.mapNotNull { (subName, subTopics ->)
+L590 [lvl -2->-2]: if (subName == "" return@mapNotNull null)
+L591 [lvl -2->-2]: val total = subTopics.size
+L592 [lvl -2->-2]: val subComp = subTopics.count { it.status == "" }
+L593 [lvl -2->-2]: val pending = total - subComp
+L594 [lvl -2->-2]: val progress = if (total > 0 subComp.toFloat( / total else 0f))
+L595 [lvl -2->-2]: val percentage = if (total > 0 (subComp * 100 / total else 0))
+L596 [lvl -2->-2]: val color = subTopics.firstOrNull(?.subjectColorHex ?: "")
+L597 [lvl -2->-2]: val iconStr = subName.take(2.uppercase())
+L598 [lvl -2->-2]: 
+L599 [lvl -2->-2]: val subjectStudyMins = subTopics.sumOf { ((it.studyTimeMs + it.revisionTimeMs / 60000L.toInt( })))
+L600 [lvl -2->-2]: val subjectRevisionDue = subTopics.count { it.status == "" && it.nextRevisionDateMs > 0 && it.nextRevisionDateMs <= java.lang.System.currentTimeMillis() }
+L601 [lvl -2->-2]: 
+L602 [lvl -2->-2]: val subjectId = subTopics.firstOrNull(?.subjectId ?: "")
+L603 [lvl -2->-2]: 
+L604 [lvl -2->-2]: com.example.data.SubjectProgress()
+L605 [lvl -2->-2]: id = subjectId,
+L606 [lvl -2->-2]: name = subName,
+L607 [lvl -2->-2]: progress = progress,
+L608 [lvl -2->-2]: percentage = "",
+L609 [lvl -2->-2]: icon = iconStr,
+L610 [lvl -2->-2]: colorCode = color,
+L611 [lvl -2->-2]: totalTopics = total,
+L612 [lvl -2->-2]: completedTopics = subComp,
+L613 [lvl -2->-2]: pendingTopics = pending,
+L614 [lvl -2->-2]: studyTimeMins = subjectStudyMins,
+L615 [lvl -2->-2]: revisionDueTopics = subjectRevisionDue
+L616 [lvl -2->-2]: 
+L617 [lvl -2->-2]: }.sortedByDescending { it.progress }
+L618 [lvl -2->-2]: 
+L619 [lvl -2->-2]: 
+L620 [lvl -2->-2]: 
+L621 [lvl -2->-2]: val sdf = java.text.SimpleDateFormat("", java.util.Locale.getDefault())
+L622 [lvl -2->-2]: val dayFormat = java.text.SimpleDateFormat("", java.util.Locale.getDefault())
+L623 [lvl -2->-2]: 
+L624 [lvl -2->-2]: val weeklyActivity = (6 downTo 0.map { daysAgo ->)
+L625 [lvl -2->-2]: val c = java.util.Calendar.getInstance()
+L626 [lvl -2->-2]: c.add(java.util.Calendar.DAY_OF_YEAR, -daysAgo)
+L627 [lvl -2->-2]: val dateStr = sdf.format(c.time)
+L628 [lvl -2->-2]: val log = filteredLogs.find { it.dateString == dateStr }
+L629 [lvl -2->-2]: val hrs = (log?.let { it.studyTimeMs + it.revisionTimeMs } ?: 0L / (1000f * 60f * 60f))
+L630 [lvl -2->-2]: com.example.data.DayActivity(dayFormat.format(c.time, hrs))
+L631 [lvl -2->-2]: }
+L632 [lvl -2->-2]: 
+L633 [lvl -2->-2]: val dailyHours = weeklyActivity.map { it.hours }
+L634 [lvl -2->-2]: val maxDailyHours = (dailyHours.maxOrNull( ?: 8f.coerceAtLeast(8f)))
+L635 [lvl -2->-2]: 
+L636 [lvl -2->-2]: val targetExamName = ""
+L637 [lvl -2->-2]: val readinessPercentage = overallProgressPercentage
+L638 [lvl -2->-7]: val rangeStr = "")))))
+L639 [lvl -7->-7]: 
+L640 [lvl -7->-7]: com.example.data.AnalyticsMetrics()
+L641 [lvl -7->-7]: totalStudyTimeStr = totalStudyTimeStr,
+L642 [lvl -7->-7]: productivityScore = productivityScore,
+L643 [lvl -7->-7]: focusSessions = focusSessions,
+L644 [lvl -7->-7]: coinsEarned = coinsEarned,
+L645 [lvl -7->-7]: dailyHours = dailyHours,
+L646 [lvl -7->-7]: maxDailyHours = maxDailyHours,
+L647 [lvl -7->-7]: subjectProgress = subjectProgressList,
+L648 [lvl -7->-7]: totalRevisions = totalRevisions,
+L649 [lvl -7->-7]: completedTopics = completedTopicsCount,
+L650 [lvl -7->-7]: pendingTopics = pendingTopics,
+L651 [lvl -7->-7]: retentionRate = retentionRate,
+L652 [lvl -7->-7]: deepFocusTimeStr = deepFocusTimeStr,
+L653 [lvl -7->-7]: averageSessionStr = averageSessionStr,
+L654 [lvl -7->-7]: longestSessionStr = longestSessionStr,
+L655 [lvl -7->-7]: distractionCount = distractionCount,
+L656 [lvl -7->-7]: currentStreak = currentStreak,
+L657 [lvl -7->-7]: bestStreak = bestStreak,
+L658 [lvl -7->-7]: targetExamName = targetExamName,
+L659 [lvl -7->-7]: readinessPercentage = readinessPercentage,
+L660 [lvl -7->-7]: expectedScoreRange = rangeStr,
+L661 [lvl -7->-7]: daysCompleted = daysCompleted,
+L662 [lvl -7->-7]: dayStreak = dayStreak,
+L663 [lvl -7->-7]: averageScore = averageScore,
+L664 [lvl -7->-7]: overallProgressPercentage = overallProgressPercentage,
+L665 [lvl -7->-7]: studyTimeBreakdown = studyTimeBreakdown,
+L666 [lvl -7->-7]: subjectPerformance = subjectPerformance,
+L667 [lvl -7->-7]: weeklyActivity = weeklyActivity,
+L668 [lvl -7->-7]: totalTimeIncreasePercentage = 12,
+L669 [lvl -7->-7]: daysCompletedIncreasePercentage = 8,
+L670 [lvl -7->-7]: scoreIncreasePercentage = 15
+L671 [lvl -7->-7]: 
+L672 [lvl -7->-7]: }.catch { e: Throwable -> e.printStackTrace() }
+L673 [lvl -7->-7]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.example.data.AnalyticsMetrics())
+L674 [lvl -7->-7]: 
+L675 [lvl -7->-7]: private val _adminAllUsers = MutableStateFlow<List<com.example.data.UserProfile>?>(null)
+L676 [lvl -7->-7]: val adminAllUsers: StateFlow<List<com.example.data.UserProfile>?> = _adminAllUsers.asStateFlow()
+L677 [lvl -7->-7]: 
+L678 [lvl -7->-7]: val adminDashboardMetrics: StateFlow<com.example.data.AdminDashboardMetrics> = _adminAllUsers.map { users ->
+L679 [lvl -7->-7]: if (users == null com.example.data.AdminDashboardMetrics())
+L680 [lvl -7->-7]: else {
+L681 [lvl -7->-7]: val total = users.size
+L682 [lvl -7->-7]: val active = users.count { !it.isBanned }
+L683 [lvl -7->-7]: val online = users.count { (System.currentTimeMillis() - it.lastActiveTimeMs < 60 * 60 * 1000L) }
+L684 [lvl -7->-7]: val revisions = users.sumOf { it.totalRevisions }
+L685 [lvl -7->-7]: val study = users.sumOf { it.studyTimeMinutes }
+L686 [lvl -7->-7]: val coins = users.sumOf { it.totalCoins }
+L687 [lvl -7->-7]: com.example.data.AdminDashboardMetrics()
+L688 [lvl -7->-7]: totalUsers = total,
+L689 [lvl -7->-7]: activeUsers = active,
+L690 [lvl -7->-7]: onlineUsers = online,
+L691 [lvl -7->-7]: totalRevisions = revisions,
+L692 [lvl -7->-7]: totalStudyTimeMinutes = study,
+L693 [lvl -7->-7]: totalCoinsEarned = coins
+L694 [lvl -7->-7]: 
+L695 [lvl -7->-7]: }
+L696 [lvl -7->-7]: }.catch { e: Throwable -> e.printStackTrace() }
+L697 [lvl -7->-7]: .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.example.data.AdminDashboardMetrics())
+L698 [lvl -7->-7]: 
+L699 [lvl -7->-7]: init {
+L700 [lvl -7->-7]: viewModelScope.launch {
+L701 [lvl -7->-7]: try {
+L702 [lvl -7->-7]: repository.userIdFlow.collect { uid ->
+L703 [lvl -7->-7]: if (uid.isNotEmpty( )) {
+L704 [lvl -7->-7]: repository.checkAndSeedDefaultSyllabus(uid)
+L705 [lvl -7->-7]: repository.evaluateDailyRewardsAndStreak(uid)
+L706 [lvl -7->-7]: }
+L707 [lvl -7->-7]: }
+L708 [lvl -7->-7]: } catch (e: Exception ) {
+L709 [lvl -7->-7]: e.printStackTrace()
+L710 [lvl -7->-7]: }
+L711 [lvl -7->-7]: }
+L712 [lvl -7->-7]: 
+L713 [lvl -7->-7]: viewModelScope.launch {
+L714 [lvl -7->-7]: try {
+L715 [lvl -7->-7]: repository.getAllUsersProfiles(.collect { list ->)
+L716 [lvl -7->-7]: _adminAllUsers.value = list
+L717 [lvl -7->-7]: }
+L718 [lvl -7->-7]: } catch (e: Exception ) {
+L719 [lvl -7->-7]: e.printStackTrace()
+L720 [lvl -7->-7]: }
+L721 [lvl -7->-7]: }
+L722 [lvl -7->-7]: }
+L723 [lvl -7->-7]: 
+L724 [lvl -7->-7]: fun adminAwardCoins(targetUserId: String, amount: Int, description: String ) {
+L725 [lvl -7->-7]: viewModelScope.launch {
+L726 [lvl -7->-7]: var email = ""
+L727 [lvl -7->-7]: try {
+L728 [lvl -7->-7]: email = FirebaseAuth.getInstance().currentUser?.email ?: ""
+L729 [lvl -7->-7]: } catch (e: Exception { e.printStackTrace() })
+L730 [lvl -7->-7]: repository.adminAwardCoins(targetUserId, amount, description, email)
+L731 [lvl -7->-7]: }
+L732 [lvl -7->-7]: }
+L733 [lvl -7->-7]: 
+L734 [lvl -7->-7]: suspend fun getUserSubjectsCount(targetUserId: String: Int ) {
+L735 [lvl -7->-7]: return repository.getUserSubjectsCount(targetUserId)
+L736 [lvl -7->-7]: }
+L737 [lvl -7->-7]: 
+L738 [lvl -7->-7]: suspend fun getUserTopicsCount(targetUserId: String: Int ) {
+L739 [lvl -7->-7]: return repository.getUserTopicsCount(targetUserId)
+L740 [lvl -7->-7]: }
+L741 [lvl -7->-7]: 
+L742 [lvl -7->-7]: fun getAdminSubjects(targetUserId: String = repository.getAdminSubjects(targetUserId))
+L743 [lvl -7->-7]: fun getAdminTopics(targetUserId: String = repository.getAdminTopics(targetUserId))
+L744 [lvl -7->-7]: 
+L745 [lvl -7->-7]: fun addSubject(name: String, colorHex: String = "", examId: String = "", icon: String = "", totalTopicsExpected: Int = 0) = viewModelScope.launch {
+L746 [lvl -7->-7]: repository.insertSubject(name, colorHex, examId, icon, totalTopicsExpected)
+L747 [lvl -7->-7]: }
+L748 [lvl -7->-7]: 
+L749 [lvl -7->-7]: fun updateSubject(subjectId: String, name: String, colorHex: String, icon: String, totalTopicsExpected: Int) = viewModelScope.launch {
+L750 [lvl -7->-7]: repository.updateSubject(subjectId, name, colorHex, icon, totalTopicsExpected)
+L751 [lvl -7->-7]: }
+L752 [lvl -7->-7]: 
+L753 [lvl -7->-7]: fun deleteSubject(id: String) = viewModelScope.launch {
+L754 [lvl -7->-7]: val relatedTopics = allTopicsWithDetails.value.filter { it.subjectId == id }
+L755 [lvl -7->-7]: for (topic in relatedTopics ) {
+L756 [lvl -7->-7]: repository.deleteTopic(topic.topicId)
+L757 [lvl -7->-7]: }
+L758 [lvl -7->-7]: repository.deleteSubject(id)
+L759 [lvl -7->-7]: }
+L760 [lvl -7->-7]: 
+L761 [lvl -7->-7]: fun addChapter(subjectId: String, name: String, importance: String = "") = viewModelScope.launch {
+L762 [lvl -7->-7]: repository.insertChapter(subjectId, name, importance)
+L763 [lvl -7->-7]: }
+L764 [lvl -7->-7]: 
+L765 [lvl -7->-7]: fun deleteChapter(id: String) = viewModelScope.launch {
+L766 [lvl -7->-7]: repository.deleteChapter(id)
+L767 [lvl -7->-7]: }
+L768 [lvl -7->-7]: 
+L769 [lvl -7->-7]: fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> = emptyList()) = viewModelScope.launch {
+L770 [lvl -7->-7]: repository.insertTopic(chapterId, name, notes = notes, tags = tags)
+L771 [lvl -7->-7]: }
+L772 [lvl -7->-7]: 
+L773 [lvl -7->-7]: fun addTopicWithSubjectContext(subjectId: String, name: String, difficulty: String, estimatedRevisionTimeMins: Int, notes: String, tags: List<String> = emptyList()) = viewModelScope.launch {
+L774 [lvl -7->-7]: repository.insertTopicWithSubjectId(subjectId, name, difficulty, estimatedRevisionTimeMins, notes, tags)
+L775 [lvl -7->-7]: }
+L776 [lvl -7->-7]: 
+L777 [lvl -7->-7]: fun updateTopicDetails(topicId: String, name: String, difficulty: String, estimatedRevisionTimeMins: Int, notes: String, tags: List<String> = emptyList()) = viewModelScope.launch {
+L778 [lvl -7->-7]: repository.updateTopicDetails(topicId, name, difficulty, estimatedRevisionTimeMins, notes, tags)
+L779 [lvl -7->-7]: }
+L780 [lvl -7->-7]: 
+L781 [lvl -7->-7]: fun deleteTopic(id: String) = viewModelScope.launch {
+L782 [lvl -7->-7]: repository.deleteTopic(id)
+L783 [lvl -7->-7]: }
+L784 [lvl -7->-7]: 
+L785 [lvl -7->-7]: fun updateTopicCompletion(topicId: String) = viewModelScope.launch {
+L786 [lvl -7->-7]: val topic = allTopics.value.find { it.id == topicId } ?: return@launch
+L787 [lvl -7->-7]: val now = System.currentTimeMillis()
+L788 [lvl -7->-7]: val intervals = getRevisionPattern()
+L789 [lvl -7->-7]: val daysMulti = intervals.firstOrNull() ?: 1
+L790 [lvl -7->-7]: val nextDate = now + (daysMulti * 86400000L)
+L791 [lvl -7->-6]: val updated = topic.copy(
+L792 [lvl -6->-6]: status = "",
+L793 [lvl -6->-6]: revisionCount = 1,
+L794 [lvl -6->-6]: lastRevisionDateMs = now,
+L795 [lvl -6->-6]: nextRevisionDateMs = nextDate,
+L796 [lvl -6->-6]: masteryScore = calculateMastery(1, true)
+L797 [lvl -6->-7]: )
+L798 [lvl -7->-7]: repository.updateTopic(updated)
+L799 [lvl -7->-7]: }
+L800 [lvl -7->-7]: 
+L801 [lvl -7->-7]: fun recordTimerSession(topicId: String, isRevision: Boolean, durationMs: Long) = viewModelScope.launch {
+L802 [lvl -7->-7]: repository.recordStudyTime(currentDayString(), isRevision, durationMs)
+L803 [lvl -7->-7]: val topic = allTopics.value.find { it.id == topicId } ?: return@launch
+L804 [lvl -7->-7]: val updated = if (isRevision) {
+L805 [lvl -7->-7]: val revCount = topic.revisionCount + 1
+L806 [lvl -7->-7]: val intervals = getRevisionPattern()
+L807 [lvl -7->-7]: val nextIntervalIndex = (revCount - 1).coerceAtMost(intervals.lastIndex)
+L808 [lvl -7->-7]: val daysMulti = intervals.getOrElse(nextIntervalIndex) { 1 }
+L809 [lvl -7->-7]: val nextDate = System.currentTimeMillis() + (daysMulti * 86400000L)
+L810 [lvl -7->-7]: 
+L811 [lvl -7->-6]: topic.copy(
+L812 [lvl -6->-6]: revisionTimeMs = topic.revisionTimeMs + durationMs,
+L813 [lvl -6->-6]: revisionCount = revCount,
+L814 [lvl -6->-6]: lastRevisionDateMs = System.currentTimeMillis(),
+L815 [lvl -6->-6]: nextRevisionDateMs = nextDate,
+L816 [lvl -6->-6]: masteryScore = calculateMastery(revCount, true),
+L817 [lvl -6->-6]: status = ""
+L818 [lvl -6->-7]: )
+L819 [lvl -7->-7]: } else {
+L820 [lvl -7->-7]: topic.copy(studyTimeMs = topic.studyTimeMs + durationMs)
+L821 [lvl -7->-7]: }
+L822 [lvl -7->-7]: repository.updateTopic(updated)
+L823 [lvl -7->-7]: }
+L824 [lvl -7->-7]: 
+L825 [lvl -7->-7]: private fun currentDayString(): String {
+L826 [lvl -7->-7]: return java.text.SimpleDateFormat("", java.util.Locale.getDefault()).format(java.util.Date())
+L827 [lvl -7->-7]: }
+L828 [lvl -7->-7]: 
+L829 [lvl -7->-7]: private fun getStartOfDayMs(): Long {
+L830 [lvl -7->-7]: val cal = java.util.Calendar.getInstance()
+L831 [lvl -7->-7]: cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+L832 [lvl -7->-7]: cal.set(java.util.Calendar.MINUTE, 0)
+L833 [lvl -7->-7]: cal.set(java.util.Calendar.SECOND, 0)
+L834 [lvl -7->-7]: cal.set(java.util.Calendar.MILLISECOND, 0)
+L835 [lvl -7->-7]: return cal.timeInMillis
+L836 [lvl -7->-7]: }
+L837 [lvl -7->-7]: 
+L838 [lvl -7->-7]: private fun formatTime(ms: Long): String {
+L839 [lvl -7->-7]: val secs = ms / 1000
+L840 [lvl -7->-7]: val h = secs / 3600
+L841 [lvl -7->-7]: val m = (secs % 3600) / 60
+L842 [lvl -7->-7]: return if (h > 0) "" else ""
+L843 [lvl -7->-7]: }
+L844 [lvl -7->-7]: 
+L845 [lvl -7->-7]: private fun calculateMastery(revisions: Int, consistency: Boolean): Int {
+L846 [lvl -7->-7]: var score = (revisions * 10).coerceAtMost(70)
+L847 [lvl -7->-7]: if (consistency) score += 15
+L848 [lvl -7->-7]: return score.coerceIn(0, 100)
+L849 [lvl -7->-7]: }
+L850 [lvl -7->-7]: 
+L851 [lvl -7->-7]: fun banUser(targetUserId: String, isBanned: Boolean, reason: String) = viewModelScope.launch {
+L852 [lvl -7->-7]: repository.banUser(targetUserId, isBanned, reason)
+L853 [lvl -7->-7]: }
+L854 [lvl -7->-7]: 
+L855 [lvl -7->-7]: fun deleteUser(targetUserId: String) = viewModelScope.launch {
+L856 [lvl -7->-7]: repository.deleteUser(targetUserId)
+L857 [lvl -7->-7]: }
+L858 [lvl -7->-7]: 
+L859 [lvl -7->-7]: fun updateUserProfile(profile: com.example.data.UserProfile) = viewModelScope.launch {
+L860 [lvl -7->-7]: repository.updateUserProfile(profile)
+L861 [lvl -7->-7]: }
+L862 [lvl -7->-7]: 
+L863 [lvl -7->-7]: fun updateTopic(topic: com.example.data.Topic) = viewModelScope.launch {
+L864 [lvl -7->-7]: repository.updateTopic(topic)
+L865 [lvl -7->-7]: }
+L866 [lvl -7->-7]: 
+L867 [lvl -7->-7]: fun saveCustomRevisionPlan(topicId: String, intervals: List<Int>) = viewModelScope.launch {
+L868 [lvl -7->-7]: repository.saveCustomRevisionPlan(topicId, intervals)
+L869 [lvl -7->-7]: }
+L870 [lvl -7->-7]: 
+L871 [lvl -7->-7]: fun checkAndTriggerNotifications(context: android.content.Context) {
+L872 [lvl -7->-7]: viewModelScope.launch {
+L873 [lvl -7->-7]: try {
+L874 [lvl -7->-7]: val uid = repository.userId
+L875 [lvl -7->-7]: if (uid.isEmpty()) return@launch
+L876 [lvl -7->-7]: 
+L877 [lvl -7->-7]: val now = System.currentTimeMillis()
+L878 [lvl -7->-7]: val cal = java.util.Calendar.getInstance()
+L879 [lvl -7->-7]: cal.timeInMillis = now
+L880 [lvl -7->-7]: cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+L881 [lvl -7->-7]: cal.set(java.util.Calendar.MINUTE, 0)
+L882 [lvl -7->-7]: cal.set(java.util.Calendar.SECOND, 0)
+L883 [lvl -7->-7]: cal.set(java.util.Calendar.MILLISECOND, 0)
+L884 [lvl -7->-7]: val startOfTodayMs = cal.timeInMillis
+L885 [lvl -7->-7]: cal.set(java.util.Calendar.HOUR_OF_DAY, 23)
+L886 [lvl -7->-7]: cal.set(java.util.Calendar.MINUTE, 59)
+L887 [lvl -7->-7]: cal.set(java.util.Calendar.SECOND, 59)
+L888 [lvl -7->-7]: val endOfTodayMs = cal.timeInMillis
+L889 [lvl -7->-7]: 
+L890 [lvl -7->-7]: val topicsFlow = repository.allTopics.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(), emptyList())
+L891 [lvl -7->-7]: val completedTopics = topicsFlow.value.filter { it.status == "" && it.nextRevisionDateMs > 0 }
+L892 [lvl -7->-7]: 
+L893 [lvl -7->-7]: val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+L894 [lvl -7->-7]: 
+L895 [lvl -7->-7]: for (topic in completedTopics) {
+L896 [lvl -7->-7]: val dueDate = topic.nextRevisionDateMs
+L897 [lvl -7->-7]: 
+L898 [lvl -7->-7]: if (dueDate in startOfTodayMs..endOfTodayMs) {
+L899 [lvl -7->-7]: val snapshotObj = db.collection("").document(uid)
+L900 [lvl -7->-7]: .collection("")
+L901 [lvl -7->-7]: .whereEqualTo("", topic.id)
+L902 [lvl -7->-7]: .whereEqualTo("", "")
+L903 [lvl -7->-7]: .get().await()
+L904 [lvl -7->-7]: 
+L905 [lvl -7->-7]: val notifiedToday = snapshotObj.documents.any { doc ->
+L906 [lvl -7->-7]: val ts = doc.getLong("") ?: 0L
+L907 [lvl -7->-7]: ts in startOfTodayMs..endOfTodayMs
+L908 [lvl -7->-7]: }
+L909 [lvl -7->-7]: 
+L910 [lvl -7->-7]: if (!notifiedToday) {
+L911 [lvl -7->-7]: showRealLocalNotification(context, topic.id, "", "", "")
+L912 [lvl -7->-7]: }
+L913 [lvl -7->-7]: } else if (dueDate < startOfTodayMs) {
+L914 [lvl -7->-7]: val snapshotObj = db.collection("").document(uid)
+L915 [lvl -7->-7]: .collection("")
+L916 [lvl -7->-7]: .whereEqualTo("", topic.id)
+L917 [lvl -7->-7]: .whereEqualTo("", "")
+L918 [lvl -7->-7]: .get().await()
+L919 [lvl -7->-7]: 
+L920 [lvl -7->-7]: val notifiedMissedToday = snapshotObj.documents.any { doc ->
+L921 [lvl -7->-7]: val ts = doc.getLong("") ?: 0L
+L922 [lvl -7->-7]: ts in startOfTodayMs..endOfTodayMs
+L923 [lvl -7->-7]: }
+L924 [lvl -7->-7]: 
+L925 [lvl -7->-7]: if (!notifiedMissedToday) {
+L926 [lvl -7->-7]: showRealLocalNotification(context, topic.id, "", "", "")
+L927 [lvl -7->-7]: }
+L928 [lvl -7->-7]: }
+L929 [lvl -7->-7]: }
+L930 [lvl -7->-7]: } catch (e: Exception) {
+L931 [lvl -7->-7]: e.printStackTrace()
+L932 [lvl -7->-7]: }
+L933 [lvl -7->-7]: }
+L934 [lvl -7->-7]: }
+L935 [lvl -7->-7]: 
+L936 [lvl -7->-7]: private fun showRealLocalNotification(context: android.content.Context, topicId: String, title: String, msg: String, type: String) {
+L937 [lvl -7->-7]: try {
+L938 [lvl -7->-7]: val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+L939 [lvl -7->-7]: val channelId = ""
+L940 [lvl -7->-7]: 
+L941 [lvl -7->-7]: if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+L942 [lvl -7->-6]: val channel = android.app.NotificationChannel(
+L943 [lvl -6->-6]: channelId,
+L944 [lvl -6->-6]: "",
+L945 [lvl -6->-6]: android.app.NotificationManager.IMPORTANCE_HIGH
+L946 [lvl -6->-7]: ).apply {
+L947 [lvl -7->-7]: description = ""
+L948 [lvl -7->-7]: }
+L949 [lvl -7->-7]: notificationManager.createNotificationChannel(channel)
+L950 [lvl -7->-7]: }
+L951 [lvl -7->-7]: 
+L952 [lvl -7->-7]: val intent = android.content.Intent(context, Class.forName("")).apply {
+L953 [lvl -7->-7]: flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+L954 [lvl -7->-7]: }
+L955 [lvl -7->-6]: val pendingIntent = android.app.PendingIntent.getActivity(
+L956 [lvl -6->-6]: context,
+L957 [lvl -6->-6]: (topicId.hashCode() + type.hashCode()),
+L958 [lvl -6->-6]: intent,
+L959 [lvl -6->-6]: android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+L960 [lvl -6->-7]: )
+L961 [lvl -7->-7]: 
+L962 [lvl -7->-7]: val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
+L963 [lvl -7->-7]: .setSmallIcon(android.R.drawable.ic_dialog_info)
+L964 [lvl -7->-7]: .setContentTitle(title)
+L965 [lvl -7->-7]: .setContentText(msg)
+L966 [lvl -7->-7]: .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+L967 [lvl -7->-7]: .setContentIntent(pendingIntent)
+L968 [lvl -7->-7]: .setAutoCancel(true)
+L969 [lvl -7->-7]: .build()
+L970 [lvl -7->-7]: 
+L971 [lvl -7->-7]: notificationManager.notify((topicId.hashCode() + type.hashCode()), notification)
+L972 [lvl -7->-7]: 
+L973 [lvl -7->-7]: val uid = repository.userId
+L974 [lvl -7->-7]: if (uid.isNotEmpty()) {
+L975 [lvl -7->-7]: val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+L976 [lvl -7->-7]: val notifRef = db.collection("").document(uid).collection("").document()
+L977 [lvl -7->-5]: notifRef.set(mapOf(
+L978 [lvl -5->-5]: "" to notifRef.id,
+L979 [lvl -5->-5]: "" to topicId,
+L980 [lvl -5->-5]: "" to title,
+L981 [lvl -5->-5]: "" to msg,
+L982 [lvl -5->-5]: "" to System.currentTimeMillis(),
+L983 [lvl -5->-5]: "" to false,
+L984 [lvl -5->-5]: "" to type
+L985 [lvl -5->-7]: ))
+L986 [lvl -7->-7]: }
+L987 [lvl -7->-7]: } catch (e: Exception) {
+L988 [lvl -7->-7]: e.printStackTrace()
+L989 [lvl -7->-7]: }
+L990 [lvl -7->-7]: }
+L991 [lvl -7->-7]: 
+L992 [lvl -7->-7]: fun uploadProfileImage(uri: android.net.Uri, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) = viewModelScope.launch {
+L993 [lvl -7->-7]: try {
+L994 [lvl -7->-7]: val url = repository.uploadProfileImage(uri)
+L995 [lvl -7->-7]: val current = currentUserProfile.value
+L996 [lvl -7->-7]: if (current != null) {
+L997 [lvl -7->-7]: updateUserProfile(current.copy(profilePictureUrl = url))
+L998 [lvl -7->-7]: }
+L999 [lvl -7->-7]: onSuccess(url)
+L1000 [lvl -7->-7]: } catch (e: Exception) {
+L1001 [lvl -7->-7]: onFailure(e)
+L1002 [lvl -7->-7]: }
+L1003 [lvl -7->-7]: }
+L1004 [lvl -7->-7]: 
+L1005 [lvl -7->-7]: fun uploadProfileImageBytes(bytes: ByteArray, onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) = viewModelScope.launch {
+L1006 [lvl -7->-7]: try {
+L1007 [lvl -7->-7]: val url = repository.uploadProfileImageBytes(bytes)
+L1008 [lvl -7->-7]: val current = currentUserProfile.value
+L1009 [lvl -7->-7]: if (current != null) {
+L1010 [lvl -7->-7]: updateUserProfile(current.copy(profilePictureUrl = url))
+L1011 [lvl -7->-7]: }
+L1012 [lvl -7->-7]: onSuccess(url)
+L1013 [lvl -7->-7]: } catch (e: Exception) {
+L1014 [lvl -7->-7]: onFailure(e)
+L1015 [lvl -7->-7]: }
+L1016 [lvl -7->-7]: }
+L1017 [lvl -7->-7]: }
+L1018 [lvl -7->-7]: 

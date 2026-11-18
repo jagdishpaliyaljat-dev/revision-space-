@@ -1,0 +1,11 @@
+    var currentView by remember { mutableStateOf("dashboard") }
+    
+    if (currentView == "list") {
+        RevisionListScreen(viewModel, navController, onBack = { currentView = "dashboard" })
+        return
+    }
+    if (currentView == "add") {
+        AddRevisionScreen(viewModel, navController, onBack = { currentView = "dashboard" })
+        return
+    }
+

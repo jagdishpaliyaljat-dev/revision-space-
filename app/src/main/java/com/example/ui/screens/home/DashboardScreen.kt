@@ -1,0 +1,2085 @@
+package com.example.ui.screens.home
+import com.example.ui.*
+
+import com.example.ui.screens.auth.*
+import com.example.ui.screens.home.*
+import com.example.ui.screens.revision.*
+import com.example.ui.screens.subject.*
+import com.example.ui.screens.profile.*
+import com.example.ui.screens.rewards.*
+import com.example.ui.screens.settings.*
+import com.example.ui.screens.admin.*
+import com.example.ui.components.*
+import com.example.ui.utils.*
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.ExamCountdown
+import com.example.data.TopicWithSubjectAndChapter
+import com.example.viewmodel.RevisionViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import com.airbnb.lottie.compose.*
+
+val DashPurplePrimary = Color(0xFF6C4DFF)
+val DashPurpleLight = Color(0xFFF3F0FF)
+val DashBackground = Color(0xFFFAFAFC) // Sleek white-gray background
+val DashTextDark = Color(0xFF1E293B)
+val DashTextGray = Color(0xFF64748B)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DashboardScreen(
+    viewModel: RevisionViewModel,
+    onNavigateToSubjects: () -> Unit,
+    onNavigateToToday: () -> Unit,
+    onNavigateToAnalytics: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onNavigateToTopic: (String) -> Unit,
+    onNavigateToTimer: () -> Unit,
+    onNavigateToSyllabus: () -> Unit,
+    onNavigateToCalendar: () -> Unit,
+    onNavigateToTodoList: () -> Unit,
+    onNavigateToWallet: () -> Unit,
+    onNavigateToStreak: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToOfflineNotes: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
+    
+    onLogout: () -> Unit,
+    onNavigateToLanguage: () -> Unit = {},
+    onNavigateToHelpAndSupport: () -> Unit = {}
+) {
+    val allExams by viewModel.allExams.collectAsStateWithLifecycle()
+    val allTopics by viewModel.allTopics.collectAsStateWithLifecycle(emptyList())
+    val allSubjects by viewModel.allSubjects.collectAsStateWithLifecycle(emptyList())
+    val allTopicsWithDetails by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle()
+    val metrics by viewModel.dashboardMetrics.collectAsStateWithLifecycle()
+    val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
+    val analyticsMetrics by viewModel.analyticsMetrics.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    var showAddExamDialog by remember { mutableStateOf(false) }
+    var examToEdit by remember { mutableStateOf<ExamCountdown?>(null) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showCongratsGoalDialog by remember { mutableStateOf(false) }
+    val unreadNotificationsCount by viewModel.unreadNotificationsCount.collectAsStateWithLifecycle(initialValue = 0)
+    var subjectSortOption by remember { mutableStateOf("Highest Progress") }
+    var sortExpanded by remember { mutableStateOf(false) }
+    
+    val infiniteTransition = rememberInfiniteTransition(label = "DashboardPulse")
+    val circlePulseScale by infiniteTransition.animateFloat(
+        initialValue = 0.97f,
+        targetValue = 1.03f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "circlePulse"
+    )
+    val cardPulseScale by infiniteTransition.animateFloat(
+        initialValue = 0.985f,
+        targetValue = 1.015f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cardPulse"
+    )
+
+    // LaunchedEffect removed for mock data
+
+    // Identify closest exam dynamically
+    val now = remember { System.currentTimeMillis() }
+    val sortedExams = remember(allExams) {
+        allExams.filter { (it.examDateMs ?: Long.MAX_VALUE) >= now }.sortedBy { it.examDateMs ?: Long.MAX_VALUE } +
+        allExams.filter { (it.examDateMs ?: Long.MAX_VALUE) < now }.sortedByDescending { it.examDateMs ?: Long.MAX_VALUE }
+    }
+    val nearestExam = sortedExams.firstOrNull()
+
+    val subjectNearestExamMap = remember(allExams, allTopicsWithDetails) {
+        val map = mutableMapOf<String, Long>()
+        allTopicsWithDetails.forEach { topic ->
+            if (topic.examIds.isNotEmpty()) {
+                val dates = topic.examIds.mapNotNull { examId ->
+                    allExams.find { it.id == examId }?.examDateMs
+                }.filter { it >= now }
+                if (dates.isNotEmpty()) {
+                    val minDate = dates.minOrNull() ?: Long.MAX_VALUE
+                    val current = map[topic.subjectName] ?: Long.MAX_VALUE
+                    if (minDate < current) {
+                        map[topic.subjectName] = minDate
+                    }
+                }
+            }
+        }
+        map
+    }
+
+    val sortedSubjectProgress = remember(analyticsMetrics.subjectProgress, subjectSortOption, subjectNearestExamMap) {
+        if (subjectSortOption == "Upcoming Deadline") {
+            analyticsMetrics.subjectProgress.sortedBy { prog ->
+                subjectNearestExamMap[prog.name] ?: Long.MAX_VALUE
+            }
+        } else {
+            analyticsMetrics.subjectProgress.sortedByDescending { it.completionPercentage }
+        }
+    }
+
+    if (showAddExamDialog || examToEdit != null) {
+        val isEdit = examToEdit != null
+        AddExamDialog(
+            initialName = examToEdit?.name ?: "",
+            initialHours = examToEdit?.targetStudyHours?.toString() ?: "",
+            initialDateMs = examToEdit?.examDateMs,
+            onDismiss = {
+                showAddExamDialog = false
+                examToEdit = null
+            },
+            onSave = { name, dateMs, hours ->
+                if (isEdit) {
+                    examToEdit?.copy(name = name, examDateMs = dateMs, targetStudyHours = hours)?.let { updated ->
+                        viewModel.updateExam(updated)
+                    }
+                } else {
+                    viewModel.insertExam(name, dateMs, hours)
+                }
+                showAddExamDialog = false
+                examToEdit = null
+                Toast.makeText(context, "Exam saved successfully!", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Logout") },
+            text = { Text("Are you sure you want to logout?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        viewModel.logout(context) {
+                            onLogout()
+                        }
+                    },
+                    modifier = Modifier.testTag("confirm_logout_button")
+                ) {
+                    Text("Logout", color = Color(0xFFEF4444))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showLogoutDialog = false },
+                    modifier = Modifier.testTag("cancel_logout_button")
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            DashboardDrawerContent(
+                viewModel = viewModel,
+                closeDrawer = { scope.launch { drawerState.close() } },
+                onNavigateToAnalytics = onNavigateToAnalytics,
+                onNavigateToProfile = onNavigateToProfile,
+                onNavigateToWallet = onNavigateToWallet,
+                onNavigateToStreak = onNavigateToStreak,
+                onNavigateToSettings = onNavigateToSettings,
+                onNavigateToOfflineNotes = onNavigateToOfflineNotes,
+                onLogoutClick = { showLogoutDialog = true },
+                onNavigateToLanguage = onNavigateToLanguage,
+                onNavigateToHelpAndSupport = onNavigateToHelpAndSupport
+            )
+        }
+    ) {
+        Scaffold(
+            containerColor = DashBackground,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        val greetName = userProfile?.name?.takeIf { it.isNotBlank() }?.split(" ")?.get(0) ?: "Aspirant"
+                        Text(
+                            text = "Hi, $greetName! \uD83D\uDC4B",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DashTextDark,
+                            letterSpacing = (-0.5).sp
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { scope.launch { drawerState.open() } },
+                            modifier = Modifier
+                                .padding(start = 12.dp)
+                                .shadow(2.dp, RoundedCornerShape(12.dp))
+                                .background(Color.White, RoundedCornerShape(12.dp))
+                                .size(44.dp)
+                        ) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = DashTextDark)
+                        }
+                    },
+                    actions = {
+                        // Notification bell
+                        Box(
+                            modifier = Modifier
+                                .shadow(2.dp, RoundedCornerShape(12.dp))
+                                .background(Color.White, RoundedCornerShape(12.dp))
+                                .size(44.dp)
+                                .clickable {
+                                    onNavigateToNotifications()
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = DashTextDark)
+                            if (unreadNotificationsCount > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(6.dp)
+                                        .size(14.dp) // Slightly larger to fit text
+                                        .clip(CircleShape)
+                                        .background(Color.Red),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = if (unreadNotificationsCount > 9) "9+" else unreadNotificationsCount.toString(),
+                                        color = Color.White,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        // Profile Avatar
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(DashPurplePrimary)
+                                .clickable { onNavigateToProfile() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            DashboardProfileAvatar(
+                                imageUrl = userProfile?.profilePictureUrl,
+                                modifier = Modifier.fillMaxSize(),
+                                iconSize = 24.dp
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = DashBackground,
+                        scrolledContainerColor = DashBackground
+                    )
+                )
+            }
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(bottom = 32.dp, top = 8.dp)
+            ) {
+
+
+                // SPACED REPETITION UI ALERT SYSTEM
+                item {
+                    val combinedDue = metrics.todayDue + metrics.pendingRevisions
+                    if (combinedDue.isNotEmpty()) {
+                        val infiniteTransition = rememberInfiniteTransition(label = "pulse_alert")
+                        val scale by infiniteTransition.animateFloat(
+                            initialValue = 1f,
+                            targetValue = 1.02f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1000, easing = EaseInOutSine),
+                                repeatMode = RepeatMode.Reverse
+                            ),
+                            label = "scale_pulse"
+                        )
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 8.dp)
+                                .scale(scale)
+                                .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE65100).copy(alpha = 0.2f))
+                                .bounceClick { onNavigateToToday() },
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF4E5)), // Warm alert color
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.dp, Color(0xFFFFCC80))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFFFFE0B2)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.NotificationsActive,
+                                        contentDescription = "Alert",
+                                        tint = Color(0xFFE65100),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Spaced Repetition Alert", fontWeight = FontWeight.Bold, color = Color(0xFFE65100), fontSize = 15.sp)
+                                    val combinedDueSize = metrics.todayDue.size + metrics.pendingRevisions.size
+                                    Text(
+                                        "You have ${combinedDueSize} topics due for review today to maintain optimal memory retention.",
+                                        color = Color(0xFFF57C00),
+                                        fontSize = 12.sp,
+                                        lineHeight = 16.sp,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForwardIos,
+                                    contentDescription = "Review",
+                                    tint = Color(0xFFE65100),
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 1. EXAM COUNTDOWN CARD
+                item {
+                    if (nearestExam == null) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 12.dp)
+                                .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(24.dp),
+                            border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.EventBusy, contentDescription = null, tint = DashPurplePrimary.copy(alpha = 0.5f), modifier = Modifier.size(48.dp))
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text("No Exam Selected", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = DashTextDark)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("Select your target exam to start tracking preparation.", color = DashTextGray, fontSize = 14.sp, textAlign = TextAlign.Center)
+                                Spacer(modifier = Modifier.height(20.dp))
+                                Button(
+                                    onClick = { showAddExamDialog = true },
+                                    colors = ButtonDefaults.buttonColors(containerColor = DashPurplePrimary),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text("Select Exam", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    } else {
+                        Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                            PremiumNearestExamCard(
+                                exam = nearestExam,
+                                onEdit = { examToEdit = nearestExam },
+                                onDelete = { viewModel.deleteExam(nearestExam.id) }
+                            )
+                        }
+                    }
+                }
+
+                // 2. TODAY'S PLAN CARD
+                item {
+                    val combinedDue = metrics.todayDue + metrics.pendingRevisions
+                    val totalTodayTopics = combinedDue.size
+                    val estimatedStudyTimeMins = combinedDue.sumOf { it.expectedRevisionTime }
+                    val estimatedStudyTimeStr = formatEstimatedTime(estimatedStudyTimeMins)
+
+                    var buttonPressed by remember { mutableStateOf(false) }
+                    val buttonScale by animateFloatAsState(
+                        targetValue = if (buttonPressed) 1.1f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "buttonScaleAnim"
+                    )
+
+                    var isNavigating by remember { mutableStateOf(false) }
+                    val startRevisionAction = {
+                        if (!isNavigating) {
+                            isNavigating = true
+                            scope.launch {
+                                buttonPressed = true
+                                delay(120)
+                                buttonPressed = false
+                                onNavigateToToday()
+                                delay(500)
+                                isNavigating = false
+                            }
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                            .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f))
+                            .bounceClick { startRevisionAction() },
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .fillMaxWidth()
+                        ) {
+                            // Header
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarToday,
+                                    contentDescription = null,
+                                    tint = DashPurplePrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Today's Plan",
+                                    color = DashTextDark,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Content
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MenuBook,
+                                        contentDescription = null,
+                                        tint = DashTextGray,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Total Today's Topics: $totalTodayTopics",
+                                        color = DashTextDark,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Timer,
+                                        contentDescription = null,
+                                        tint = DashTextGray,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Estimated Study Time: $estimatedStudyTimeStr",
+                                        color = DashTextDark,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(18.dp))
+
+                            // Full-width Primary Button
+                            Button(
+                                onClick = { startRevisionAction() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .scale(buttonScale),
+                                colors = ButtonDefaults.buttonColors(containerColor = DashPurplePrimary),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(
+                                    text = "Start Revision",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 2B. TODAY'S TO-DO LIST
+                item {
+                    val combinedDue = metrics.todayDue + metrics.pendingRevisions
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = "Today's To-Do List",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = DashTextDark,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        
+                        if (combinedDue.isEmpty()) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "No revisions scheduled for today.",
+                                        color = DashTextGray,
+                                        fontSize = 14.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                val combinedDue = metrics.todayDue + metrics.pendingRevisions
+                if (combinedDue.isNotEmpty()) {
+                    items(combinedDue, key = { it.topicId }) { topic ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 6.dp)
+                                .clickable { onNavigateToTopic(topic.topicId) },
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(DashPurplePrimary)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = topic.subjectName,
+                                        fontSize = 12.sp,
+                                        color = DashPurplePrimary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = " • ${topic.chapterName}",
+                                        fontSize = 12.sp,
+                                        color = DashTextGray
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = topic.topicName,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = DashTextDark
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.AccessTime,
+                                            contentDescription = null,
+                                            tint = DashTextGray,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "${topic.expectedRevisionTime} min",
+                                            fontSize = 12.sp,
+                                            color = DashTextGray
+                                        )
+                                    }
+                                    
+                                    Button(
+                                        onClick = { onNavigateToTopic(topic.topicId) },
+                                        modifier = Modifier.height(32.dp),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = DashPurplePrimary),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Start Revision", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 4. STUDY TOOLS SECTION
+                item {
+                    Column(modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.GridView, // Symmetrical 4-squares icon
+                                contentDescription = "GridView Icon",
+                                tint = DashPurplePrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "STUDY TOOLS",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 14.sp,
+                                color = DashTextDark,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
+
+                        // Horizontal Scrollable Row containing the 4 premium tools
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Tool 1: Syllabus
+                            item {
+                                StudyToolCard(
+                                    icon = Icons.Default.MenuBook,
+                                    title = "Syllabus",
+                                    subtitle = "Track Progress",
+                                    iconBgColor = DashPurpleLight,
+                                    iconColor = DashPurplePrimary,
+                                    onClick = onNavigateToSyllabus
+                                )
+                            }
+                            // Tool 2: Calendar
+                            item {
+                                StudyToolCard(
+                                    icon = Icons.Default.CalendarToday,
+                                    title = "Calendar",
+                                    subtitle = "Exam Schedule",
+                                    iconBgColor = Color(0xFFEFF6FF), // Soft Blue
+                                    iconColor = Color(0xFF3B82F6),
+                                    onClick = onNavigateToCalendar
+                                )
+                            }
+                            // Tool 3: Analytics
+                            item {
+                                StudyToolCard(
+                                    icon = Icons.Default.BarChart,
+                                    title = "Analytics",
+                                    subtitle = "Study Reports",
+                                    iconBgColor = Color(0xFFFEF3C7), // Soft Amber
+                                    iconColor = Color(0xFFD97706),
+                                    onClick = onNavigateToAnalytics
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 5. WEEKLY VISUALIZATION
+                item {
+                    WeeklyVisualizationSection(analyticsMetrics)
+                }
+
+                // 5.5. RECENT SESSIONS
+                item {
+                    RecentSessionsListSection(analyticsMetrics)
+                }
+
+                // 6. SUBJECT BREAKDOWN
+                item {
+                    SubjectBreakdownVisualizationSection(analyticsMetrics)
+                }
+
+
+            }
+        }
+    }
+
+    if (showCongratsGoalDialog) {
+        DailyGoalCongratsDialog(
+            goalTarget = userProfile?.focusSettings?.dailyFocusGoalMins ?: 120,
+            unitName = "minutes of focus",
+            streakDays = userProfile?.currentStreak ?: 1,
+            onDismiss = { showCongratsGoalDialog = false }
+        )
+    }
+}
+
+@Composable
+fun BulletRow(
+    icon: ImageVector,
+    text: String,
+    iconTint: Color = Color.White.copy(alpha = 0.9f),
+    textColor: Color = Color.White
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = text,
+            color = textColor,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun DividerDivider(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .width(1.dp)
+            .height(36.dp)
+            .background(Color(0xFFE2E8F0))
+    )
+}
+
+@Composable
+fun SyllabusMetricColumn(metric: String, label: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = metric,
+            fontWeight = FontWeight.Black,
+            fontSize = 15.sp,
+            color = DashTextDark
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = DashTextGray,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun StudyToolCard(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    iconBgColor: Color,
+    iconColor: Color,
+    pendingCount: Int = 0,
+    progress: Float = 0f,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(135.dp)
+            .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f))
+            .bounceClick { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(54.dp)
+                    .clip(CircleShape) // Maintain circle shape matching iOS/Android design standards
+                    .background(iconBgColor),
+                contentAlignment = Alignment.Center
+            ) {
+                if (progress > 0f) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize().padding(2.dp),
+                        color = iconColor,
+                        trackColor = Color.Transparent,
+                        strokeWidth = 3.dp
+                    )
+                }
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconColor,
+                    modifier = Modifier.size(24.dp)
+                )
+                if (pendingCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = (-2).dp, y = 2.dp)
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFEF4444)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = pendingCount.toString(),
+                            color = Color.White,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = title,
+                fontWeight = FontWeight.Black,
+                fontSize = 14.sp,
+                color = DashTextDark,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = subtitle,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                color = DashTextGray,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = DashTextGray,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun ThreeDTargetCanvas() {
+    Canvas(
+        modifier = Modifier
+            .size(120.dp)
+            .padding(8.dp)
+    ) {
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val maxRad = size.minDimension / 2f
+
+        // Shadow Outer
+        drawCircle(
+            color = Color.Black.copy(alpha = 0.08f),
+            radius = maxRad,
+            center = Offset(center.x + 4f, center.y + 4f)
+        )
+
+        // Outer white ring
+        drawCircle(
+            color = Color.White,
+            radius = maxRad,
+            center = center
+        )
+
+        // Purple outer ring
+        drawCircle(
+            color = Color(0xFFDCD6FF),
+            radius = maxRad * 0.85f,
+            center = center
+        )
+
+        // White ring
+        drawCircle(
+            color = Color.White,
+            radius = maxRad * 0.65f,
+            center = center
+        )
+
+        // Magenta/Purple inner
+        drawCircle(
+            color = Color(0xFF8B5CF6),
+            radius = maxRad * 0.45f,
+            center = center
+        )
+
+        // White mini ring
+        drawCircle(
+            color = Color.White,
+            radius = maxRad * 0.28f,
+            center = center
+        )
+
+        // Gold Bullseye
+        drawCircle(
+            color = Color(0xFFFFB300),
+            radius = maxRad * 0.15f,
+            center = center
+        )
+
+        // Draw targets cross lines
+        drawLine(
+            color = Color.White.copy(alpha = 0.4f),
+            start = Offset(center.x, center.y - maxRad),
+            end = Offset(center.x, center.y + maxRad),
+            strokeWidth = 3f
+        )
+        drawLine(
+            color = Color.White.copy(alpha = 0.4f),
+            start = Offset(center.x - maxRad, center.y),
+            end = Offset(center.x + maxRad, center.y),
+            strokeWidth = 3f
+        )
+
+        // 3D dart hitting center
+        drawLine(
+            color = Color.White,
+            start = Offset(center.x - maxRad, center.y - maxRad),
+            end = Offset(center.x + maxRad * 0.1f, center.y + maxRad * 0.1f),
+            strokeWidth = 6f
+        )
+
+        // Red flight of arrow
+        drawCircle(
+            color = Color(0xFFEF4444),
+            radius = 6f,
+            center = Offset(center.x - maxRad * 0.95f, center.y - maxRad * 0.95f)
+        )
+    }
+}
+
+@Composable
+fun PremiumNearestExamCard(
+    exam: ExamCountdown,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var currentTimeMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(exam.examDateMs) {
+        while (true) {
+            currentTimeMs = System.currentTimeMillis()
+            delay(1000L)
+        }
+    }
+
+    val diff = (exam.examDateMs ?: 0L) - currentTimeMs
+    val isLive = diff > 0 && (exam.examDateMs ?: 0L) > 0L
+
+    val days = if (isLive) (diff / (1000 * 60 * 60 * 24)).toInt() else 0
+    val hours = if (isLive) ((diff / (1000 * 60 * 60)) % 24).toInt() else 0
+    val minutes = if (isLive) ((diff / (1000 * 60)) % 60).toInt() else 0
+    val seconds = if (isLive) ((diff / 1000) % 60).toInt() else 0
+
+    val df = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
+    val dateString = if ((exam.examDateMs ?: 0L) > 0L) df.format(Date(exam.examDateMs ?: 0L)) else "No Date Set"
+
+    val examProgressTarget = (exam.progress / 100f).coerceIn(0.001f, 1f)
+    val animatedExamProgress by animateFloatAsState(
+        targetValue = examProgressTarget,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "premium_nearest_exam_progress"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                // Logo, Name, Date
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(CircleShape)
+                            .background(
+                                brush = Brush.linearGradient(
+                                    colors = listOf(Color(0xFFFFCCBC), Color(0xFFFFAB91))
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFFD84315), modifier = Modifier.size(24.dp))
+                            Text(
+                                text = if (exam.name.length >= 3) exam.name.take(3).uppercase() else "EXM",
+                                color = Color(0xFFD84315),
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = exam.name,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 20.sp,
+                            color = DashTextDark
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = DashTextGray, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(dateString, color = DashTextGray, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Gold Live Countdown Box
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFFF8E7))
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.HourglassTop,
+                                contentDescription = null,
+                                tint = Color(0xFFD97706),
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = String.format("%dD %02dH %02dM %02dS", days, hours, minutes, seconds),
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color(0xFFD97706)
+                                )
+                                Text("Remaining", color = Color(0xFFD97706), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                            }
+                        }
+                        
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(12.dp))
+                                .background(Color.White)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFFEF4444)))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("LIVE", color = Color(0xFFEF4444), fontSize = 10.sp, fontWeight = FontWeight.Black)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // Progress Banner
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Overall Progress", fontSize = 14.sp, color = DashTextDark, fontWeight = FontWeight.Bold)
+                        Text("${exam.progress.toInt()}%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = DashPurplePrimary)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE2E8F0))) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(animatedExamProgress)
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(DashPurplePrimary)
+                        )
+                    }
+                }
+            }
+
+            // Menu Options on Top-Right Corner
+            Box(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
+                IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = DashTextGray)
+                }
+                DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, modifier = Modifier.background(Color.White)) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = { menuExpanded = false; onEdit() },
+                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete", color = Color.Red) },
+                        onClick = { menuExpanded = false; onDelete() },
+                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MiniStatItem(label: String, valStr: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(valStr, fontWeight = FontWeight.Black, fontSize = 13.sp, color = DashPurplePrimary)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(label, fontSize = 10.sp, color = DashTextGray)
+    }
+}
+
+@Composable
+fun PerformanceCard(
+    title: String,
+    value: String,
+    subtitle: String,
+    icon: ImageVector,
+    bgColor: Color,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .shadow(1.dp, RoundedCornerShape(16.dp), spotColor = Color.Black.copy(alpha = 0.03f)),
+        colors = CardDefaults.cardColors(containerColor = bgColor),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(14.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(title, color = DashTextDark.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, lineHeight = 14.sp)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(value, fontWeight = FontWeight.Black, fontSize = 20.sp, color = DashPurplePrimary)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(subtitle, color = DashTextGray, fontSize = 10.sp)
+        }
+    }
+}
+
+@Composable
+fun QuickActionItem(
+    icon: ImageVector,
+    label: String,
+    description: String,
+    bgColor: Color,
+    iconColor: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .bounceClick { onClick() }
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(bgColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = label, tint = iconColor, modifier = Modifier.size(24.dp))
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Black,
+            color = DashTextDark,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = description,
+            fontSize = 9.sp,
+            color = DashTextGray,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddExamDialog(
+    initialName: String = "",
+    initialHours: String = "",
+    initialDateMs: Long? = null,
+    onDismiss: () -> Unit,
+    onSave: (String, Long?, Int?) -> Unit
+) {
+    var examName by remember { mutableStateOf(initialName) }
+    var targetHours by remember { mutableStateOf(initialHours) }
+    var examDateMs by remember { mutableStateOf(initialDateMs) }
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = examDateMs ?: System.currentTimeMillis())
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    examDateMs = datePickerState.selectedDateMillis
+                    showDatePicker = false
+                }) {
+                    Text("OK", color = DashPurplePrimary, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel", color = DashTextGray)
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = if (initialName.isEmpty()) "Add Target Exam" else "Edit Exam",
+                fontWeight = FontWeight.Black,
+                color = DashTextDark,
+                fontSize = 18.sp
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                OutlinedTextField(
+                    value = examName,
+                    onValueChange = { examName = it },
+                    label = { Text("Exam Name (e.g. UPSC / SSC CGL)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DashPurplePrimary,
+                        cursorColor = DashPurplePrimary
+                    )
+                )
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDatePicker = true }
+                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 14.dp)
+                ) {
+                    Icon(Icons.Default.CalendarToday, contentDescription = "Select Date", tint = DashPurplePrimary)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = examDateMs?.let { SimpleDateFormat("dd MMM, yyyy", Locale.getDefault()).format(Date(it)) } ?: "Select Exam Date",
+                        color = if (examDateMs != null) DashTextDark else DashTextGray,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
+
+                OutlinedTextField(
+                    value = targetHours,
+                    onValueChange = { targetHours = it },
+                    label = { Text("Target Study Hours (e.g. 500)") },
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DashPurplePrimary,
+                        cursorColor = DashPurplePrimary
+                    )
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (examName.isNotBlank() && examDateMs != null) {
+                        onSave(examName.trim(), examDateMs, targetHours.toIntOrNull() ?: 300)
+                    } else {
+                        onSave(examName.trim(), examDateMs ?: System.currentTimeMillis() + 86400000L * 30, targetHours.toIntOrNull() ?: 300)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = DashPurplePrimary),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Save", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = DashTextGray)
+            }
+        },
+        containerColor = Color.White
+    )
+}
+
+@Composable
+fun DashboardDrawerContent(
+    viewModel: RevisionViewModel,
+    closeDrawer: () -> Unit,
+    onNavigateToAnalytics: () -> Unit,
+    onNavigateToProfile: () -> Unit,
+    onNavigateToWallet: () -> Unit,
+    onNavigateToStreak: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToOfflineNotes: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onNavigateToLanguage: () -> Unit,
+    onNavigateToHelpAndSupport: () -> Unit
+) {
+    val globalConfig by viewModel.globalConfig.collectAsStateWithLifecycle()
+    val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
+    val allUsers by viewModel.adminAllUsers.collectAsStateWithLifecycle(initialValue = emptyList())
+    val userName = userProfile?.name?.takeIf { it.isNotBlank() } ?: "Jagdish Meena"
+    val streak = if (globalConfig.isStreakSystemEnabled) (userProfile?.currentStreak ?: 15) else 0
+    val coins = userProfile?.totalCoins ?: 1250
+    
+    val (sortedUsersDesc, currentRankInt) = remember(allUsers, userProfile) {
+        val realAllUsers = allUsers ?: emptyList()
+        val sorted = realAllUsers.filter { !it.isBanned }.sortedByDescending { it.getOverallPerformanceScore() }
+        val index = sorted.indexOfFirst { it.id == userProfile?.id }
+        Pair(sorted, if (index != -1) index + 1 else sorted.size + 1)
+    }
+    
+    ModalDrawerSheet(
+        drawerContainerColor = Color.White,
+        modifier = Modifier.width(340.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawCircle(
+                    color = Color(0xFFF3E8FF).copy(alpha = 0.6f),
+                    radius = 300.dp.toPx(),
+                    center = Offset(0f, 0f)
+                )
+                drawCircle(
+                    color = Color(0xFFE0E7FF).copy(alpha = 0.3f),
+                    radius = 200.dp.toPx(),
+                    center = Offset(size.width, 200.dp.toPx())
+                )
+            }
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Close button top right
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = closeDrawer,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .shadow(1.dp, CircleShape)
+                            .background(Color.White, CircleShape)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = DashPurplePrimary, modifier = Modifier.size(20.dp))
+                    }
+                }
+
+                // Avatar with camera badge
+                Box(
+                    modifier = Modifier.size(110.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(modifier = Modifier.size(110.dp).border(2.dp, Color(0xFFE5E0FF), CircleShape))
+                    Box(modifier = Modifier.size(90.dp).clip(CircleShape).background(DashPurpleLight), contentAlignment = Alignment.Center) {
+                        DashboardProfileAvatar(imageUrl = userProfile?.profilePictureUrl, modifier = Modifier.fillMaxSize(), iconSize = 40.dp)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 6.dp, end = 6.dp)
+                            .size(28.dp)
+                            .background(DashPurplePrimary, CircleShape)
+                            .border(2.dp, Color.White, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.PhotoCamera, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(userName, fontWeight = FontWeight.Black, fontSize = 22.sp, color = DashTextDark)
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF3E8FF)) {
+                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("AIR #${String.format("%,d", currentRankInt)}", color = DashPurplePrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Cards Row
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f).clickable { onNavigateToWallet(); closeDrawer() }) {
+                            Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFFEF3C7)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Paid, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(24.dp))
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(String.format("%,d", coins), fontWeight = FontWeight.Black, fontSize = 20.sp, color = DashPurplePrimary)
+                            Text("Coins", fontSize = 13.sp, color = DashTextGray)
+                        }
+                        
+                        Box(modifier = Modifier.width(1.dp).height(60.dp).background(Color(0xFFF1F5F9)))
+                        
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f).clickable { onNavigateToStreak(); closeDrawer() }) {
+                            Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFFFEDD5)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = Color(0xFFF97316), modifier = Modifier.size(24.dp))
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(streak.toString(), fontWeight = FontWeight.Black, fontSize = 20.sp, color = DashPurplePrimary)
+                            Text("Day Streak", fontSize = 13.sp, color = DashTextGray)
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                // Menu Items
+                Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    DrawerMenuItem2(icon = Icons.Default.SignalWifiOff, iconTint = Color(0xFF10B981), iconBg = Color(0xFFD1FAE5), title = "Offline Notes", subtitle = "Access notes locally", onClick = { onNavigateToOfflineNotes(); closeDrawer() })
+                    DrawerMenuItem2(icon = Icons.Default.Language, iconTint = DashPurplePrimary, iconBg = Color(0xFFF3E8FF), title = "Language", subtitle = "English", onClick = { onNavigateToLanguage(); closeDrawer() })
+                    DrawerMenuItem2(icon = Icons.Default.HeadsetMic, iconTint = Color(0xFF3B82F6), iconBg = Color(0xFFEFF6FF), title = "Help & Support", subtitle = "Get help and support", onClick = { onNavigateToHelpAndSupport(); closeDrawer() })
+                    
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFE2E8F0), thickness = 0.5.dp)
+                    
+                    DrawerMenuItem2(icon = Icons.Default.Logout, iconTint = Color(0xFFEF4444), iconBg = Color(0xFFFFE4E6), title = "Logout", subtitle = "Sign out from your account", onClick = { onLogoutClick(); closeDrawer() })
+                }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                // Bottom Illustration Area
+                Box(modifier = Modifier.fillMaxWidth().height(140.dp), contentAlignment = Alignment.BottomCenter) {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        drawRoundRect(
+                            color = Color(0xFFE5E0FF).copy(alpha = 0.5f),
+                            topLeft = Offset(20.dp.toPx(), size.height - 50.dp.toPx()),
+                            size = Size(size.width - 40.dp.toPx(), 40.dp.toPx()),
+                            cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx())
+                        )
+                        drawRoundRect(
+                            color = Color(0xFFE5E0FF).copy(alpha = 0.3f),
+                            topLeft = Offset(10.dp.toPx(), size.height - 25.dp.toPx()),
+                            size = Size(size.width - 20.dp.toPx(), 20.dp.toPx()),
+                            cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx())
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 32.dp, vertical = 24.dp),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
+                            Icon(Icons.Default.School, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(50.dp).offset(y = 10.dp))
+                            Box(modifier = Modifier.width(60.dp).height(14.dp).background(Color(0xFF8B5CF6), RoundedCornerShape(4.dp)))
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Box(modifier = Modifier.width(70.dp).height(18.dp).background(Color(0xFF6D28D9), RoundedCornerShape(4.dp)))
+                        }
+                        Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(bottom = 12.dp)) {
+                            Text("Keep Learning,", fontSize = 13.sp, color = DashTextDark, fontWeight = FontWeight.Bold)
+                            Text("Keep Growing!", fontSize = 16.sp, color = DashPurplePrimary, fontWeight = FontWeight.Black)
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
+            }
+        }
+    }
+}
+
+@Composable
+fun DrawerMenuItem2(icon: ImageVector, iconTint: Color, iconBg: Color, title: String, subtitle: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onClick() }
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(iconBg), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(24.dp))
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, fontWeight = FontWeight.Black, fontSize = 16.sp, color = DashTextDark)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(subtitle, fontSize = 12.sp, color = DashTextGray)
+        }
+        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(22.dp))
+    }
+}
+
+@Composable
+fun DrawerMenuItem(icon: ImageVector, iconBg: Color, iconTint: Color, title: String, subtitle: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(iconBg), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(20.dp))
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DashTextDark)
+            Text(subtitle, fontSize = 11.sp, color = DashTextGray)
+        }
+        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = DashTextGray, modifier = Modifier.size(20.dp))
+    }
+}
+
+@Composable
+fun DashboardProfileAvatar(
+    imageUrl: String?,
+    modifier: Modifier = Modifier,
+    iconSize: androidx.compose.ui.unit.Dp = 24.dp
+) {
+    if (!imageUrl.isNullOrBlank()) {
+        if (imageUrl.startsWith("data:image")) {
+            val bitmap = remember(imageUrl) {
+                val base64String = imageUrl.substringAfter("base64,")
+                try {
+                    val imageBytes = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT)
+                    val androidBitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    androidBitmap?.asImageBitmap()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+            if (bitmap != null) {
+                androidx.compose.foundation.Image(
+                    bitmap = bitmap,
+                    contentDescription = "Profile Photo",
+                    modifier = modifier,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+                return
+            }
+        } else {
+            coil.compose.AsyncImage(
+                model = imageUrl,
+                contentDescription = "Profile Photo",
+                modifier = modifier,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+            return
+        }
+    }
+    
+    // Fallback Icon
+    Icon(
+        imageVector = Icons.Default.Person,
+        contentDescription = "Profile",
+        tint = Color.White,
+        modifier = Modifier.size(iconSize)
+    )
+}
+
+@Composable
+fun WeeklyVisualizationSection(metrics: com.example.data.AnalyticsMetrics) {
+    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.InsertChart, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("SESSIONS COMPLETED OVER TIME", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DashTextDark)
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(20.dp)
+            ) {
+                val weeklyData = metrics.weeklyActivity.reversed()
+                if (weeklyData.isEmpty()) {
+                    Text("No study data for this period", modifier = Modifier.padding(20.dp), color = DashTextGray)
+                    return@Box
+                }
+                
+                val entries = weeklyData.mapIndexed { index, data ->
+                    com.patrykandpatrick.vico.core.entry.FloatEntry(index.toFloat(), data.sessions.takeIf { it > 0 }?.toFloat() ?: 0f)
+                }
+                
+                val chartEntryModel = com.patrykandpatrick.vico.core.entry.entryModelOf(entries)
+                
+                com.patrykandpatrick.vico.compose.chart.Chart(
+                    chart = com.patrykandpatrick.vico.compose.chart.line.lineChart(),
+                    model = chartEntryModel,
+                    startAxis = com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis(),
+                    bottomAxis = com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis(
+                        valueFormatter = { value, _ -> 
+                            weeklyData.getOrNull(value.toInt())?.day ?: ""
+                        }
+                    ),
+                    modifier = Modifier.fillMaxWidth().height(200.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SubjectBreakdownVisualizationSection(metrics: com.example.data.AnalyticsMetrics) {
+    if (metrics.studyTimeBreakdown.isEmpty()) return
+
+    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Outlined.PieChart, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("STUDY HOURS PER SUBJECT", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DashTextDark)
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                val totalPercentage = metrics.studyTimeBreakdown.sumOf { it.percentage }.coerceAtLeast(1)
+
+                metrics.studyTimeBreakdown.take(5).forEach { subject ->
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        val parsedColor = runCatching { Color(android.graphics.Color.parseColor(subject.colorCode)) }.getOrDefault(Color(0xFF3B82F6))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(parsedColor))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(subject.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = DashTextDark)
+                            }
+                            Text(subject.timeStr, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DashTextGray)
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        val fract = (subject.percentage.toFloat() / totalPercentage).coerceIn(0f, 1f)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0xFFF1F5F9))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(fract)
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(parsedColor)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DashboardSubjectCard(
+    subjectProgress: com.example.data.SubjectProgress,
+    onClick: () -> Unit
+) {
+    val themeColor = runCatching { Color(android.graphics.Color.parseColor(subjectProgress.colorCode)) }.getOrDefault(DashPurplePrimary)
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = themeColor.copy(alpha = 0.15f))
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(themeColor.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                // Determine initial or icon mapping, using string since we don't have direct icon mappings here for all cases
+                if (subjectProgress.name.lowercase().contains("math")) {
+                    Icon(Icons.Default.Calculate, contentDescription = null, tint = themeColor)
+                } else if (subjectProgress.name.lowercase().contains("sci")) {
+                    Icon(Icons.Default.Science, contentDescription = null, tint = themeColor)
+                } else {
+                    Text(
+                        subjectProgress.name.take(1).uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = themeColor
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = subjectProgress.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = DashTextDark
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Completion:", fontSize = 12.sp, color = DashTextGray)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("${subjectProgress.completionPercentage}%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = themeColor)
+                }
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Box(contentAlignment = Alignment.Center) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    progress = { 1f },
+                    color = Color(0xFFF1F5F9),
+                    modifier = Modifier.size(36.dp),
+                    strokeWidth = 4.dp
+                )
+                AnimatedCircularProgress(
+                    progress = subjectProgress.completionPercentage / 100f,
+                    color = themeColor,
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    modifier = Modifier.size(36.dp),
+                    strokeWidth = 4.dp
+                )
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = DashTextGray, modifier = Modifier.size(14.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun DashboardDeadlineCard(
+    exam: ExamCountdown
+) {
+    val dateMs = exam.examDateMs ?: System.currentTimeMillis()
+    val daysLeft = ((dateMs - System.currentTimeMillis()) / (1000 * 60 * 60 * 24)).coerceAtLeast(0)
+    val color = if (daysLeft < 7) Color(0xFFEF4444) else if (daysLeft < 30) Color(0xFFF59E0B) else DashPurplePrimary
+    val dateFormatted = java.text.SimpleDateFormat("dd MMM, yyyy", java.util.Locale.getDefault()).format(java.util.Date(dateMs))
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 6.dp)
+            .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = color.copy(alpha = 0.15f)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(color.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                    Text(
+                        text = daysLeft.toString(),
+                        fontWeight = FontWeight.Black,
+                        fontSize = 18.sp,
+                        color = color,
+                        letterSpacing = (-0.5).sp
+                    )
+                    Text(
+                        text = "Days",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = color
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = exam.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = DashTextDark,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.DateRange, contentDescription = null, tint = DashTextGray, modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(dateFormatted, fontSize = 12.sp, color = DashTextGray)
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = if (daysLeft < 7) color else color.copy(alpha = 0.5f), modifier = Modifier.size(20.dp))
+        }
+    }
+}
+
+
+@Composable
+fun RecentSessionsListSection(metrics: com.example.data.AnalyticsMetrics) {
+    if (metrics.recentSessions.isEmpty()) return
+
+    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.History, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("RECENT SESSIONS", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DashTextDark)
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                metrics.recentSessions.take(5).forEachIndexed { index, session ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = session.topicName,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = DashTextDark,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date(session.completedDateMs)),
+                                fontSize = 12.sp,
+                                color = DashTextGray
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = DashPurplePrimary.copy(alpha = 0.1f)),
+                            shape = RoundedCornerShape(8.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        ) {
+                            Text(
+                                text = "${session.durationMs / 60000}m",
+                                color = DashPurplePrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                    if (index < minOf(metrics.recentSessions.size, 5) - 1) {
+                        HorizontalDivider(color = Color(0xFFF1F5F9))
+                    }
+                }
+            }
+        }
+    }
+}

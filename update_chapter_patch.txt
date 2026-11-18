@@ -1,0 +1,35 @@
+        // Auto-update parent chapter's revisionCount and isCompleted based on its topics
+        try {
+            if (finalTopic.chapterId.isNotEmpty()) {
+                val chapterDoc = db.collection("chapters").document(finalTopic.chapterId).get().await()
+                if (chapterDoc.exists()) {
+                    val chapter = chapterDoc.toObject(Chapter::class.java)
+                    if (chapter != null) {
+                        val topicsInChapter = db.collection("topics").whereEqualTo("chapterId", chapter.id).get().await()
+                        var allCompleted = true
+                        var totalRevisions = 0
+                        var topicCount = 0
+                        
+                        for (doc in topicsInChapter.documents) {
+                            topicCount++
+                            val tStatus = doc.getString("status") ?: "Pending"
+                            val tRev = doc.getLong("revisionCount")?.toInt() ?: 0
+                            if (tStatus != "Complete") allCompleted = false
+                            totalRevisions += tRev
+                        }
+                        
+                        // If we are currently updating a topic, make sure its new state is factored in
+                        // (firestore may not have indexed it for the query yet if we just set it)
+                        val avgRev = if (topicCount > 0) (totalRevisions / topicCount) else 0
+                        
+                        db.collection("chapters").document(chapter.id).update(
+                            "isCompleted", allCompleted && topicCount > 0,
+                            "revisionCount", avgRev,
+                            "lastRevisionDateMs", System.currentTimeMillis()
+                        ).await()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }

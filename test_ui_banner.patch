@@ -1,0 +1,33 @@
+--- ./app/src/main/java/com/example/ui/DashboardScreen.kt
++++ ./app/src/main/java/com/example/ui/DashboardScreen.kt
+@@ -351,6 +351,28 @@
+                 contentPadding = PaddingValues(bottom = 32.dp, top = 8.dp)
+             ) {
++                item {
++                    if (metrics.todayDue.isNotEmpty()) {
++                        Card(
++                            modifier = Modifier
++                                .fillMaxWidth()
++                                .padding(horizontal = 20.dp, vertical = 8.dp)
++                                .clickable { onNavigateToToday() },
++                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
++                            shape = RoundedCornerShape(16.dp),
++                            border = BorderStroke(1.dp, Color(0xFFFFCC80))
++                        ) {
++                            Row(
++                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
++                                verticalAlignment = Alignment.CenterVertically
++                            ) {
++                                Icon(Icons.Default.NotificationsActive, contentDescription = "Alert", tint = Color(0xFFE65100), modifier = Modifier.size(28.dp))
++                                Spacer(modifier = Modifier.width(16.dp))
++                                Column(modifier = Modifier.weight(1f)) {
++                                    Text("Spaced Repetition Alert", fontWeight = FontWeight.Bold, color = Color(0xFFE65100), fontSize = 16.sp)
++                                    Text("You have ${metrics.todayDue.size} topics due for review today to maintain your memory retention.", color = Color(0xFFF57C00), fontSize = 13.sp, lineHeight = 18.sp)
++                                }
++                                Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = "Review", tint = Color(0xFFE65100), modifier = Modifier.size(16.dp))
++                            }
++                        }
++                    }
++                }
+                 // 1. EXAM COUNTDOWN CARD
+                 item {

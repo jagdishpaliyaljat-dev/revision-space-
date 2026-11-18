@@ -1,0 +1,100 @@
+    ) { topics, chapters, subjects ->
+        _isTopicsLoaded.value = true
+        val chaptersMap = chapters.associateBy { it.id }
+        val subjectsMap = subjects.associateBy { it.id }
+
+        val chaptersChanged = lastChaptersMap != chaptersMap
+        val subjectsChanged = lastSubjectsMap != subjectsMap
+        
+        lastChaptersMap = chaptersMap
+        lastSubjectsMap = subjectsMap
+
+        val topicMap = topics.associateBy { it.id }
+        val toRemove = cachedTopics.keys - topicMap.keys
+        toRemove.forEach { 
+            cachedTopics.remove(it)
+            cachedTopicsDetails.remove(it)
+        }
+        
+        val subjectIds = subjects.map { it.id }.toSet()
+        val chapterIdToSubjectId = chapters
+            .filter { it.id.isNotBlank() && it.subjectId.isNotBlank() && subjectIds.contains(it.subjectId) }
+            .associate { it.id to it.subjectId }
+
+        topics
+            .filter { it.id.isNotBlank() && it.chapterId.isNotBlank() && chapterIdToSubjectId.containsKey(it.chapterId) }
+            .forEach { topic ->
+                val cached = cachedTopics[topic.id]
+                if (cached != topic || chaptersChanged || subjectsChanged) {
+                    val chapterId = topic.chapterId
+                    val resolvedSubjectId = chapterIdToSubjectId[chapterId] ?: ""
+                    val chapter = chaptersMap[chapterId]
+                    val subject = subjectsMap[resolvedSubjectId]
+                    
+                    val todayStart = getStartOfDayMs(System.currentTimeMillis())
+                    val nextRev = topic.nextRevisionDate ?: topic.nextRevisionDateMs
+                    val computedStatus = if (topic.revisionStatus == "Completed" || (topic.totalRevisions > 0 && nextRev == 0L)) {
+                        "Completed"
+                    } else if (topic.totalRevisions == 0 || nextRev == 0L) {
+                        "Pending"
+                    } else {
+                        val nextRevStart = getStartOfDayMs(nextRev)
+                        when {
+                            nextRevStart > todayStart -> "Upcoming"
+                            nextRevStart == todayStart -> "Today"
+                            else -> "Overdue"
+                        }
+                    }
+                    
+                    val detail = TopicWithSubjectAndChapter(
+                        topicId = topic.id,
+                        topicName = topic.name,
+                        notes = topic.notes,
+                        difficulty = topic.difficulty,
+                        estimatedRevisionTimeMins = topic.estimatedRevisionTimeMins,
+                        status = computedStatus,
+                        studyTimeMs = topic.studyTimeMs,
+                        revisionTimeMs = topic.revisionTimeMs,
+                        revisionCount = topic.revisionCount,
+                        lastRevisionDateMs = topic.lastRevisionDateMs,
+                        nextRevisionDateMs = topic.nextRevisionDateMs,
+                        masteryScore = topic.masteryScore,
+                        chapterId = chapterId,
+                        chapterName = chapter?.name ?: "Unknown Chapter",
+                        subjectId = resolvedSubjectId,
+                        subjectName = subject?.name ?: "Unknown Subject",
+                        subjectColorHex = subject?.colorHex ?: "#0061A4",
+                        examIds = if (topic.examIds.isNotEmpty()) topic.examIds else if (subject?.examId?.isNotEmpty() == true) listOf(subject.examId) else emptyList(),
+                        tags = topic.tags,
+                        totalTopicsExpected = 0,
+                        revisionPattern = topic.revisionPattern,
+                        startDateMs = topic.startDateMs,
+                        firstStudyDate = topic.firstStudyDate,
+                        firstStudyTime = topic.firstStudyTime,
+                        firstStudyDuration = topic.firstStudyDuration,
+                        totalRevisions = topic.totalRevisions,
+                        totalRevisionCount = topic.totalRevisionCount,
+                        lastRevisionDate = topic.lastRevisionDate,
+                        lastRevisionTime = topic.lastRevisionTime,
+                        lastRevisionDuration = topic.lastRevisionDuration,
+                        nextRevisionDate = topic.nextRevisionDate,
+                        revisionStatus = computedStatus,
+                        progressPercentage = topic.progressPercentage,
+                        expectedRevisionTime = topic.expectedRevisionTime,
+                        currentRevisionStage = topic.currentRevisionStage,
+                        customSpacingPattern = topic.customSpacingPattern,
+                        studyCompleted = topic.studyCompleted,
+                        completedRevisions = topic.completedRevisions,
+                        totalRequiredRevisions = topic.totalRequiredRevisions,
+                        progressScore = topic.progressScore
+                    )
+                    cachedTopics[topic.id] = topic
+                    cachedTopicsDetails[topic.id] = detail
+                }
+            }
+
+        // Return a stable list
+        cachedTopicsDetails.values.toList()
+    }.flowOn(kotlinx.coroutines.Dispatchers.Default)
+    .catch { e: Throwable -> e.printStackTrace() }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

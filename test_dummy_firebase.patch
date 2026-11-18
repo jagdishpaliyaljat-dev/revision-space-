@@ -1,0 +1,22 @@
+--- app/src/main/java/com/example/MyApplication.kt
++++ app/src/main/java/com/example/MyApplication.kt
+@@ -8,6 +8,7 @@
+ import com.google.firebase.firestore.FirebaseFirestoreSettings
+ import com.google.firebase.firestore.PersistentCacheSettings
++import com.google.firebase.FirebaseOptions
+ 
+ class MyApplication : Application() {
+     companion object {
+@@ -19,7 +20,13 @@
+         super.onCreate()
+         try {
+-            FirebaseApp.initializeApp(this)
++            val options = FirebaseOptions.Builder()
++                .setApplicationId("1:1234567890:android:abcdef")
++                .setProjectId("dummy-project-id")
++                .setApiKey("dummy-api-key")
++                .build()
++            FirebaseApp.initializeApp(this, options)
+             
+             // Configure Firestore offline persistence
+             val settings = FirebaseFirestoreSettings.Builder()

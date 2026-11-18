@@ -1,0 +1,18 @@
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            listOf("Overall", "Today", "Week", "Month").forEach { filter ->
+                DropdownMenuItem(
+                    text = { 
+                        Text(
+                            text = filter, 
+                            fontWeight = if (filter == selectedFilter) FontWeight.Bold else FontWeight.Normal,
+                            color = if (filter == selectedFilter) PurpleGradientEnd else Color.Black
+                        ) 
+                    },
+                    modifier = Modifier.background(if (filter == selectedFilter) Color(0xFFF3F0FF) else Color.Transparent),
+                    onClick = { 
+                        onFilterSelected(filter)
+                        expanded = false
+                    }
+                )
+            }
+        }
