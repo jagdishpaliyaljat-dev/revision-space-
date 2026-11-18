@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -178,17 +179,27 @@ fun AdminDashboardScreen(viewModel: RevisionViewModel, navController: NavControl
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                            Icon(Icons.Default.Menu, "Menu", tint = TextPrimaryAdmin)
+                        IconButton(
+                            onClick = { coroutineScope.launch { drawerState.open() } },
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(40.dp)
+                                .background(Color.White, CircleShape)
+                                .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                        ) {
+                            Icon(Icons.Default.Menu, "Menu", tint = TextPrimaryAdmin, modifier = Modifier.size(19.dp))
                         }
                     },
                     actions = {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             isNotificationCenterOpen = !isNotificationCenterOpen
                             if (isNotificationCenterOpen) {
                                 unreadNotificationsCount = 0
                             }
-                        }) {
+                        }, modifier = Modifier
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)) {
                             BadgedBox(
                                 badge = {
                                     if (unreadNotificationsCount > 0) {
@@ -202,7 +213,7 @@ fun AdminDashboardScreen(viewModel: RevisionViewModel, navController: NavControl
                                 Icon(Icons.Default.Notifications, "Notifications", tint = TextSecondaryAdmin)
                             }
                         }
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             if (!SecureStorage.isRememberLoginEnabled(context)) {
                                 SecureStorage.clearCredentials(context)
                             }
@@ -210,7 +221,11 @@ fun AdminDashboardScreen(viewModel: RevisionViewModel, navController: NavControl
                             navController.navigate(DashboardRoute) {
                                 popUpTo(0) { inclusive = true }
                             }
-                        }) {
+                        }, modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)) {
                             Icon(Icons.Default.ExitToApp, "Sign Out", tint = Color(0xFFEF4444))
                         }
                     },
@@ -1856,15 +1871,45 @@ fun AdminUserDetailScreen(viewModel: RevisionViewModel, navController: NavContro
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("User Profile", color = TextPrimaryAdmin, fontWeight = FontWeight.Bold) },
+                title = {
+                    Column {
+                        Text(
+                            "User Profile",
+                            color = TextPrimaryAdmin,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            letterSpacing = (-0.4).sp
+                        )
+                        Text(
+                            "Details and activity",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = TextSecondaryAdmin
+                        )
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryAdmin)
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryAdmin, modifier = Modifier.size(19.dp))
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showEditDialog = true }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit User", tint = TextPrimaryAdmin)
+                    IconButton(
+                        onClick = { showEditDialog = true },
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit User", tint = TextPrimaryAdmin, modifier = Modifier.size(19.dp))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundAdmin)
