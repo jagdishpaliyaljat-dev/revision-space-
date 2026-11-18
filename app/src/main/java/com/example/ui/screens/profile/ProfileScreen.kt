@@ -560,68 +560,6 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             
                             Spacer(modifier = Modifier.height(8.dp))
                             
-                            // AIR Rank Badge
-                            val rankDisplayStr = if (safeProfile.isRanked) {
-                                "${safeProfile.badge} #${safeProfile.rankPosition ?: ""}"
-                            } else {
-                                safeProfile.badge
-                            }
-                            
-                            val badgeInfiniteTransition = rememberInfiniteTransition(label = "badgeAnimation")
-                            val pulseScale by badgeInfiniteTransition.animateFloat(
-                                initialValue = 1.0f,
-                                targetValue = 1.0001f,
-                                animationSpec = infiniteRepeatable(
-                                    animation = keyframes {
-                                        durationMillis = 3500
-                                        1.0f at 0
-                                        1.05f at 600 using FastOutSlowInEasing
-                                        0.98f at 1200 using FastOutSlowInEasing
-                                        1.0f at 1800
-                                        1.0f at 3500
-                                    },
-                                    repeatMode = RepeatMode.Restart
-                                ),
-                                label = "pulse"
-                            )
-                            val shimmerTranslate by badgeInfiniteTransition.animateFloat(
-                                initialValue = -150f,
-                                targetValue = 350f,
-                                animationSpec = infiniteRepeatable(
-                                    animation = tween(2200, delayMillis = 1300, easing = LinearEasing),
-                                    repeatMode = RepeatMode.Restart
-                                ),
-                                label = "shimmer"
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .scale(pulseScale)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(ProfilePurpleLight.copy(alpha = 0.5f))
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawRect(
-                                            brush = Brush.linearGradient(
-                                                colors = listOf(
-                                                    Color.Transparent,
-                                                    Color.White.copy(alpha = 0.45f),
-                                                    Color.Transparent
-                                                ),
-                                                start = Offset(shimmerTranslate, 0f),
-                                                end = Offset(shimmerTranslate + 60f, size.height)
-                                            )
-                                        )
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 6.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = ProfilePurple, modifier = Modifier.size(14.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(rankDisplayStr, color = ProfilePurple, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                }
-                            }
                             
                             Spacer(modifier = Modifier.height(8.dp))
                             
@@ -748,57 +686,6 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                 }
             }
 
-            // 4. Large Rank Card
-            if (userProfile != null) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = MaterialTheme.colorScheme.outlineVariant).clickable { 
-                            navController.navigate(com.example.ui.LeaderboardRoute)
-                        },
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBEB)),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(20.dp).fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                // 3D-like Trophy graphic
-                                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp)) {
-                                    // Base pedestal
-                                    Canvas(modifier = Modifier.fillMaxSize().padding(top = 40.dp)) {
-                                        drawOval(color = ProfilePurple, size = androidx.compose.ui.geometry.Size(size.width, size.height * 0.4f))
-                                    }
-                                    Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFFFD700), modifier = Modifier.size(60.dp).offset(y = (-10).dp))
-                                }
-                                
-                                Spacer(modifier = Modifier.width(20.dp))
-                                
-                                Column {
-                                    Text("All India Rank", color = ProfileTextDark, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    val rankValueDisplay = if (safeProfile.isRanked) {
-                                        "${safeProfile.badge} #${safeProfile.rankPosition ?: ""}"
-                                    } else {
-                                        safeProfile.badge
-                                    }
-                                    Text(rankValueDisplay, color = ProfilePurple, fontWeight = FontWeight.Black, fontSize = 32.sp)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("View Full Ranking ", color = ProfilePurple, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = ProfilePurple, modifier = Modifier.size(12.dp))
-                                    }
-                                }
-                            }
-                            
-                            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(60.dp).offset(y = 10.dp, x = 10.dp)) {
-                                Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFFFD700).copy(alpha = 0.2f), modifier = Modifier.size(60.dp))
-                            }
-                        }
-                    }
-                }
-            }
 
             // 5. Quick Actions Section
             item {

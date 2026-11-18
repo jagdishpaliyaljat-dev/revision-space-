@@ -587,59 +587,6 @@ fun TimerScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // ---------- 2. DAILY GOAL CARD (new premium feature) ----------
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                        MiniGoalRing(progress = progressPercent / 100f, modifier = Modifier.fillMaxSize())
-                        Icon(
-                            Icons.Default.LocalFireDepartment,
-                            contentDescription = null,
-                            tint = FocusPurple,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(14.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        SectionKicker("DAILY FOCUS GOAL")
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "$totalTodayMins / $goalMins min",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = FocusTextDark
-                        )
-                        Spacer(modifier = Modifier.height(7.dp))
-                        LinearProgressIndicator(
-                            progress = { progressPercent / 100f },
-                            modifier = Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(4.dp)),
-                            color = FocusPurple,
-                            trackColor = Color(0xFFF1EEFF)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "$progressPercent%",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = FocusPurple
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
             // ---------- 3. CHAPTER SELECTOR ----------
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                 Box(
