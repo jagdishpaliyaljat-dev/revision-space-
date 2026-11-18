@@ -60,7 +60,7 @@ import java.util.*
 val RevBgLight = Color(0xFFF6F7FB)
 val RevTextDark = Color(0xFF111827)
 val RevTextGray = Color(0xFF6B7280)
-val RevPrimary = Color(0xFF1D4ED8)
+val RevPrimary = Color(0xFF6C4DFF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,16 +213,16 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(Color(0xFFEFF6FF))
-                                        .border(1.dp, Color(0xFFDBEAFE), RoundedCornerShape(8.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(Color(0xFFF1EEFF))
+                                        .border(1.dp, Color(0xFFE4DBFF), RoundedCornerShape(10.dp))
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
                                     Text(
                                         text = "$completionPercentage%",
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF1D4ED8),
+                                        color = Color(0xFF6C4DFF),
                                         modifier = Modifier.testTag("header_completion_percentage")
                                     )
                                 }
@@ -231,19 +231,24 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                         navigationIcon = {
                             IconButton(
                                 onClick = { navController.popBackStack() },
-                                modifier = Modifier.testTag("drawer_menu_button")
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .size(40.dp)
+                                    .background(Color.White, CircleShape)
+                                    .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                    .testTag("drawer_menu_button")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
                                     contentDescription = "Menu Drawer",
-                                    tint = RevTextDark
+                                    tint = RevTextDark,
+                                    modifier = Modifier.size(19.dp)
                                 )
                             }
                         },
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                            containerColor = Color.White
-                        ),
-                        modifier = Modifier.shadow(1.dp)
+                            containerColor = RevBgLight
+                        )
                     )
                 }
             ) { paddingValues ->
@@ -278,8 +283,8 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     title = "Total Topics",
                                     value = totalTopicsCount.toString(),
                                     icon = Icons.Default.MenuBook,
-                                    accentColor = Color(0xFF1D4ED8),
-                                    bgColor = Color(0xFFEFF6FF),
+                                    accentColor = Color(0xFF6C4DFF),
+                                    bgColor = Color(0xFFF1EEFF),
                                     tag = "overview_total_topics"
                                 )
                                 OverviewStatCard(
@@ -341,7 +346,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     Icon(
                                         imageVector = Icons.Outlined.CalendarToday,
                                         contentDescription = null,
-                                        tint = Color(0xFF1D4ED8),
+                                        tint = Color(0xFF6C4DFF),
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Text(
@@ -364,7 +369,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             text = todayList.size.toString(),
                                             fontSize = 24.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF1D4ED8)
+                                            color = Color(0xFF6C4DFF)
                                         )
                                         Text(
                                             text = "Due Today",
@@ -388,7 +393,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             text = formatTotalMins(totalTimeMins.toLong()),
                                             fontSize = 24.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF1D4ED8)
+                                            color = Color(0xFF6C4DFF)
                                         )
                                         Text(
                                             text = "Total Time",
@@ -408,7 +413,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                         .testTag("start_todays_revisions_button"),
                                     shape = RoundedCornerShape(12.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF1D4ED8)
+                                        containerColor = Color(0xFF6C4DFF)
                                     )
                                 ) {
                                     Text(
@@ -471,7 +476,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                             title = "Upcoming",
                             count = upcomingList.size,
                             icon = Icons.Default.CheckCircle,
-                            iconColor = Color(0xFF3B82F6),
+                            iconColor = Color(0xFF7C6BFF),
                             borderColor = Color(0xFFE5E7EB),
                             bgColor = Color.White,
                             onClick = {
@@ -757,14 +762,14 @@ fun OverdueRevisionsView(
                             modifier = Modifier
                                 .size(96.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFEFF6FF)),
+                                .background(Color(0xFFF1EEFF)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
-                                tint = Color(0xFF3B82F6)
+                                tint = Color(0xFF7C6BFF)
                             )
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -1136,7 +1141,7 @@ fun ErrorStateScreen(message: String, onRetry: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onRetry,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1D4ED8)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
             ) {
@@ -1306,7 +1311,7 @@ fun UpcomingRevisionsView(
                             text = "(${sortedTopics.size})",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1D4ED8)
+                            color = Color(0xFF6C4DFF)
                         )
                     }
                 },
@@ -1359,13 +1364,13 @@ fun UpcomingRevisionsView(
                         modifier = Modifier
                             .size(72.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFEFF6FF)),
+                            .background(Color(0xFFF1EEFF)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF3B82F6),
+                            tint = Color(0xFF7C6BFF),
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -1398,10 +1403,10 @@ fun UpcomingRevisionsView(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFEFF6FF)
+                                containerColor = Color(0xFFF1EEFF)
                             ),
                             shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, Color(0xFFDBEAFE))
+                            border = BorderStroke(1.dp, Color(0xFFE4DBFF))
                         ) {
                             Row(
                                 modifier = Modifier.padding(16.dp),
@@ -1411,13 +1416,13 @@ fun UpcomingRevisionsView(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFDBEAFE)),
+                                        .background(Color(0xFFE4DBFF)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.CalendarToday,
                                         contentDescription = null,
-                                        tint = Color(0xFF1D4ED8),
+                                        tint = Color(0xFF6C4DFF),
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -1467,7 +1472,7 @@ fun UpcomingRevisionsView(
                                         Icon(
                                             imageVector = Icons.Outlined.CalendarToday,
                                             contentDescription = null,
-                                            tint = Color(0xFF3B82F6),
+                                            tint = Color(0xFF7C6BFF),
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -1507,7 +1512,7 @@ fun UpcomingRevisionsView(
                                         Icon(
                                             imageVector = Icons.Outlined.Timer,
                                             contentDescription = null,
-                                            tint = Color(0xFF3B82F6),
+                                            tint = Color(0xFF7C6BFF),
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -1624,12 +1629,12 @@ fun UpcomingRevisionsView(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(
-                                                if (daysRemaining == 1) Color(0xFFEFF6FF)
+                                                if (daysRemaining == 1) Color(0xFFF1EEFF)
                                                 else Color(0xFFF1F3F9)
                                             )
                                             .border(
                                                 1.dp,
-                                                if (daysRemaining == 1) Color(0xFFDBEAFE)
+                                                if (daysRemaining == 1) Color(0xFFE4DBFF)
                                                 else Color(0xFFE7EAF3),
                                                 RoundedCornerShape(8.dp)
                                             )
@@ -1638,7 +1643,7 @@ fun UpcomingRevisionsView(
                                         Text(
                                             text = badgeText,
                                             fontSize = 11.sp,
-                                            color = if (daysRemaining == 1) Color(0xFF1D4ED8) else Color(0xFF475569),
+                                            color = if (daysRemaining == 1) Color(0xFF6C4DFF) else Color(0xFF475569),
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -1717,13 +1722,13 @@ fun UpcomingRevisionsView(
                                         text = countText,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF1D4ED8)
+                                        color = Color(0xFF6C4DFF)
                                     )
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowRight,
                                         contentDescription = null,
-                                        tint = Color(0xFF1D4ED8),
+                                        tint = Color(0xFF6C4DFF),
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -1855,7 +1860,7 @@ fun UpcomingRevisionsView(
                     onClick = { showFilterBottomSheet = false },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1D4ED8)
+                        containerColor = Color(0xFF6C4DFF)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -1910,15 +1915,15 @@ fun CustomFilterChip(
     label: String
 ) {
     val bgColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFFEFF6FF) else Color(0xFFF1F3F9),
+        targetValue = if (selected) Color(0xFFF1EEFF) else Color(0xFFF1F3F9),
         animationSpec = tween(durationMillis = 200)
     )
     val borderColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF1D4ED8) else Color(0xFFE7EAF3),
+        targetValue = if (selected) Color(0xFF6C4DFF) else Color(0xFFE7EAF3),
         animationSpec = tween(durationMillis = 200)
     )
     val textColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF1D4ED8) else Color(0xFF475569),
+        targetValue = if (selected) Color(0xFF6C4DFF) else Color(0xFF475569),
         animationSpec = tween(durationMillis = 200)
     )
 
@@ -1964,7 +1969,7 @@ fun formatTotalMins(totalMins: Long): String {
     return if (m == 0L) "${h}h" else "${h}h ${m}m"
 }
 
-fun parseHexColor(hex: String, fallback: Color = Color(0xFF1D4ED8)): Color {
+fun parseHexColor(hex: String, fallback: Color = Color(0xFF6C4DFF)): Color {
     return try {
         if (hex.isNotEmpty()) {
             Color(android.graphics.Color.parseColor(hex))
@@ -2008,14 +2013,14 @@ fun TodayRevisionsView(
                         if (todayList.isNotEmpty()) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
-                                color = Color(0xFFEFF6FF), // Blue-50
+                                color = Color(0xFFF1EEFF), // Blue-50
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
                                     text = "(${todayList.size})",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1D4ED8), // Blue-700
+                                    color = Color(0xFF6C4DFF), // Blue-700
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }

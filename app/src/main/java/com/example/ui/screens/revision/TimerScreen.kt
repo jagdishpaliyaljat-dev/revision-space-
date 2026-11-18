@@ -63,10 +63,10 @@ import com.example.viewmodel.RevisionViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-val FocusBgLight = Color(0xFFF8F9FE)
-val FocusPurple = Color(0xFF6B4EFF)
+val FocusBgLight = Color(0xFFF6F7FB)
+val FocusPurple = Color(0xFF6C4DFF)
 val FocusPurpleLight = Color(0xFFE0D8FE)
-val FocusTextDark = Color(0xFF1E1B4B)
+val FocusTextDark = Color(0xFF0F172A)
 val FocusTextGray = Color(0xFF5B6478)
 
 @Composable
@@ -413,22 +413,59 @@ fun TimerScreen(
         containerColor = FocusBgLight,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Focus", fontWeight = FontWeight.Black, color = FocusTextDark) },
+                title = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "Focus",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            letterSpacing = (-0.3).sp,
+                            color = FocusTextDark
+                        )
+                        Text(
+                            "Stay in the zone",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = FocusTextGray
+                        )
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.Menu, "Menu", tint = FocusTextDark)
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Menu, "Menu", tint = FocusTextDark, modifier = Modifier.size(19.dp))
                     }
                 },
                 actions = {
-                    Row(modifier = Modifier.padding(end = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(modifier = Modifier.padding(end = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         val context = androidx.compose.ui.platform.LocalContext.current
-                        Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF1EEFF)).clickable {
-                             showAmbientSoundSheet = true
-                        }, contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.MusicNote, contentDescription = "Music", tint = FocusTextDark, modifier = Modifier.size(20.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                .clickable { showAmbientSoundSheet = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.MusicNote, contentDescription = "Music", tint = FocusTextDark, modifier = Modifier.size(19.dp))
                         }
-                        Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF1EEFF)).clickable { showSettingsSheet = true }, contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = FocusTextDark, modifier = Modifier.size(20.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                .clickable { showSettingsSheet = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = FocusTextDark, modifier = Modifier.size(19.dp))
                         }
                     }
                 },

@@ -80,10 +80,33 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
         containerColor = AnalyticsBg,
         topBar = {
             TopAppBar(
-                title = { Text("Analytics Dashboard", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color(0xFF0F172A)) },
+                title = {
+                    Column {
+                        Text(
+                            "Analytics",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            letterSpacing = (-0.4).sp,
+                            color = Color(0xFF0F172A)
+                        )
+                        Text(
+                            "Your study insights at a glance",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF8A94A6)
+                        )
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", modifier = Modifier.size(19.dp))
                     }
                 },
                 actions = {
@@ -97,8 +120,15 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            IconButton(onClick = { showDownloadMenu = true }) {
-                                Icon(Icons.Outlined.Download, contentDescription = "Download Reports", tint = Color(0xFF0F172A))
+                            IconButton(
+                                onClick = { showDownloadMenu = true },
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(40.dp)
+                                    .background(Color.White, CircleShape)
+                                    .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            ) {
+                                Icon(Icons.Outlined.Download, contentDescription = "Download Reports", tint = Color(0xFF0F172A), modifier = Modifier.size(19.dp))
                             }
                         }
                         DropdownMenu(
