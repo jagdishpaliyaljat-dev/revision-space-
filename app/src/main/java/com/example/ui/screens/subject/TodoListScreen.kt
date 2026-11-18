@@ -290,7 +290,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                                         completingTaskIds.remove(task.id)
                                                         if (success) {
                                                             showSuccessEffect = true
-                                                            Toast.makeText(context, "Task completed! 🎉", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context, "Task completed!", Toast.LENGTH_SHORT).show()
                                                         } else {
                                                             Toast.makeText(context, "Failed to update task", Toast.LENGTH_SHORT).show()
                                                         }
@@ -348,7 +348,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                                         showSuccessEffect = true
                                                         viewModel.markRevisionComplete(rev.id)
                                                         completingTaskIds.remove(rev.id)
-                                                        Toast.makeText(context, "Revision saved! 🎉", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, "Revision saved!", Toast.LENGTH_SHORT).show()
                                                     }
                                                 }
                                             },
@@ -400,7 +400,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                                 Spacer(modifier = Modifier.width(16.dp))
                                                 Column {
                                                     Text(
-                                                        "All tasks completed! 🎉",
+                                                        "All tasks completed!",
                                                         fontWeight = FontWeight.Bold,
                                                         color = Color(0xFF1B5E20),
                                                         fontSize = 16.sp
@@ -588,7 +588,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                 showSuccessEffect = true
                                 viewModel.markRevisionComplete(targetId)
                                 completingTaskIds.remove(targetId)
-                                Toast.makeText(context, "Revision saved! 🎉", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Revision saved!", Toast.LENGTH_SHORT).show()
                             }
                         }
                     ) {
@@ -615,7 +615,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                 showSuccessEffect = true
                                 viewModel.markRevisionComplete(targetId)
                                 completingTaskIds.remove(targetId)
-                                Toast.makeText(context, "Revision completed with adjusted impact! 🎉", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Revision completed with adjusted impact!", Toast.LENGTH_SHORT).show()
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
@@ -740,7 +740,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                     isCarryForward = isCarryForward
                                 )
                                 viewModel.updateQuickTask(updated)
-                                Toast.makeText(context, "Task updated! 🎉", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Task updated!", Toast.LENGTH_SHORT).show()
                             } else {
                                 val newTask = QuickTask(
                                     title = taskTitle.trim(),
@@ -750,7 +750,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                     dateCreatedStr = todayStr
                                 )
                                 viewModel.addQuickTask(newTask)
-                                Toast.makeText(context, "Task created! 🎉", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Task created!", Toast.LENGTH_SHORT).show()
                             }
                             showAddQuickTaskDialog = false
                             editingQuickTask = null
@@ -777,7 +777,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
         if (showSuccessEffect) {
             CheckmarkExplosionEffect(
                 modifier = Modifier.fillMaxSize(),
-                title = "Topic Marked as Revised! 🎉",
+                title = "Topic Marked as Revised!",
                 onAnimationEnd = { showSuccessEffect = false }
             )
         }

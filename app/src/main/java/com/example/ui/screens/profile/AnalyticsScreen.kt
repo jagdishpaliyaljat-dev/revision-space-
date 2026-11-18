@@ -315,7 +315,7 @@ fun EmptyAnalyticsState() {
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = { /* Could navigate to dashboard or timer */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.height(48.dp)
         ) {
@@ -368,7 +368,7 @@ fun StudyRecommendationsCard(metrics: AnalyticsMetrics) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color(0xFF4F46E5), CircleShape),
+                    .background(Color(0xFF6C4DFF), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = Color.White)

@@ -309,7 +309,7 @@ fun TimerScreen(
             },
             title = {
                 Text(
-                    text = if (currentSessionTypeState == "Break") "Break Completed 🎉" else "Session Completed 🎉",
+                    text = if (currentSessionTypeState == "Break") "Break Completed" else "Session Completed",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = FocusTextDark
@@ -560,7 +560,18 @@ fun TimerScreen(
                     if (isSavingMode) {
                         Text("Saving...", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = FocusTextGray)
                     } else if (saveSuccess) {
-                        Text("✓ Synced", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color(0xFF10B981),
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Text("Synced", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -603,7 +614,7 @@ fun TimerScreen(
                         Icon(Icons.Default.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(10.dp))
                         val buttonText = if (currentChapterName.isNotEmpty()) {
-                            "📚 ${currentChapterName.uppercase()}"
+                            currentChapterName.uppercase()
                         } else {
                             "Choose Chapter"
                         }

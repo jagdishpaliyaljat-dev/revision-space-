@@ -66,7 +66,7 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
     }
     var searchQuery by remember { mutableStateOf("") }
     var showTopicExplosion by remember { mutableStateOf(false) }
-    var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised! 🎉") }
+    var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised!") }
     var selectedFilter by remember { mutableStateOf(initialFilter) } // Today, Upcoming, Overdue, Completed
     
     var selectedSubjectFilter by remember { mutableStateOf("All Subjects") }
@@ -307,7 +307,7 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
                                     navController.navigate(TimerRoute(topic.topicId, true))
                                 },
                                 onComplete = {
-                                    completedTopicTitle = "${topic.topicName.take(24)} Marked as Revised! 🎉"
+                                    completedTopicTitle = "${topic.topicName.take(24)} Marked as Revised!"
                                     showTopicExplosion = true
                                     viewModel.recordTimerSession(topic.topicId, true, topic.estimatedRevisionTimeMins * 60 * 1000L)
                                 }

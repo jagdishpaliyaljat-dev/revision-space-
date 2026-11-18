@@ -1050,7 +1050,7 @@ fun TopicDetailScreen(
                                             // Show toast confirmation
                                             android.widget.Toast.makeText(
                                                 navController.context,
-                                                "📅 Spaced repetition schedule successfully applied for $selectedDifficulty level!",
+                                                "Spaced repetition schedule successfully applied for $selectedDifficulty level!",
                                                 android.widget.Toast.LENGTH_LONG
                                             ).show()
                                         } catch (e: Exception) {

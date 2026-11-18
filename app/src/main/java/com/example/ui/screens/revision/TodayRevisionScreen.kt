@@ -107,7 +107,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
     var showGoalDialog by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     var showConfetti by remember { mutableStateOf(false) }
     var showTopicExplosion by remember { mutableStateOf(false) }
-    var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised! 🎉") }
+    var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised!") }
     var previousCompletedCount by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(metrics.todayRevisedCount, settings.dailyGoal) {
@@ -479,7 +479,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                             title = "Upcoming",
                             count = upcomingList.size,
                             icon = Icons.Default.CheckCircle,
-                            iconColor = Color(0xFF7C6BFF),
+                            iconColor = Color(0xFF6C4DFF),
                             borderColor = Color(0xFFE5E7EB),
                             bgColor = Color.White,
                             onClick = {
@@ -772,7 +772,7 @@ fun OverdueRevisionsView(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
-                                tint = Color(0xFF7C6BFF)
+                                tint = Color(0xFF6C4DFF)
                             )
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -1121,9 +1121,11 @@ fun ErrorStateScreen(message: String, onRetry: () -> Unit) {
                     .background(Color(0xFFFEE2E2)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "⚠️",
-                    fontSize = 28.sp
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = Color(0xFFEF4444),
+                    modifier = Modifier.size(30.dp)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -1326,7 +1328,7 @@ fun UpcomingRevisionsView(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFF334155)
+                            tint = Color(0xFF0F172A)
                         )
                     }
                 },
@@ -1338,7 +1340,7 @@ fun UpcomingRevisionsView(
                         Icon(
                             imageVector = Icons.Default.FilterList,
                             contentDescription = "Filter",
-                            tint = Color(0xFF334155)
+                            tint = Color(0xFF0F172A)
                         )
                     }
                 },
@@ -1373,7 +1375,7 @@ fun UpcomingRevisionsView(
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF7C6BFF),
+                            tint = Color(0xFF6C4DFF),
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -1475,7 +1477,7 @@ fun UpcomingRevisionsView(
                                         Icon(
                                             imageVector = Icons.Outlined.CalendarToday,
                                             contentDescription = null,
-                                            tint = Color(0xFF7C6BFF),
+                                            tint = Color(0xFF6C4DFF),
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -1515,7 +1517,7 @@ fun UpcomingRevisionsView(
                                         Icon(
                                             imageVector = Icons.Outlined.Timer,
                                             contentDescription = null,
-                                            tint = Color(0xFF7C6BFF),
+                                            tint = Color(0xFF6C4DFF),
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -1678,7 +1680,7 @@ fun UpcomingRevisionsView(
                                         text = formattedNextDate,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = Color(0xFF334155)
+                                        color = Color(0xFF0F172A)
                                     )
                                 }
 
@@ -1706,7 +1708,7 @@ fun UpcomingRevisionsView(
                                         text = estimatedTimeStr,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = Color(0xFF334155)
+                                        color = Color(0xFF0F172A)
                                     )
                                 }
 
@@ -1889,10 +1891,10 @@ fun SubjectIconCircle(subjectName: String, color: Color) {
         contentAlignment = Alignment.Center
     ) {
         val initials = when {
-            subjectName.lowercase().contains("geography") -> "🌍"
-            subjectName.lowercase().contains("science") -> "🧪"
+            subjectName.lowercase().contains("geography") -> "Ge"
+            subjectName.lowercase().contains("science") -> "Sc"
             subjectName.lowercase().contains("economy") -> "₹"
-            subjectName.lowercase().contains("polity") -> "🏛️"
+            subjectName.lowercase().contains("polity") -> "Po"
             subjectName.lowercase().contains("english") -> "Aa"
             else -> {
                 if (subjectName.length >= 2) {
@@ -1994,7 +1996,7 @@ fun TodayRevisionsView(
 ) {
     val context = LocalContext.current
     var showTopicExplosion by remember { mutableStateOf(false) }
-    var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised! 🎉") }
+    var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised!") }
     val metrics by viewModel.dashboardMetrics.collectAsStateWithLifecycle()
     val todayList = metrics.todayDue
 
@@ -2417,7 +2419,7 @@ fun TodayRevisionsView(
                                 FilledIconButton(
                                     onClick = {
                                         isCompleting = true
-                                        onTopicCompleted("${topic.topicName.take(24)} Marked as Revised! 🎉")
+                                        onTopicCompleted("${topic.topicName.take(24)} Marked as Revised!")
                                         viewModel.recordTimerSession(
                                             topic.topicId,
                                             isRevision = true,

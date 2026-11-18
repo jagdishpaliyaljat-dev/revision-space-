@@ -449,7 +449,7 @@ fun LeaderboardTabAdmin(viewModel: RevisionViewModel) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(user.name, fontWeight = FontWeight.Bold, color = TextPrimaryAdmin)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("${user.coins} 🪙", fontSize = 12.sp, color = Color(0xFFF59E0B), fontWeight = FontWeight.SemiBold)
+                            Text("${user.coins}", fontSize = 12.sp, color = Color(0xFFF59E0B), fontWeight = FontWeight.SemiBold)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("${user.studyTime} • ${user.revisions} Rev", fontSize = 12.sp, color = TextSecondaryAdmin)
                         }
@@ -504,7 +504,7 @@ fun AdminPodiumItem(user: AdminLeaderboardUser, rank: Int, height: androidx.comp
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(user.name.split(" ").firstOrNull() ?: "", color = TextPrimaryAdmin, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-        Text("${user.coins} 🪙", color = Color(0xFFF59E0B), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text("${user.coins}", color = Color(0xFFF59E0B), fontSize = 10.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Surface(
             color = color,
@@ -2061,7 +2061,7 @@ fun AdminUserDetailScreen(viewModel: RevisionViewModel, navController: NavContro
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Total Coins", color = TextSecondaryAdmin)
-                            Text("${userProfile?.totalCoins ?: 0} 🪙", color = TextPrimaryAdmin, fontWeight = FontWeight.Medium)
+                            Text("${userProfile?.totalCoins ?: 0}", color = TextPrimaryAdmin, fontWeight = FontWeight.Medium)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

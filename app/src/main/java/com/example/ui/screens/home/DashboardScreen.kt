@@ -516,7 +516,7 @@ fun DashboardScreen(
                             .clip(RoundedCornerShape(24.dp))
                             .background(
                                 Brush.linearGradient(
-                                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF))
+                                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))
                                 )
                             )
                             .bounceClick { startRevisionAction() }
@@ -1414,7 +1414,7 @@ fun PremiumNearestExamCard(
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(
                                     Brush.horizontalGradient(
-                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF))
+                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))
                                     )
                                 )
                         )
@@ -2069,7 +2069,7 @@ fun WeeklyVisualizationSection(metrics: com.example.data.AnalyticsMetrics) {
                                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 2.dp, bottomEnd = 2.dp))
                                     .background(
                                         if (day.sessions > 0)
-                                            Brush.verticalGradient(listOf(DashPurplePrimary, Color(0xFF9B6BFF)))
+                                            Brush.verticalGradient(listOf(DashPurplePrimary, Color(0xFF9B8CFF)))
                                         else
                                             Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                                     )

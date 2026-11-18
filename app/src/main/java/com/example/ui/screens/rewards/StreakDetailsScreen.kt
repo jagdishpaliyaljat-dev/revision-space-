@@ -272,7 +272,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 text = "$unlockedCount / ${badges.size} Unlocked",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF4F46E5)
+                                color = Color(0xFF6C4DFF)
                             )
                         }
                     }
@@ -288,7 +288,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(if (isSelected) Color(0xFF4F46E5) else MaterialTheme.colorScheme.surfaceVariant)
+                                    .background(if (isSelected) Color(0xFF6C4DFF) else MaterialTheme.colorScheme.surfaceVariant)
                                     .clickable { selectedCategory = cat }
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
@@ -477,7 +477,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = if (badge.isUnlocked) "🏆 Unlocked Milestone" else "🔒 Locked Milestone",
+                                text = if (badge.isUnlocked) "Unlocked Milestone" else "Locked Milestone",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (badge.isUnlocked) Color(0xFF15803D) else MaterialTheme.colorScheme.onSurfaceVariant
@@ -525,7 +525,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                         onClick = { selectedBadge = null },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4F46E5))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF))
                     ) {
                         Text("Cool!")
                     }

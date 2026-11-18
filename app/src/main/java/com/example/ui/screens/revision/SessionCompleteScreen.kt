@@ -66,8 +66,8 @@ private val TextDark: Color
 private val TextGray: Color
     @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
-private val PurplePrimary = Color(0xFF7C4DFF)
-private val PurpleGlow = Color(0xFF7C4DFF).copy(alpha = 0.15f)
+private val PurplePrimary = Color(0xFF6C4DFF)
+private val PurpleGlow = Color(0xFF6C4DFF).copy(alpha = 0.15f)
 private val PurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 
@@ -515,7 +515,7 @@ fun SessionCompleteScreen(
                             )
                             .background(
                                 brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF7C4DFF), Color(0xFF6C4DFF))
+                                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF8B5CF6))
                                 ),
                                 shape = RoundedCornerShape(18.dp)
                             )

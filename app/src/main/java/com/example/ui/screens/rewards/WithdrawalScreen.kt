@@ -129,7 +129,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                         .clip(RoundedCornerShape(24.dp))
                         .background(
                             Brush.linearGradient(
-                                colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF))
+                                colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))
                             )
                         )
                 ) {

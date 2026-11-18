@@ -162,7 +162,7 @@ fun CoinHistoryScreen(viewModel: RevisionViewModel, navController: NavController
                                 .fillMaxWidth()
                                 .background(
                                     Brush.verticalGradient(
-                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF4F46E5))
+                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF8B5CF6))
                                     )
                                 )
                                 .padding(24.dp)

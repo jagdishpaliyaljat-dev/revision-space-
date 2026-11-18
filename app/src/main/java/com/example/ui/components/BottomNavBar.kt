@@ -180,12 +180,12 @@ fun AppBottomNavigationBar(
                         elevation = 12.dp,
                         shape = CircleShape,
                         clip = false,
-                        ambientColor = Color(0xFF7C4DFF).copy(alpha = 0.45f),
-                        spotColor = Color(0xFF5B3DF5).copy(alpha = 0.45f)
+                        ambientColor = Color(0xFF6C4DFF).copy(alpha = 0.45f),
+                        spotColor = Color(0xFF4B32D6).copy(alpha = 0.45f)
                     )
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFF7C4DFF), Color(0xFF5B3DF5))
+                            colors = listOf(Color(0xFF6C4DFF), Color(0xFF4B32D6))
                         ),
                         shape = CircleShape
                     )

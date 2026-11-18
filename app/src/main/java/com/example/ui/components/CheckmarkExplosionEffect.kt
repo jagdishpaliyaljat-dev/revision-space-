@@ -46,7 +46,7 @@ class ConfettiParticle(
 @Composable
 fun CheckmarkExplosionEffect(
     modifier: Modifier = Modifier,
-    title: String = "Topic Marked as Revised! 🎉",
+    title: String = "Topic Marked as Revised!",
     onAnimationEnd: () -> Unit = {}
 ) {
     val progress = remember { Animatable(0f) }

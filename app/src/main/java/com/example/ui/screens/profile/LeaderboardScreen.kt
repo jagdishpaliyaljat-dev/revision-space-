@@ -202,9 +202,9 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                PrizeBadge("🥇 Rank 1", "+1,000 Coins", Color(0xFFFBBF24))
-                                PrizeBadge("🥈 Rank 2", "+500 Coins", Color(0xFF8A94A6))
-                                PrizeBadge("🥉 Rank 3", "+200 Coins", Color(0xFFB45309))
+                                PrizeBadge("Rank 1", "+1,000 Coins", Color(0xFFFBBF24))
+                                PrizeBadge("Rank 2", "+500 Coins", Color(0xFF8A94A6))
+                                PrizeBadge("Rank 3", "+200 Coins", Color(0xFFB45309))
                             }
                         }
                     }

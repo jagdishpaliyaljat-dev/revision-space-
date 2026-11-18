@@ -201,7 +201,7 @@ fun DailyGoalCongratsDialog(
 
                     // Title
                     Text(
-                        text = "Congrats! 🎉",
+                        text = "Congrats!",
                         fontWeight = FontWeight.Black,
                         fontSize = 26.sp,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -267,7 +267,7 @@ fun DailyGoalCongratsDialog(
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
                             Text(
-                                "Replay 🎉",
+                                "Replay",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color(0xFF475569)
@@ -340,7 +340,7 @@ fun CongratsBadgeCard(
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Daily Goal Reached! 🎉",
+                        text = "Daily Goal Reached!",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface

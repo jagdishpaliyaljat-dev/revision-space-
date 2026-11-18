@@ -635,7 +635,7 @@ fun CalendarScreen(
                             AudioFeedback.playCompletionSound(context)
                             showSuccessEffect = true
                             viewModel.markRevisionComplete(targetId)
-                            Toast.makeText(context, "Revision saved! 🎉", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Revision saved!", Toast.LENGTH_SHORT).show()
                         }
                     ) {
                         Text("Just Complete", color = CalPurple)
@@ -714,7 +714,7 @@ fun CalendarScreen(
                         AudioFeedback.playCompletionSound(context)
                         showSuccessEffect = true
                         viewModel.markRevisionComplete(targetId)
-                        Toast.makeText(context, "Revision completed with adjusted impact! 🎉", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Revision completed with adjusted impact!", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
                 ) {

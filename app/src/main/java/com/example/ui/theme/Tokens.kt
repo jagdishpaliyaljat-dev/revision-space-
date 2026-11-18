@@ -47,8 +47,8 @@ object AppPalette {
     val DarkInkSecondary = Color(0xFFA8B0C0)
 
     // Gradients
-    val BrandGradient = Brush.linearGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF)))
-    val SunriseGradient = Brush.linearGradient(listOf(Color(0xFF7C4DFF), Color(0xFF4B32D6)))
+    val BrandGradient = Brush.linearGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF)))
+    val SunriseGradient = Brush.linearGradient(listOf(Color(0xFF6C4DFF), Color(0xFF4B32D6)))
     val MintGradient = Brush.linearGradient(listOf(Color(0xFF12C2A0), Color(0xFF0E9F8A)))
     val WarmGradient = Brush.linearGradient(listOf(Color(0xFFFFB020), Color(0xFFFF7A45)))
 }
