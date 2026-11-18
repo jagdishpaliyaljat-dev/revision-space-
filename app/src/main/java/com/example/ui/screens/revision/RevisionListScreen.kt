@@ -12,7 +12,9 @@ import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -122,12 +124,35 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Revisions", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                title = {
+                    Column {
+                        Text(
+                            "Revisions",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            letterSpacing = (-0.4).sp
+                        )
+                        Text(
+                            "Track every scheduled recall",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                }
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", modifier = Modifier.size(19.dp))
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { padding ->
@@ -152,8 +177,14 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
                         }
                     }
                 },
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                shape = RoundedCornerShape(16.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                )
             )
             
             Row(
@@ -165,9 +196,16 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
                         selected = selectedFilter == filter,
                         onClick = { selectedFilter = filter },
                         label = { Text(filter) },
+                        shape = RoundedCornerShape(50),
                         colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             selectedContainerColor = RevPrimary,
                             selectedLabelColor = Color.White
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            if (selectedFilter == filter) RevPrimary else MaterialTheme.colorScheme.outlineVariant
                         )
                     )
                 }

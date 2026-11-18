@@ -15,7 +15,9 @@ import com.example.ui.utils.*
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,7 +50,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.ui.draw.alpha
 
-val TodoPurple = Color(0xFF6366F1)
+val TodoPurple = Color(0xFF6C4DFF)
 val TodoBgLight = Color(0xFFF6F7FB)
 val TodoTextDark = Color(0xFF0F172A)
 val TodoTextGray = Color(0xFF5B6478)
@@ -145,16 +147,40 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
             containerColor = TodoBgLight,
             topBar = {
                 TopAppBar(
-                    title = { Text("Today's Tasks", fontWeight = FontWeight.Bold, color = TodoTextDark) },
+                    title = {
+                        Column {
+                            Text(
+                                "Today's Tasks",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 22.sp,
+                                letterSpacing = (-0.4).sp,
+                                color = TodoTextDark
+                            )
+                            Text(
+                                "One small win at a time",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TodoTextGray
+                            )
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                     actions = {
-                        TextButton(
+                        Surface(
                             onClick = { showAddQuickTaskDialog = true },
-                            colors = ButtonDefaults.textButtonColors(contentColor = TodoPurple)
+                            shape = RoundedCornerShape(14.dp),
+                            color = TodoPurple,
+                            contentColor = Color.White,
+                            modifier = Modifier.padding(end = 12.dp)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = "Quick Task", modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("➕ Quick Task", fontWeight = FontWeight.Bold)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = "Quick Task", modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Quick Task", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 )
@@ -169,9 +195,10 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                 // Header Progress
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
