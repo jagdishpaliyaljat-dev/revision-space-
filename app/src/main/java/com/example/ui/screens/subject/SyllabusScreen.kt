@@ -629,7 +629,7 @@ fun SubjectItemCard(
 
 @Composable
 fun formatLastRevision(lastRevisionDateMs: Long): Pair<String, Color> {
-    if (lastRevisionDateMs == 0L) return Pair("Not started", TextSecondary)
+    if (lastRevisionDateMs == 0L) return Pair("Not started", Color(0xFF8A94A6))
     
     val diff = System.currentTimeMillis() - lastRevisionDateMs
     val days = TimeUnit.MILLISECONDS.toDays(diff)

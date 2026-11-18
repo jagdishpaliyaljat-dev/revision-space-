@@ -87,7 +87,7 @@ fun getTagVisuals(tagName: String): TagVisuals {
         // Purple / Theory (Notes, Read, Literature, History, Theory)
         lower.contains("theory") || lower.contains("notes") || lower.contains("read") || lower.contains("book") -> {
             TagVisuals(
-                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                backgroundColor = Color(0xFFF1EEFF),
                 textColor = Color(0xFF6C4DFF),
                 borderColor = Color(0xFFDCD6FF),
                 description = "Theoretical Concepts"
@@ -105,7 +105,7 @@ fun getTagVisuals(tagName: String): TagVisuals {
         // Indigo / Exam (Exam, Test, Mock, PYQ)
         lower.contains("exam") || lower.contains("test") || lower.contains("mock") || lower.contains("pyq") || lower.contains("board") -> {
             TagVisuals(
-                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                backgroundColor = Color(0xFFF1EEFF),
                 textColor = Color(0xFF4F46E5),
                 borderColor = Color(0xFFC7D2FE),
                 description = "Exam Target"
@@ -124,8 +124,8 @@ fun getTagVisuals(tagName: String): TagVisuals {
             // Safe, deterministic hash-based theme assignment
             val index = Math.abs(tagName.hashCode()) % 7
             val bgs = listOf(
-                MaterialTheme.colorScheme.primaryContainer, Color(0xFFECFDF5), Color(0xFFEFF6FF),
-                Color(0xFFFFF1F2), Color(0xFFFFFBEB), MaterialTheme.colorScheme.primaryContainer, Color(0xFFFDF2F8)
+                Color(0xFFF1EEFF), Color(0xFFECFDF5), Color(0xFFEFF6FF),
+                Color(0xFFFFF1F2), Color(0xFFFFFBEB), Color(0xFFF1EEFF), Color(0xFFFDF2F8)
             )
             val txts = listOf(
                 Color(0xFF6C4DFF), Color(0xFF059669), Color(0xFF2563EB),
