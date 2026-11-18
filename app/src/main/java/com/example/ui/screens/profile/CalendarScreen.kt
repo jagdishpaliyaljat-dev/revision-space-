@@ -71,12 +71,10 @@ fun CalendarScreen(
     viewModel: RevisionViewModel,
     navController: NavController
 ) {
-    val metrics by viewModel.dashboardMetrics.collectAsStateWithLifecycle()
-    val allRevisions = metrics.allRevisions
+    val allRevisions by viewModel.allRevisions.collectAsStateWithLifecycle(emptyList())
     val context = LocalContext.current
     var showSuccessEffect by remember { mutableStateOf(false) }
     var overdueRevisionToComplete by remember { mutableStateOf<Revision?>(null) }
-    var showImpactAnalysisDialog by remember { mutableStateOf<Revision?>(null) }
 
     val startOfToday = remember {
         Calendar.getInstance().apply {
@@ -148,7 +146,7 @@ fun CalendarScreen(
                 val lastDay = lastCal.get(Calendar.DAY_OF_MONTH)
                 
                 if (lastYear == currentYear && lastMonth == currentMonth) {
-                    if (lastYear != nextYear || lastMonth != nextMonth || lastDay != nextDay) {
+                    if (rev.status == "Completed" && (lastYear != nextYear || lastMonth != nextMonth || lastDay != nextDay)) {
                         val completedCopy = rev.copy(status = "Completed")
                         map.getOrPut(lastDay) { mutableListOf() }.add(completedCopy)
                     }
@@ -451,7 +449,7 @@ fun CalendarScreen(
                                                 AudioFeedback.playCompletionSound(context)
                                                 showSuccessEffect = true
                                                 viewModel.markRevisionComplete(rev.id)
-                                                Toast.makeText(context, "Marked complete", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Completing revision...", Toast.LENGTH_SHORT).show()
                                             }
                                         }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Default.Check, contentDescription = "Complete", tint = Color(0xFF22C55E), modifier = Modifier.size(20.dp))
@@ -481,7 +479,7 @@ fun CalendarScreen(
                                                 onClick = { 
                                                     menuExpanded = false
                                                     viewModel.deleteRevision(context, rev.id)
-                                                    Toast.makeText(context, "Revision deleted", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, "Deleting revision...", Toast.LENGTH_SHORT).show()
                                                 }
                                             )
                                         }
@@ -510,7 +508,7 @@ fun CalendarScreen(
                                     TextButton(onClick = {
                                         viewModel.updateRevision(context, rev.copy(notes = editNotes))
                                         showEditDialog = false
-                                        Toast.makeText(context, "Revision updated", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Saving changes...", Toast.LENGTH_SHORT).show()
                                     }) { Text("Save") }
                                 },
                                 dismissButton = { TextButton(onClick = { showEditDialog = false }) { Text("Cancel") } }
@@ -526,22 +524,22 @@ fun CalendarScreen(
                                 text = {
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         Button(onClick = {
-                                            val newTime = rev.nextRevisionDateMs + 86400000L // +1 day
+                                            val newTime = maxOf(System.currentTimeMillis(), rev.nextRevisionDateMs) + 86400000L // +1 day
                                             viewModel.updateRevision(context, rev.copy(nextRevisionDateMs = newTime))
                                             showRescheduleDialog = false
                                             Toast.makeText(context, "Rescheduled to Tomorrow", Toast.LENGTH_SHORT).show()
                                         }, modifier = Modifier.fillMaxWidth()) { Text("Tomorrow (+1 Day)") }
                                         Button(onClick = {
-                                            val newTime = rev.nextRevisionDateMs + (3L * 86400000L) // +3 days
+                                            val newTime = maxOf(System.currentTimeMillis(), rev.nextRevisionDateMs) + (3L * 86400000L) // +3 days
                                             viewModel.updateRevision(context, rev.copy(nextRevisionDateMs = newTime))
                                             showRescheduleDialog = false
-                                            Toast.makeText(context, "Rescheduled by 3 Days", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Rescheduling...", Toast.LENGTH_SHORT).show()
                                         }, modifier = Modifier.fillMaxWidth()) { Text("+3 Days") }
                                         Button(onClick = {
-                                            val newTime = rev.nextRevisionDateMs + (7L * 86400000L) // +7 days
+                                            val newTime = maxOf(System.currentTimeMillis(), rev.nextRevisionDateMs) + (7L * 86400000L) // +7 days
                                             viewModel.updateRevision(context, rev.copy(nextRevisionDateMs = newTime))
                                             showRescheduleDialog = false
-                                            Toast.makeText(context, "Rescheduled by 7 Days", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Rescheduling...", Toast.LENGTH_SHORT).show()
                                         }, modifier = Modifier.fillMaxWidth()) { Text("+7 Days") }
                                     }
                                 },
@@ -609,7 +607,7 @@ fun CalendarScreen(
             },
             text = {
                 Text(
-                    "This task is overdue. Would you like to review the cumulative revision impact for your next scheduled session?",
+                    "This revision is overdue. Mark it complete now?",
                     color = CalTextGray,
                     fontSize = 14.sp
                 )
@@ -617,115 +615,24 @@ fun CalendarScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        val temp = overdueRevisionToComplete
-                        overdueRevisionToComplete = null
-                        showImpactAnalysisDialog = temp
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = CalPurple)
-                ) {
-                    Text("Review Impact")
-                }
-            },
-            dismissButton = {
-                Row {
-                    TextButton(
-                        onClick = {
-                            val targetId = rev.id
-                            overdueRevisionToComplete = null
-                            AudioFeedback.playCompletionSound(context)
-                            showSuccessEffect = true
-                            viewModel.markRevisionComplete(targetId)
-                            Toast.makeText(context, "Revision saved!", Toast.LENGTH_SHORT).show()
-                        }
-                    ) {
-                        Text("Just Complete", color = CalPurple)
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(onClick = { overdueRevisionToComplete = null }) {
-                        Text("Cancel", color = CalTextGray)
-                    }
-                }
-            }
-        )
-    }
-
-    showImpactAnalysisDialog?.let { rev ->
-        AlertDialog(
-            onDismissRequest = { showImpactAnalysisDialog = null },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.TrendingUp,
-                        contentDescription = null,
-                        tint = Color(0xFF10B981),
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Cumulative Revision Impact", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                }
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        "Because this session is completed late, your learning system will dynamically calibrate to maintain high retention:",
-                        color = CalTextGray,
-                        fontSize = 13.sp
-                    )
-                    
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                                Text("Next Spacing Adjustment", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = CalTextDark)
-                                Text("+1 Day Shift", color = Color(0xFF10B981), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-                            Text(
-                                "Next session shifted outward to prevent mental fatigue and accommodate delayed active recall.",
-                                fontSize = 11.sp,
-                                color = CalTextGray
-                            )
-                            
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            
-                            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                                Text("Recall Calibration", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = CalTextDark)
-                                Text("Optimized (92%)", color = CalPurple, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-                            Text(
-                                "Slightly shorter subsequent interval scheduled to stabilize memory retention.",
-                                fontSize = 11.sp,
-                                color = CalTextGray
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
                         val targetId = rev.id
-                        showImpactAnalysisDialog = null
+                        overdueRevisionToComplete = null
                         AudioFeedback.playCompletionSound(context)
                         showSuccessEffect = true
                         viewModel.markRevisionComplete(targetId)
-                        Toast.makeText(context, "Revision completed with adjusted impact!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Completing revision...", Toast.LENGTH_SHORT).show()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+                    colors = ButtonDefaults.buttonColors(containerColor = CalPurple)
                 ) {
-                    Text("Confirm & Complete")
+                    Text("Mark Complete")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showImpactAnalysisDialog = null }) {
+                TextButton(onClick = { overdueRevisionToComplete = null }) {
                     Text("Cancel", color = CalTextGray)
                 }
             }
         )
     }
+
 }

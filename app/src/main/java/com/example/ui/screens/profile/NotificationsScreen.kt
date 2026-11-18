@@ -11,6 +11,7 @@ import com.example.ui.screens.settings.*
 import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
+import com.example.ui.theme.AppPalette
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -60,18 +61,20 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navController: NavController) {
-    val isDark = false
+    val isDark = isSystemInDarkTheme()
     val bgColor = MaterialTheme.colorScheme.background
-    val surfaceColor = Color.White
+    val surfaceColor = MaterialTheme.colorScheme.surface
     val textColor = MaterialTheme.colorScheme.onSurface
     val textSecondary = MaterialTheme.colorScheme.onSurfaceVariant
 
     // Colors
-    val purplePrimary = Color(0xFF8B5CF6)
+    val purplePrimary = AppPalette.Brand
     val purpleLight = MaterialTheme.colorScheme.primaryContainer
     val readMarker = MaterialTheme.colorScheme.outlineVariant
 
     
+    val context = LocalContext.current
+    val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
     val notifications by viewModel.allNotifications.collectAsStateWithLifecycle(initialValue = emptyList())
     val allTopicsState by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle(null)
     val subjectTestsState by viewModel.allSubjectTests.collectAsStateWithLifecycle(null)
@@ -84,7 +87,6 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
     var activeTestDetails by remember { mutableStateOf<com.example.data.SubjectTest?>(null) }
     
     var selectedFilter by remember { mutableStateOf("All") }
-    var isLoading by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullToRefreshState()
 
@@ -178,22 +180,32 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
 
             // Stats row matching the design exactly when notifications are clear or at bottom
             val unreadCount = notifications.count { !it.isRead }
-            val todayAlerts = notifications.count { 
-                it.type == "Study" && (System.currentTimeMillis() - it.timestampMs) < 86400000L
+            val todayAlerts = notifications.count {
+                (System.currentTimeMillis() - it.timestampMs) in 0L..86400000L
             }
-            val revisionAlerts = notifications.count { it.type == "Revision" }
+            val revisionTypes = setOf("REVISION", "DUE", "MISSED", "OVERDUE", "SCHEDULED_REMINDER", "DAILY_MISSION")
+            val revisionAlerts = notifications.count { n ->
+                (n.notificationType.ifBlank { n.type }).trim().uppercase() in revisionTypes ||
+                    n.type.equals("Revision", ignoreCase = true)
+            }
             
             val filteredNotifications = if (selectedFilter == "All") {
                 notifications
             } else {
-                notifications.filter { it.type == selectedFilter }
+                val allowedTypes = when (selectedFilter) {
+                    "Study" -> setOf("STUDY", "SYSTEM", "SCHEDULED_REMINDER", "DAILY_MISSION", "TEXT")
+                    "Revision" -> setOf("REVISION", "DUE", "MISSED", "OVERDUE", "SCHEDULED_REMINDER", "DAILY_MISSION")
+                    "Rewards" -> setOf("REWARD", "REWARDS", "COINS", "EARNED")
+                    "System" -> setOf("SYSTEM", "BROADCAST", "ACHIEVEMENT")
+                    else -> emptySet()
+                }
+                notifications.filter { n ->
+                    val raw = (n.notificationType.ifBlank { n.type }).trim().uppercase()
+                    raw in allowedTypes || n.type.trim().uppercase() in allowedTypes
+                }
             }
 
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = purplePrimary)
-                }
-            } else if (filteredNotifications.isEmpty()) {
+            if (filteredNotifications.isEmpty()) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
@@ -225,12 +237,12 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                                         onRefresh = {
-                        coroutineScope.launch {
-                            isRefreshing = true
-                            kotlinx.coroutines.delay(500)
-                            isRefreshing = false
-                        }
-                    },
+                                            coroutineScope.launch {
+                                                isRefreshing = true
+                                                viewModel.checkAndTriggerNotifications(context)
+                                                isRefreshing = false
+                                            }
+                                        },
                     state = pullRefreshState,
                     modifier = Modifier.weight(1f)
                 ) {
@@ -273,8 +285,8 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
                                     val rawType = if (notification.notificationType.isNotEmpty()) notification.notificationType else notification.type
                                     val normType = rawType.trim().lowercase()
                                     
-                                    val isRevisionMissed = normType == "revision missed" || normType == "revision_missed"
-                                    val isRevisionDueToday = normType == "revision due today" || normType == "revision_due_today" || normType == "due today" || normType == "due_today"
+                                    val isRevisionMissed = normType == "revision missed" || normType == "revision_missed" || normType == "missed"
+                                    val isRevisionDueToday = normType == "revision due today" || normType == "revision_due_today" || normType == "due today" || normType == "due_today" || normType == "due"
                                     val isRevisionCompleted = normType == "revision completed" || normType == "revision_completed"
                                     val isStudyReminder = normType == "study reminder" || normType == "study_reminder"
                                     val isTestReminder = normType == "test reminder" || normType == "test_reminder"
@@ -380,9 +392,9 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 NotificationStatItem(Icons.Default.Notifications, unreadCount.toString(), "Unread\nNotifications", purplePrimary)
-                                NotificationStatItem(Icons.Default.BarChart, "8", "Today's\nAlerts", Color(0xFFF59E0B))
-                                NotificationStatItem(Icons.Default.Loop, revisionAlerts.coerceAtLeast(3).toString(), "Revision\nAlerts", Color(0xFF10B981))
-                                NotificationStatItem(Icons.Default.MonetizationOn, "+25", "Coins\nEarned", Color(0xFFF59E0B)) 
+                                NotificationStatItem(Icons.Default.BarChart, todayAlerts.toString(), "Today's\nAlerts", Color(0xFFF59E0B))
+                                NotificationStatItem(Icons.Default.Loop, revisionAlerts.toString(), "Revision\nAlerts", Color(0xFF10B981))
+                                NotificationStatItem(Icons.Default.MonetizationOn, (userProfile?.totalCoins ?: 0).toString(), "Total\nCoins", Color(0xFFF59E0B))
                             }
                         }
                     }
@@ -618,7 +630,10 @@ fun SwipeableNotificationItem(
                         diff < 60 * 1000L -> "Just now"
                         diff < 60 * 60 * 1000L -> "${diff / (60 * 1000L)} min ago"
                         diff < 24 * 60 * 60 * 1000L -> "${diff / (60 * 60 * 1000L)} hours ago"
-                        else -> "${diff / (24 * 60 * 60 * 1000L)} day ago".replace("1 day ago", "1 day ago") // Simple pluralization not perfect but concise
+                        else -> {
+                            val days = diff / (24 * 60 * 60 * 1000L)
+                            if (days == 1L) "1 day ago" else "$days days ago"
+                        }
                     }
                     Text(timeStr, color = textSecondary, fontSize = 12.sp)
                 }
@@ -640,14 +655,14 @@ fun SwipeableNotificationItem(
 
 @Composable
 fun getIconAndColorsForType(title: String): Triple<ImageVector, Color, Color> {
-    val isDark = false
+    val isDark = isSystemInDarkTheme()
     return when {
-        title.contains("Study") -> Triple(Icons.Default.MenuBook, Color(0xFF8B5CF6), if (isDark) Color(0xFF2D1B4E) else MaterialTheme.colorScheme.primaryContainer)
+        title.contains("Study") -> Triple(Icons.Default.MenuBook, MaterialTheme.colorScheme.primary, if (isDark) Color(0xFF2D1B4E) else MaterialTheme.colorScheme.primaryContainer)
         title.contains("Revision") -> Triple(Icons.Default.Loop, Color(0xFF10B981), if (isDark) Color(0xFF064E3B) else Color(0xFFD1FAE5))
         title.contains("Coins") -> Triple(Icons.Default.MonetizationOn, Color(0xFFF59E0B), if (isDark) Color(0xFF451A03) else Color(0xFFFEF3C7))
         title.contains("Streak") -> Triple(Icons.Default.Whatshot, Color(0xFFEF4444), if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2))
         title.contains("Target") -> Triple(Icons.Default.GpsFixed, Color(0xFF3B82F6), if (isDark) Color(0xFF1E3A8A) else Color(0xFFDBEAFE))
         title.contains("Backup") -> Triple(Icons.Default.CloudUpload, Color(0xFF06B6D4), if (isDark) Color(0xFF083344) else Color(0xFFCFFAFE))
-        else -> Triple(Icons.Default.Notifications, Color(0xFF8B5CF6), if (isDark) Color(0xFF2D1B4E) else MaterialTheme.colorScheme.primaryContainer)
+        else -> Triple(Icons.Default.Notifications, MaterialTheme.colorScheme.primary, if (isDark) Color(0xFF2D1B4E) else MaterialTheme.colorScheme.primaryContainer)
     }
 }

@@ -489,8 +489,8 @@ class AnalyticsService {
             targetExamName = "SSC", // This could also be fetched from profile/activeExam
             expectedScoreRange = expectedScoreRange,
             retentionRate = run {
-                val pastRevisions = filteredRevisions.count { 
-                    it.status == "Completed" || it.status == "Overdue"
+                val pastRevisions = filteredRevisions.count {
+                    it.status == "Completed" || it.status == "Complete"
                 }
                 if (pastRevisions > 0) {
                     val completed = filteredRevisions.count { it.status == "Completed" }

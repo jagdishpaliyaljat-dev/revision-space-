@@ -3282,7 +3282,7 @@ open class RevisionRepository {
                         id = userId,
                         name = userName,
                         email = userEmail,
-                        profilePictureUrl = result?.user?.photoUrl?.toString(),
+                        profilePictureUrl = result?.user?.photoUrl?.toString() ?: "",
                         referralCode = generateReferralCodeForEmail(userEmail),
                         createdAtMs = System.currentTimeMillis()
                     )

@@ -77,7 +77,13 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
     val rankedUsers = remember(usersListState.value) {
         (usersListState.value ?: emptyList())
             .filter { !it.isBanned && it.role != "Admin" }
-            .sortedByDescending { it.studyTimeMinutes }
+            .sortedWith(compareByDescending<com.example.data.UserProfile> { it.getOverallPerformanceScore() }
+                .thenByDescending { it.studyTimeMinutes }
+                .thenByDescending { it.topicsCompleted }
+                .thenByDescending { it.totalRevisions }
+                .thenByDescending { it.averageAccuracy }
+                .thenBy { it.createdAtMs }
+                .thenBy { it.id })
     }
 
     val myRank = remember(rankedUsers, currentUserProfile) {
@@ -161,7 +167,7 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                     Icon(Icons.Default.Schedule, contentDescription = null, tint = Color(0xFF6C4DFF), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Monthly Competition — $countdownText",
+                        text = "All-time Ranking — $countdownText",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF6C4DFF)
@@ -225,8 +231,8 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                         }
                     }
                 } else {
-                    itemsIndexed(rankedUsers) { index, item ->
-                        LeaderboardUserRow(index + 1, item, item.id == safeCurrentUserProfile.id)
+                    itemsIndexed(rankedUsers.drop(3)) { index, item ->
+                        LeaderboardUserRow(index + 4, item, item.id == safeCurrentUserProfile.id)
                     }
                 }
             }
@@ -444,7 +450,7 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Weekly study sessions",
+                    text = "Total study time",
                     fontSize = 11.sp,
                     color = Color(0xFF8A94A6)
                 )
