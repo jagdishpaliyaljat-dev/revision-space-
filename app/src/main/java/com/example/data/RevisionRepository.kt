@@ -3280,13 +3280,20 @@ open class RevisionRepository {
     open suspend fun signInWithGoogle(idToken: String) {
         try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
-            val result = auth?.signInWithCredential(credential)?.await()
+            // Firebase Auth verifies the Google ID token against its backend. With no
+            // (or a very slow) connection this await can hang forever, so bound it.
+            // A timeout means "continue offline" instead of a stuck loading spinner.
+            val result = kotlinx.coroutines.withTimeoutOrNull(12000L) {
+                auth?.signInWithCredential(credential)?.await()
+            }
             val userId = result?.user?.uid
             if (userId != null) {
                 // Firestore work is best-effort: a successful Firebase Auth sign-in must
                 // never be undone by "client is offline". The ban check still runs when online.
                 val userDoc = try {
-                    db.collection("users").document(userId).get().await()
+                    kotlinx.coroutines.withTimeoutOrNull(4000L) {
+                        db.collection("users").document(userId).get().await()
+                    }
                 } catch (e: Exception) {
                     android.util.Log.w("RevisionRepository", "Firestore user lookup skipped (offline): ${e.message}")
                     null
@@ -3303,7 +3310,9 @@ open class RevisionRepository {
                         createdAtMs = System.currentTimeMillis()
                     )
                     try {
-                        db.collection("users").document(userId).set(profile).await()
+                        kotlinx.coroutines.withTimeoutOrNull(4000L) {
+                            db.collection("users").document(userId).set(profile).await()
+                        }
                     } catch (e: Exception) {
                         android.util.Log.w("RevisionRepository", "Firestore profile write skipped (offline): ${e.message}")
                     }

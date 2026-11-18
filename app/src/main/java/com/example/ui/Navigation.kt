@@ -314,7 +314,11 @@ fun AppNavigation(
                     error = null
                     scope.launch {
                         try {
-                            viewModel.signInWithGoogle(idToken)
+                            // Safety net: if any backend call stalls, stop the spinner and
+                            // move on instead of leaving the user staring at "loading".
+                            kotlinx.coroutines.withTimeoutOrNull(18000L) {
+                                viewModel.signInWithGoogle(idToken)
+                            }
                             isLoading = false
                             navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
                         } catch (e: Exception) {
