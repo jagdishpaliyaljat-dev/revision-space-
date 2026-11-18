@@ -101,6 +101,19 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
         ) {
             SectionLabel("Preferences & Accounts")
             
+            // Google Sign-In item
+            SettingsItemRow(
+                icon = Icons.Default.Login,
+                iconBg = MaterialTheme.colorScheme.surfaceVariant,
+                iconTint = MaterialTheme.colorScheme.primary,
+                title = "Google Sign-In",
+                subtitle = "Sign in to sync data to cloud",
+                testTag = "settings_google_signin_item",
+                onClick = {
+                    navController.navigate(SignInRoute)
+                }
+            )
+            
             // Profile settings item
             SettingsItemRow(
                 icon = Icons.Default.Person,
