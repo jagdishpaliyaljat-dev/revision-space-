@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.BuildConfig
 import com.example.ui.theme.AppPalette
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -159,4 +160,6 @@ fun LoginScreen(
     }
 }
 
-private const val WEB_CLIENT_ID = "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
+// Real OAuth Web Client ID from Firebase Console, injected via .env / .env.example.
+// The old placeholder value made every Google sign-in attempt fail silently.
+private val WEB_CLIENT_ID: String = BuildConfig.FIREBASE_WEB_CLIENT_ID

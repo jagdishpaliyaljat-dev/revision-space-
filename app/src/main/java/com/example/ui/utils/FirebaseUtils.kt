@@ -33,14 +33,16 @@ fun configureAppCheck(context: Context, intent: Intent?) {
                     .putString(DEBUG_SECRET_KEY, debugToken)
                     .commit()
                 Log.d(TAG, "App Check debug secret configured successfully.")
+                FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+                    DebugAppCheckProviderFactory.getInstance()
+                )
+                Log.d(TAG, "DebugAppCheckProviderFactory installed.")
             } else {
-                Log.w(TAG, "No debug token found in Intent extra.")
+                // Installing the debug provider without a registered debug token produces
+                // invalid App Check tokens, which silently block Auth/Firestore requests
+                // when enforcement is enabled. Skip App Check in this debug build instead.
+                Log.w(TAG, "No debug App Check token supplied; App Check disabled for this debug build.")
             }
-
-            FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
-                DebugAppCheckProviderFactory.getInstance()
-            )
-            Log.d(TAG, "DebugAppCheckProviderFactory installed.")
         } else {
             // Use Play Integrity for release
             FirebaseAppCheck.getInstance().installAppCheckProviderFactory(

@@ -28,14 +28,22 @@ class MyApplication : Application() {
         }
 
         try {
+            // Firebase is initialized manually (no google-services.json needed).
+            // Real configuration is injected into BuildConfig from .env / .env.example
+            // by the Secrets Gradle plugin. This replaces the old dummy values which
+            // made Firebase Auth / Firestore / Storage unusable.
             val options = com.google.firebase.FirebaseOptions.Builder()
-                .setApplicationId("1:1234567890:android:abcdef")
-                .setProjectId("dummy-project-id")
-                .setApiKey("dummy-api-key")
+                .setApplicationId(BuildConfig.FIREBASE_APP_ID)
+                .setProjectId(BuildConfig.FIREBASE_PROJECT_ID)
+                .setApiKey(BuildConfig.FIREBASE_API_KEY)
                 .build()
             com.google.firebase.FirebaseApp.initializeApp(this, options)
+            android.util.Log.i(
+                "MyApplication",
+                "Firebase initialized for project ${BuildConfig.FIREBASE_PROJECT_ID}"
+            )
         } catch (e: Exception) {
-            android.util.Log.w("MyApplication", "Firebase optional init skipped", e)
+            android.util.Log.e("MyApplication", "Firebase initialization failed", e)
         }
 
         try {
