@@ -17,6 +17,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -84,6 +86,12 @@ fun SubjectsScreen(
     
     val activeSubjects = allSubjects.filter { !it.isArchived }
 
+    val activeSubjectIds = activeSubjects.map { it.id }.toSet()
+    val totalTopicsCount = allTopics.count { activeSubjectIds.contains(it.subjectId) }
+    val completedTopicsCount = allTopics.count {
+        activeSubjectIds.contains(it.subjectId) && it.status == "Complete"
+    }
+
     Scaffold(
         containerColor = Color(0xFFF6F7FB),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -94,18 +102,36 @@ fun SubjectsScreen(
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search subjects...") },
+                            placeholder = { Text("Search subjects...", fontSize = 13.sp) },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth().height(50.dp)
+                            shape = RoundedCornerShape(14.dp),
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                focusedBorderColor = Color(0xFF6C4DFF),
+                                unfocusedBorderColor = Color(0xFFE7EAF3)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
                         )
                     } else {
-                        Text(
-                            "Subjects",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            letterSpacing = (-0.5).sp,
-                            color = Color(0xFF0F172A)
-                        )
+                        Column {
+                            Text(
+                                "Subjects",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                letterSpacing = (-0.5).sp,
+                                color = Color(0xFF0F172A)
+                            )
+                            Text(
+                                "${activeSubjects.size} subjects \u2022 $totalTopicsCount topics",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF8A94A6)
+                            )
+                        }
                     }
                 },
                 actions = {
@@ -114,64 +140,89 @@ fun SubjectsScreen(
                             isSearchExpanded = !isSearchExpanded
                             if (!isSearchExpanded) searchQuery = ""
                         },
-                        modifier = Modifier.background(Color.White, CircleShape)
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
                     ) {
-                        Icon(if (isSearchExpanded) Icons.Default.Close else Icons.Default.Search, contentDescription = "Search", tint = Color(0xFF0F172A))
+                        Icon(
+                            if (isSearchExpanded) Icons.Default.Close else Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = Color(0xFF0F172A),
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF6F7FB))
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { showAddSubjectDialog = true },
                 containerColor = Color(0xFF6C4DFF),
                 contentColor = Color.White,
-                shape = RoundedCornerShape(20.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Subject")
-            }
+                shape = RoundedCornerShape(18.dp),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
+                icon = {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
+                },
+                text = {
+                    Text("Add Subject", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+            )
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             if (filteredSubjects.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(80.dp), tint = Color(0xFF8A94A6))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = if (searchQuery.isNotEmpty()) "No subjects found" else "No subjects yet", 
-                            color = Color(0xFF475569), 
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = if (searchQuery.isNotEmpty()) "Try a different search term" else "Add your first subject to get started", 
-                            color = Color(0xFF8A94A6), 
-                            fontSize = 14.sp
-                        )
-                        if (searchQuery.isEmpty()) {
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(
-                                onClick = { showAddSubjectDialog = true },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = "Add Subject")
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Add First Subject")
-                            }
-                        }
-                    }
-                }
+                SubjectsEmptyState(
+                    isSearching = searchQuery.isNotEmpty(),
+                    onAdd = { showAddSubjectDialog = true }
+                )
             } else {
                 var deletedSubjectIds by remember { mutableStateOf(setOf<String>()) }
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 110.dp)
                 ) {
+                    item {
+                        SubjectsLibrarySummary(
+                            subjects = activeSubjects.size,
+                            topics = totalTopicsCount,
+                            completed = completedTopicsCount
+                        )
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "YOUR SUBJECTS",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp,
+                                color = Color(0xFF8A94A6)
+                            )
+                            Text(
+                                "${filteredSubjects.size}",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF6C4DFF),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(Color(0xFFF1EEFF))
+                                    .padding(horizontal = 9.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
                     itemsIndexed(filteredSubjects, key = { _, it -> it.id }) { index, subject ->
                         if (!deletedSubjectIds.contains(subject.id)) {
                             val subjectTopics = allTopics.filter { it.subjectId == subject.id }
@@ -258,6 +309,115 @@ fun SubjectsScreen(
     }
 }
 
+
+/** Compact overview of the whole subject library. */
+@Composable
+private fun SubjectsLibrarySummary(subjects: Int, topics: Int, completed: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SummaryStat(value = subjects.toString(), label = "Subjects", modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(30.dp)
+                    .background(Color(0xFFE7EAF3))
+            )
+            SummaryStat(value = topics.toString(), label = "Topics", modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(30.dp)
+                    .background(Color(0xFFE7EAF3))
+            )
+            SummaryStat(
+                value = completed.toString(),
+                label = "Completed",
+                valueColor = Color(0xFF10B981),
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SummaryStat(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier,
+    valueColor: Color = Color(0xFF0F172A)
+) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = valueColor)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF8A94A6))
+    }
+}
+
+@Composable
+private fun SubjectsEmptyState(isSearching: Boolean, onAdd: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(112.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFF1EEFF)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Outlined.MenuBook,
+                contentDescription = null,
+                modifier = Modifier.size(52.dp),
+                tint = Color(0xFF6C4DFF)
+            )
+        }
+        Spacer(modifier = Modifier.height(22.dp))
+        Text(
+            text = if (isSearching) "No subjects found" else "No subjects yet",
+            color = Color(0xFF0F172A),
+            fontSize = 19.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = if (isSearching) "Try a different search term" else "Add your first subject to start building your revision library",
+            color = Color(0xFF8A94A6),
+            fontSize = 13.sp,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        if (!isSearching) {
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onAdd,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+                shape = RoundedCornerShape(16.dp),
+                contentPadding = PaddingValues(horizontal = 22.dp, vertical = 12.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Add First Subject", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExpandableSubjectCard(
@@ -300,14 +460,14 @@ fun ExpandableSubjectCard(
             val direction = dismissState.dismissDirection
             if (direction == SwipeToDismissBoxValue.StartToEnd) {
                 Box(
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)).background(Color(0xFF3B82F6)).padding(horizontal = 24.dp),
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(22.dp)).background(Color(0xFF3B82F6)).padding(horizontal = 24.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.White)
                 }
             } else if (direction == SwipeToDismissBoxValue.EndToStart) {
                 Box(
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)).background(Color(0xFFEF4444)).padding(horizontal = 24.dp),
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(22.dp)).background(Color(0xFFEF4444)).padding(horizontal = 24.dp),
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.White)
@@ -320,109 +480,157 @@ fun ExpandableSubjectCard(
                     .fillMaxWidth()
                     .bounceClick { onTopicClick(subject.id) }
                     .shadow(
-                        elevation = 6.dp,
-                        shape = RoundedCornerShape(20.dp),
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(22.dp),
                         clip = false,
-                        spotColor = customThemeColor.copy(alpha = 0.10f),
+                        spotColor = customThemeColor.copy(alpha = 0.12f),
                         ambientColor = customThemeColor.copy(alpha = 0.06f)
                     ),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(22.dp),
                 border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Initial badge tinted with the subject's own colour
-                    Box(
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
                         modifier = Modifier
-                            .size(46.dp)
-                            .clip(RoundedCornerShape(15.dp))
-                            .background(customThemeColor.copy(alpha = 0.12f)),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(start = 14.dp, end = 12.dp, top = 14.dp, bottom = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = subject.name.firstOrNull()?.uppercase() ?: "S",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = customThemeColor
+                        // Colour accent for instant subject recognition
+                        Box(
+                            modifier = Modifier
+                                .width(4.dp)
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(customThemeColor)
                         )
-                    }
 
-                    Spacer(modifier = Modifier.width(14.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
 
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = subject.name,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF0F172A),
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "${topics.size} topics",
-                            fontSize = 12.sp,
-                            color = Color(0xFF8A94A6)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    var showCardMenu by remember { mutableStateOf(false) }
-                    Box {
-                        IconButton(
-                            onClick = { showCardMenu = true },
-                            modifier = Modifier.size(34.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(customThemeColor.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = Color(0xFF8A94A6), modifier = Modifier.size(18.dp))
-                        }
-                        DropdownMenu(
-                            expanded = showCardMenu,
-                            onDismissRequest = { showCardMenu = false },
-                            modifier = Modifier.background(Color.White)
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Rename") },
-                                onClick = {
-                                    showCardMenu = false
-                                    showRenameDialog = true
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Edit") },
-                                onClick = {
-                                    showCardMenu = false
-                                    showEditDialog = true
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("Delete", color = Color.Red) },
-                                onClick = {
-                                    showCardMenu = false
-                                    showDeleteConfirm = true
-                                }
+                            Text(
+                                text = subject.name.firstOrNull()?.uppercase() ?: "S",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 19.sp,
+                                color = customThemeColor
                             )
                         }
+
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = subject.name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF0F172A),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Outlined.MenuBook,
+                                    contentDescription = null,
+                                    tint = Color(0xFF8A94A6),
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${topics.size} topics",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF8A94A6)
+                                )
+                                val completedCount = topics.count { it.status == "Complete" }
+                                if (completedCount > 0) {
+                                    Text(" \u2022 ", fontSize = 12.sp, color = Color(0xFF8A94A6))
+                                    Text(
+                                        text = "$completedCount done",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color(0xFF10B981)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(4.dp))
+
+                        var showCardMenu by remember { mutableStateOf(false) }
+                        Box {
+                            IconButton(
+                                onClick = { showCardMenu = true },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = Color(0xFF8A94A6), modifier = Modifier.size(18.dp))
+                            }
+                            DropdownMenu(
+                                expanded = showCardMenu,
+                                onDismissRequest = { showCardMenu = false },
+                                modifier = Modifier.background(Color.White)
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Rename") },
+                                    onClick = {
+                                        showCardMenu = false
+                                        showRenameDialog = true
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Edit") },
+                                    onClick = {
+                                        showCardMenu = false
+                                        showEditDialog = true
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete", color = Color.Red) },
+                                    onClick = {
+                                        showCardMenu = false
+                                        showDeleteConfirm = true
+                                    }
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(customThemeColor.copy(alpha = 0.10f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Open",
+                                tint = customThemeColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
 
+                    // Completion progress for this subject
+                    val completedFraction = if (topics.isEmpty()) 0f
+                        else topics.count { it.status == "Complete" }.toFloat() / topics.size
                     Box(
                         modifier = Modifier
-                            .size(30.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFF1F3F9)),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .height(4.dp)
+                            .background(customThemeColor.copy(alpha = 0.12f))
                     ) {
-                        Icon(
-                            Icons.Default.KeyboardArrowRight,
-                            contentDescription = "Open",
-                            tint = Color(0xFF5B6478),
-                            modifier = Modifier.size(18.dp)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(completedFraction.coerceIn(0f, 1f))
+                                .height(4.dp)
+                                .background(customThemeColor)
                         )
                     }
                 }
