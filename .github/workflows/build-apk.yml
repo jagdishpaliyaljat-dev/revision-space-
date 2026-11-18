@@ -45,14 +45,33 @@ jobs:
         run: |
           if [ ! -f .env ]; then cp .env.example .env; fi
 
-      - name: Generate debug keystore
+      - name: Prepare debug keystore
+        env:
+          DEBUG_KEYSTORE_B64: ${{ secrets.DEBUG_KEYSTORE_B64 }}
         run: |
-          keytool -genkeypair -v \
-            -keystore debug.keystore \
-            -storepass android -keypass android \
-            -alias androiddebugkey \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          if [ -n "$DEBUG_KEYSTORE_B64" ]; then
+            echo "$DEBUG_KEYSTORE_B64" | base64 -d > debug.keystore
+            echo "Using stable debug keystore from repository secret."
+          else
+            keytool -genkeypair -v \
+              -keystore debug.keystore \
+              -storepass android -keypass android \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+            echo "No secret configured; generated a new debug keystore."
+          fi
+
+      - name: Print debug signing certificate info
+        run: |
+          echo "=== DEBUG_SHA1_BEGIN ==="
+          keytool -list -v -keystore debug.keystore -storepass android -alias androiddebugkey \
+            | grep 'SHA1:' | head -1
+          echo "=== DEBUG_SHA1_END ==="
+          echo "=== DEBUG_KEYSTORE_B64_BEGIN ==="
+          base64 -w0 debug.keystore
+          echo ""
+          echo "=== DEBUG_KEYSTORE_B64_END ==="
 
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace --no-daemon
