@@ -1222,135 +1222,223 @@ fun FocusSettingsBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
-        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = FocusBgLight,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFFD9D2EE)) }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            Text("Customize Focus", fontWeight = FontWeight.Black, fontSize = 24.sp, color = FocusTextDark)
-            Text("Adjust settings for $activeMode", fontSize = 14.sp, color = FocusTextGray)
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Pomodoro Selection
-            SettingSectionTitle("🍅 Focus Duration")
-            DurationSelector(
-                options = listOf(5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180),
-                selected = activeDuration,
-                onSelect = { newDuration -> 
-                    draftSettings = when (activeMode) {
-                        "Study Mode" -> draftSettings.copy(studyModeDurationMins = newDuration, focusDuration = newDuration)
-                        "Revision Mode" -> draftSettings.copy(revisionModeDurationMins = newDuration, focusDuration = newDuration)
-                        "Practice Mode" -> draftSettings.copy(practiceModeDurationMins = newDuration, focusDuration = newDuration)
-                        "Mock Test Mode" -> draftSettings.copy(mockTestModeDurationMins = newDuration, focusDuration = newDuration)
-                        "Writing Practice Mode" -> draftSettings.copy(writingPracticeModeDurationMins = newDuration, focusDuration = newDuration)
-                        else -> draftSettings.copy(focusDuration = newDuration)
-                    }
+            // Premium sheet header
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Brush.linearGradient(listOf(FocusPurple, Color(0xFFA78BFA)))),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Tune, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                 }
-            )
-
-            // Short Break
-            SettingSectionTitle("☕ Short Break Duration")
-            DurationSelector(
-                options = listOf(1, 2, 3, 5, 10, 15, 20, 30),
-                selected = draftSettings.shortBreakDuration,
-                onSelect = { draftSettings = draftSettings.copy(shortBreakDuration = it) }
-            )
-
-            // Long Break
-            SettingSectionTitle("🌿 Long Break Duration")
-            DurationSelector(
-                options = listOf(5, 10, 15, 20, 30, 45, 60),
-                selected = draftSettings.longBreakDuration,
-                onSelect = { draftSettings = draftSettings.copy(longBreakDuration = it) }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
-
-            // Toggles
-            SettingSectionTitle("🔄 Automation")
-            SwitchSettingItem("Auto Start Focus Session", draftSettings.autoStartFocus) {
-                draftSettings = draftSettings.copy(autoStartFocus = it)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text("Customize Focus", fontWeight = FontWeight.Bold, fontSize = 21.sp, color = FocusTextDark)
+                    Text("Settings for $activeMode", fontSize = 12.sp, color = FocusTextGray)
+                }
             }
-            
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
+            Spacer(modifier = Modifier.height(20.dp))
 
-            SettingSectionTitle("📳 Feedback")
-            SwitchSettingItem("Enable Vibration", draftSettings.vibrationEnabled) {
-                draftSettings = draftSettings.copy(vibrationEnabled = it)
+            // Focus duration
+            SettingsSectionCard(title = "FOCUS DURATION", icon = Icons.Default.Timer) {
+                DurationSelector(
+                    options = listOf(5, 10, 15, 20, 25, 30, 45, 60, 90, 120, 180),
+                    selected = activeDuration,
+                    onSelect = { newDuration ->
+                        draftSettings = when (activeMode) {
+                            "Study Mode" -> draftSettings.copy(studyModeDurationMins = newDuration, focusDuration = newDuration)
+                            "Revision Mode" -> draftSettings.copy(revisionModeDurationMins = newDuration, focusDuration = newDuration)
+                            "Practice Mode" -> draftSettings.copy(practiceModeDurationMins = newDuration, focusDuration = newDuration)
+                            "Mock Test Mode" -> draftSettings.copy(mockTestModeDurationMins = newDuration, focusDuration = newDuration)
+                            "Writing Practice Mode" -> draftSettings.copy(writingPracticeModeDurationMins = newDuration, focusDuration = newDuration)
+                            else -> draftSettings.copy(focusDuration = newDuration)
+                        }
+                    }
+                )
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Breaks
+            SettingsSectionCard(title = "SHORT BREAK", icon = Icons.Outlined.Coffee) {
+                DurationSelector(
+                    options = listOf(1, 2, 3, 5, 10, 15, 20, 30),
+                    selected = draftSettings.shortBreakDuration,
+                    onSelect = { draftSettings = draftSettings.copy(shortBreakDuration = it) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            SettingsSectionCard(title = "LONG BREAK", icon = Icons.Outlined.Eco) {
+                DurationSelector(
+                    options = listOf(5, 10, 15, 20, 30, 45, 60),
+                    selected = draftSettings.longBreakDuration,
+                    onSelect = { draftSettings = draftSettings.copy(longBreakDuration = it) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Automation + feedback
+            SettingsSectionCard(title = "AUTOMATION & FEEDBACK", icon = Icons.Default.Refresh) {
+                SwitchSettingItem(
+                    title = "Auto Start Focus",
+                    subtitle = "Begin the next session automatically",
+                    checked = draftSettings.autoStartFocus,
+                    onCheckedChange = { draftSettings = draftSettings.copy(autoStartFocus = it) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SwitchSettingItem(
+                    title = "Enable Vibration",
+                    subtitle = "Haptic cue when a session ends",
+                    checked = draftSettings.vibrationEnabled,
+                    onCheckedChange = { draftSettings = draftSettings.copy(vibrationEnabled = it) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
             Button(
                 onClick = { onSave(draftSettings) },
-                colors = ButtonDefaults.buttonColors(containerColor = FocusPurple),
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Brush.horizontalGradient(listOf(FocusPurple, Color(0xFF8B5CF6)))),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                shape = RoundedCornerShape(16.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
-                Text("Save Preferences", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Save Preferences", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
+        }
+    }
+}
+
+/** White card wrapper used by every section in the focus settings sheet. */
+@Composable
+private fun SettingsSectionCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(RoundedCornerShape(9.dp))
+                        .background(Color(0xFFF1EEFF)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(16.dp))
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(title, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, color = Color(0xFF8A94A6))
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+            content()
         }
     }
 }
 
 @Composable
-fun SettingSectionTitle(title: String) {
-    Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FocusTextDark, modifier = Modifier.padding(bottom = 12.dp, top = 8.dp))
-}
-
-@Composable
 fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         items(options) { opt ->
             val isSelected = opt == selected
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) FocusPurple else Color.White)
-                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                    .background(if (isSelected) FocusPurple else Color(0xFFF8F9FC))
+                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
-                Text("$opt m", color = if (isSelected) Color.White else FocusTextDark, fontWeight = FontWeight.Bold)
+                Text(
+                    "$opt m",
+                    color = if (isSelected) Color.White else FocusTextDark,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp
+                )
             }
         }
     }
 }
 
 @Composable
-fun SwitchSettingItem(title: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun SwitchSettingItem(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    subtitle: String = ""
+) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFF8F9FC))
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, color = FocusTextDark, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, color = FocusTextDark, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            if (subtitle.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(subtitle, color = FocusTextGray, fontSize = 11.sp)
+            }
+        }
+        Spacer(modifier = Modifier.width(12.dp))
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = FocusPurple)
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = FocusPurple,
+                uncheckedThumbColor = Color.White,
+                uncheckedTrackColor = Color(0xFFD9D2EE)
+            )
         )
     }
 }
 
 @Composable
 fun DurationSelectorStr(options: List<String>, selected: String, onSelect: (String) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         items(options) { opt ->
             val isSelected = opt == selected
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) FocusPurple else Color.White)
-                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                    .background(if (isSelected) FocusPurple else Color(0xFFF8F9FC))
+                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
-                Text(opt, color = if (isSelected) Color.White else FocusTextDark, fontWeight = FontWeight.Bold)
+                Text(opt, color = if (isSelected) Color.White else FocusTextDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
     }
@@ -1364,58 +1452,100 @@ fun AmbientSoundBottomSheet(
     onSelect: (String) -> Unit
 ) {
     val sounds = listOf("None", "White Noise", "Pink Noise", "Brown Noise")
+    val soundDescriptions = listOf("Silent studio", "Steady, even hum", "Softer, warmer tone", "Deep, calming rumble")
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
-        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = FocusBgLight,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFFD9D2EE)) }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            Text("Ambient Focus Sounds", fontWeight = FontWeight.Black, fontSize = 24.sp, color = FocusTextDark)
-            Text("Enhance your focus with background noise", fontSize = 14.sp, color = FocusTextGray)
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            sounds.forEach { sound ->
-                val isSelected = currentSound == sound
-                Row(
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(if (isSelected) FocusPurpleLight else Color.Transparent)
-                        .clickable { onSelect(sound) }
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Brush.linearGradient(listOf(FocusPurple, Color(0xFFA78BFA)))),
+                    contentAlignment = Alignment.Center
                 ) {
-                    val icon = if (sound == "None") Icons.Outlined.MusicNote else Icons.Outlined.MusicNote
-                    Icon(
-                        icon,
-                        contentDescription = sound,
-                        tint = if (isSelected) FocusPurple else FocusTextGray,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = sound,
-                        fontSize = 16.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) FocusPurple else FocusTextDark,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (isSelected) {
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = "Selected",
-                            tint = FocusPurple,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text("Ambient Sounds", fontWeight = FontWeight.Bold, fontSize = 21.sp, color = FocusTextDark)
+                    Text("Set the mood for deep work", fontSize = 12.sp, color = FocusTextGray)
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Column(modifier = Modifier.padding(10.dp)) {
+                    sounds.forEachIndexed { index, sound ->
+                        val isSelected = currentSound == sound
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(if (isSelected) Color(0xFFF1EEFF) else Color.Transparent)
+                                .border(
+                                    1.dp,
+                                    if (isSelected) FocusPurple.copy(alpha = 0.35f) else Color.Transparent,
+                                    RoundedCornerShape(14.dp)
+                                )
+                                .clickable { onSelect(sound) }
+                                .padding(horizontal = 12.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isSelected) FocusPurple else Color(0xFFF1F3F9)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    if (sound == "None") Icons.Default.VolumeOff else Icons.Default.MusicNote,
+                                    contentDescription = sound,
+                                    tint = if (isSelected) Color.White else Color(0xFF8A94A6),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = sound,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) FocusPurple else FocusTextDark
+                                )
+                                Text(soundDescriptions[index], fontSize = 11.sp, color = FocusTextGray)
+                            }
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .clip(CircleShape)
+                                        .background(FocusPurple),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
+                                }
+                            }
+                        }
+                        if (index < sounds.lastIndex) Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
         }
     }
 }

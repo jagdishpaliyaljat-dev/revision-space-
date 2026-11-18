@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -185,6 +186,15 @@ fun SessionCompleteScreen(
                 .fillMaxSize()
                 .background(ScreenBackground)
         ) {
+            // Soft brand wash behind the celebration hero
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(340.dp)
+                    .background(Brush.verticalGradient(listOf(Color(0xFFF1EEFF), Color(0xFFF6F7FB))))
+            )
+
             // Confetti Burst Background
             if (startAnimation && !hasPlayedConfetti) {
                 ConfettiAnimation(
@@ -252,15 +262,22 @@ fun SessionCompleteScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Title & Subtitle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "🎉 Session Complete!",
-                        fontSize = 32.sp,
+                        text = "GREAT WORK",
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = TextDark,
+                        letterSpacing = 1.5.sp,
+                        color = PurplePrimary.copy(alpha = 0.75f)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Session Complete!",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold,
+                            brush = Brush.horizontalGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B6DFF)))
+                        ),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -411,7 +428,7 @@ fun SessionCompleteScreen(
                                         color = Color(0xFFFFB020)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("🪙", fontSize = 20.sp)
+                                    GoldCoin(20.dp)
                                 }
                             }
                         }
@@ -437,7 +454,7 @@ fun SessionCompleteScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("🪙", fontSize = 18.sp)
+                                    GoldCoin(18.dp)
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = String.format("%,d", animatedCoins),
@@ -490,7 +507,7 @@ fun SessionCompleteScreen(
                             .fillMaxWidth()
                             .shadow(
                                 elevation = 12.dp,
-                                shape = RoundedCornerShape(100.dp),
+                                shape = RoundedCornerShape(18.dp),
                                 clip = false,
                                 ambientColor = PurplePrimary.copy(alpha = 0.4f),
                                 spotColor = PurplePrimary.copy(alpha = 0.6f)
@@ -499,7 +516,7 @@ fun SessionCompleteScreen(
                                 brush = Brush.horizontalGradient(
                                     colors = listOf(Color(0xFF7C4DFF), Color(0xFF6C4DFF))
                                 ),
-                                shape = RoundedCornerShape(100.dp)
+                                shape = RoundedCornerShape(18.dp)
                             )
                             .clickable {
                                 coroutineScope.launch {
@@ -534,7 +551,12 @@ fun SessionCompleteScreen(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("🚀", fontSize = 18.sp)
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                   text = "Start Next Session",
@@ -597,10 +619,10 @@ fun SessionCompleteScreen(
                                 .weight(1f)
                                 .height(52.dp)
                                 .testTag("take_break_button"),
-                            shape = RoundedCornerShape(100.dp)
+                            shape = RoundedCornerShape(16.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("☕", fontSize = 16.sp)
+                                Icon(Icons.Outlined.Coffee, contentDescription = null, tint = PurplePrimary, modifier = Modifier.size(17.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Take Break",
@@ -635,10 +657,10 @@ fun SessionCompleteScreen(
                                 .weight(1f)
                                 .height(52.dp)
                                 .testTag("back_to_home_button"),
-                            shape = RoundedCornerShape(100.dp)
+                            shape = RoundedCornerShape(16.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("🏠", fontSize = 16.sp)
+                                Icon(Icons.Default.Home, contentDescription = null, tint = PurplePrimary, modifier = Modifier.size(17.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Back to Home",
@@ -669,36 +691,57 @@ fun PremiumCard(
             .offset(y = offsetY)
             .alpha(alpha)
             .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(24.dp),
+                elevation = 6.dp,
+                shape = RoundedCornerShape(22.dp),
                 clip = false,
-                ambientColor = PurplePrimary.copy(alpha = 0.05f),
-                spotColor = PurplePrimary.copy(alpha = 0.12f)
-            )
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White,
-                        PurplePrimary.copy(alpha = 0.08f)
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
+                ambientColor = PurplePrimary.copy(alpha = 0.06f),
+                spotColor = PurplePrimary.copy(alpha = 0.14f)
             ),
         colors = CardDefaults.cardColors(containerColor = CardBackground),
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = title,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp, // Card Title 22 SemiBold is requested, but 20sp offers better density for multiple screen ratios
-                color = TextDark
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Premium brand accent strip
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(3.dp)
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF6C4DFF), Color(0xFFA78BFA))))
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            content()
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(PurplePrimary)
+                    )
+                    Spacer(modifier = Modifier.width(9.dp))
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = TextDark
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                content()
+            }
         }
     }
+}
+
+/** Small premium gold coin used instead of emoji in reward figures. */
+@Composable
+private fun GoldCoin(size: androidx.compose.ui.unit.Dp = 20.dp) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(Brush.radialGradient(listOf(Color(0xFFFFDE8A), Color(0xFFF59E0B))))
+            .border(1.dp, Color(0xFFD4AF37), CircleShape)
+    )
 }
 
 @Composable
