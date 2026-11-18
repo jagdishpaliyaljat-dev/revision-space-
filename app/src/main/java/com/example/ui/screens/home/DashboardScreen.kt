@@ -1601,11 +1601,11 @@ fun DashboardDrawerContent(
     val streak = if (globalConfig.isStreakSystemEnabled) (userProfile?.currentStreak ?: 15) else 0
     val coins = userProfile?.totalCoins ?: 1250
     
-    val (sortedUsersDesc, currentRankInt) = remember(allUsers, userProfile) {
+    val currentRankInt = remember(allUsers, userProfile) {
         val realAllUsers = allUsers ?: emptyList()
         val sorted = realAllUsers.filter { !it.isBanned }.sortedByDescending { it.getOverallPerformanceScore() }
         val index = sorted.indexOfFirst { it.id == userProfile?.id }
-        Pair(sorted, if (index != -1) index + 1 else sorted.size + 1)
+        if (index != -1) index + 1 else null
     }
     
     ModalDrawerSheet(
@@ -1615,12 +1615,12 @@ fun DashboardDrawerContent(
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(
-                    color = Color(0xFFF3E8FF).copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
                     radius = 300.dp.toPx(),
                     center = Offset(0f, 0f)
                 )
                 drawCircle(
-                    color = Color(0xFFE4DBFF).copy(alpha = 0.3f),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f),
                     radius = 200.dp.toPx(),
                     center = Offset(size.width, 200.dp.toPx())
                 )
@@ -1680,7 +1680,12 @@ fun DashboardDrawerContent(
                     Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("AIR #${String.format("%,d", currentRankInt)}", color = DashPurplePrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            if (currentRankInt != null) "AIR #${String.format("%,d", currentRankInt)}" else "Unranked",
+                            color = DashPurplePrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
                     }
                 }
                 
@@ -1739,6 +1744,8 @@ fun DashboardDrawerContent(
                     DrawerMenuItem2(icon = Icons.Default.SignalWifiOff, iconTint = Color(0xFF10B981), iconBg = Color(0xFFD1FAE5), title = "Offline Notes", subtitle = "Access notes locally", onClick = { onNavigateToOfflineNotes(); closeDrawer() })
                     DrawerMenuItem2(icon = Icons.Default.Language, iconTint = DashPurplePrimary, iconBg = MaterialTheme.colorScheme.primaryContainer, title = "Language", subtitle = "English", onClick = { onNavigateToLanguage(); closeDrawer() })
                     DrawerMenuItem2(icon = Icons.Default.HeadsetMic, iconTint = Color(0xFF3B82F6), iconBg = Color(0xFFEFF6FF), title = "Help & Support", subtitle = "Get help and support", onClick = { onNavigateToHelpAndSupport(); closeDrawer() })
+
+                    DrawerMenuItem2(icon = Icons.Default.Settings, iconTint = Color(0xFF64748B), iconBg = Color(0xFFF1F5F9), title = "Settings", subtitle = "App preferences", onClick = { onNavigateToSettings(); closeDrawer() })
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
 
