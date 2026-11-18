@@ -289,12 +289,7 @@ fun AppNavigation(
             SplashScreen(
                 isSetupComplete = true,
                 onTransitionComplete = {
-                    val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                    if (currentUser != null) {
-                        navController.navigate(DashboardRoute) { popUpTo(SplashRoute) { inclusive = true } }
-                    } else {
-                        navController.navigate(SignInRoute) { popUpTo(SplashRoute) { inclusive = true } }
-                    }
+                    navController.navigate(DashboardRoute) { popUpTo(SplashRoute) { inclusive = true } }
                 }
             )
         }
@@ -316,6 +311,9 @@ fun AppNavigation(
                             error = e.message ?: "Sign in failed"
                         }
                     }
+                },
+                onGuestContinue = {
+                    navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
                 },
                 isLoading = isLoading,
                 errorMessage = error

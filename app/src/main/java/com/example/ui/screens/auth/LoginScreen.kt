@@ -28,6 +28,7 @@ import com.google.android.gms.common.api.ApiException
 @Composable
 fun LoginScreen(
     onSignedIn: (String) -> Unit,
+    onGuestContinue: () -> Unit,
     isLoading: Boolean = false,
     errorMessage: String? = null
 ) {
@@ -123,6 +124,15 @@ fun LoginScreen(
                 } else {
                     Text("Continue with Google", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(
+                onClick = onGuestContinue,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Continue as Guest", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
