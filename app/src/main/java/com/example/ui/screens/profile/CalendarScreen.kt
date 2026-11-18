@@ -13,6 +13,7 @@ import com.example.ui.components.*
 import com.example.ui.utils.*
 
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -163,18 +164,36 @@ fun CalendarScreen(
         topBar = {
             MediumTopAppBar(
                 title = {
-                    Text(
-                        "Study Calendar",
-                        fontWeight = FontWeight.Black,
-                        color = CalTextDark
-                    )
+                    Column {
+                        Text(
+                            "Study Calendar",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            letterSpacing = (-0.4).sp,
+                            color = CalTextDark
+                        )
+                        Text(
+                            "Your revision rhythm",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = CalTextDark.copy(alpha = 0.6f)
+                        )
+                    }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = CalTextDark
+                            tint = CalTextDark,
+                            modifier = Modifier.size(19.dp)
                         )
                     }
                 },

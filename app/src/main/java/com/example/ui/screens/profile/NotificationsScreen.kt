@@ -96,10 +96,33 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notifications", fontWeight = FontWeight.Bold, color = textColor) },
+                title = {
+                    Column {
+                        Text(
+                            "Notifications",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            letterSpacing = (-0.4).sp,
+                            color = textColor
+                        )
+                        Text(
+                            "Updates from your study space",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = textColor.copy(alpha = 0.6f)
+                        )
+                    }
+                },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    IconButton(
+                        onClick = { navController.navigateUp() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor, modifier = Modifier.size(19.dp))
                     }
                 },
                 actions = {
