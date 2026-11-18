@@ -289,7 +289,18 @@ fun AppNavigation(
             SplashScreen(
                 isSetupComplete = true,
                 onTransitionComplete = {
-                    navController.navigate(DashboardRoute) { popUpTo(SplashRoute) { inclusive = true } }
+                    // Show the login screen on first launch so real Google sign-in can be used.
+                    // If the user is already signed in (or previously continued as guest), go
+                    // straight to the dashboard so they are never blocked by the login screen.
+                    val destination = try {
+                        if (com.google.firebase.auth.FirebaseAuth.getInstance().currentUser != null ||
+                            contextGlobal.getSharedPreferences("revision_space_prefs", android.content.Context.MODE_PRIVATE)
+                                .getBoolean("guest_continue", false)
+                        ) DashboardRoute else SignInRoute
+                    } catch (e: Exception) {
+                        SignInRoute
+                    }
+                    navController.navigate(destination) { popUpTo(SplashRoute) { inclusive = true } }
                 }
             )
         }
@@ -313,6 +324,8 @@ fun AppNavigation(
                     }
                 },
                 onGuestContinue = {
+                    contextGlobal.getSharedPreferences("revision_space_prefs", android.content.Context.MODE_PRIVATE)
+                        .edit().putBoolean("guest_continue", true).apply()
                     navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
                 },
                 onSignInFailed = { message -> error = message },

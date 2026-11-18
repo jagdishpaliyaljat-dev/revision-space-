@@ -68,10 +68,6 @@ jobs:
           keytool -list -v -keystore debug.keystore -storepass android -alias androiddebugkey \
             | grep 'SHA1:' | head -1
           echo "=== DEBUG_SHA1_END ==="
-          echo "=== DEBUG_KEYSTORE_B64_BEGIN ==="
-          base64 -w0 debug.keystore
-          echo ""
-          echo "=== DEBUG_KEYSTORE_B64_END ==="
 
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace --no-daemon
