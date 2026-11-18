@@ -377,6 +377,31 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             
+            // 0. Stats Hero (new)
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfileHeroStat(Icons.Default.LocalFireDepartment, Color(0xFFF97316), Color(0xFFFFEDD5), "Streak", "${displayStreak} days")
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        ProfileHeroStat(Icons.Default.Paid, Color(0xFFF59E0B), Color(0xFFFEF3C7), "Coins", String.format("%,d", displayCoins))
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        ProfileHeroStat(Icons.Default.Timer, Color(0xFF3B82F6), Color(0xFFEFF6FF), "Study Time", displayStudyTimeStr)
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        ProfileHeroStat(Icons.Default.FactCheck, Color(0xFF10B981), Color(0xFFECFDF5), "Revisions", "$displayRevisions")
+                    }
+                }
+            }
+
             // 1. Main Profile Card
             item {
                 Card(
@@ -560,9 +585,6 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             
                             Spacer(modifier = Modifier.height(8.dp))
                             
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
                             if (examGoalNameField.isNotBlank()) {
                                 Box(
                                     modifier = Modifier
@@ -692,16 +714,23 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Text("Quick Actions", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ProfileTextDark)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.MenuBook, iconTint = ProfilePurple, iconBg = ProfilePurpleSuperLight, label = "Syllabus", onClick = { navController.navigate(SyllabusRoute) })
-                        ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.EventAvailable, iconTint = TrendGreen, iconBg = Color(0xFFECFDF5), label = "Revision\nPlanner", onClick = { navController.navigate(CalendarRoute) })
-                        ProfileQuickAction(Modifier.weight(1f).testTag("my_test_scores_button"), icon = Icons.Default.Leaderboard, iconTint = TrendOrange, iconBg = Color(0xFFFFFBEB), label = "📊 My Test\nScores", onClick = {
-                            navController.navigate(MyTestScoresRoute)
-                        })
-                        ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.BarChart, iconTint = TrendBlue, iconBg = Color(0xFFEFF6FF), label = "Analytics", onClick = { navController.navigate(AnalyticsRoute) })
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.MenuBook, iconTint = ProfilePurple, iconBg = ProfilePurpleSuperLight, label = "Syllabus", onClick = { navController.navigate(SyllabusRoute) })
+                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.EventAvailable, iconTint = TrendGreen, iconBg = Color(0xFFECFDF5), label = "Revision\nPlanner", onClick = { navController.navigate(CalendarRoute) })
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            ProfileQuickAction(Modifier.weight(1f).testTag("my_test_scores_button"), icon = Icons.Default.Leaderboard, iconTint = TrendOrange, iconBg = Color(0xFFFFFBEB), label = "My Test\nScores", onClick = {
+                                navController.navigate(MyTestScoresRoute)
+                            })
+                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.BarChart, iconTint = TrendBlue, iconBg = Color(0xFFEFF6FF), label = "Analytics", onClick = { navController.navigate(AnalyticsRoute) })
+                        }
                     }
                 }
             }
@@ -1467,6 +1496,24 @@ fun ProfileQuickAction(modifier: Modifier = Modifier, icon: ImageVector, iconTin
             Icon(icon, contentDescription = label, tint = iconTint, modifier = Modifier.size(36.dp))
             Text(label, color = ProfileTextDark, fontSize = 11.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, lineHeight = 14.sp)
         }
+    }
+}
+
+@Composable
+fun ProfileHeroStat(icon: ImageVector, tint: Color, bg: Color, label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(bg),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(value, fontWeight = FontWeight.Black, fontSize = 13.sp, color = ProfileTextDark)
+        Text(label, fontSize = 10.sp, color = ProfileTextGray, fontWeight = FontWeight.Medium)
     }
 }
 
