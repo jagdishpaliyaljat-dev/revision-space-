@@ -43,9 +43,14 @@ fun LoginScreen(
     }
     val googleSignInClient = remember { GoogleSignIn.getClient(context, gso) }
 
+    // Google's own sign-in dialog can spin forever when Play Services cannot reach
+    // the network. Track whether we are waiting for it so we can fall back safely.
+    var awaitingGoogle by remember { mutableStateOf(false) }
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        awaitingGoogle = false
         try {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             val account = task.getResult(ApiException::class.java)
@@ -59,6 +64,18 @@ fun LoginScreen(
             onSignInFailed("Google sign-in failed (code ${e.statusCode}). You can still continue as guest.")
         } catch (e: Exception) {
             onSignInFailed("Sign-in failed: ${e.localizedMessage ?: "unknown error"}. You can still continue as guest.")
+        }
+    }
+
+    // If Google's dialog never returns (offline / Play Services issue), don't leave
+    // the user staring at its spinner: continue into the app as a guest instead.
+    LaunchedEffect(awaitingGoogle) {
+        if (awaitingGoogle) {
+            kotlinx.coroutines.delay(15000L)
+            if (awaitingGoogle) {
+                awaitingGoogle = false
+                onGuestContinue()
+            }
         }
     }
 
@@ -113,10 +130,25 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    try {
-                        launcher.launch(googleSignInClient.signInIntent)
-                    } catch (e: Exception) {
-                        onSignInFailed("Could not start Google sign-in. Please continue as guest.")
+                    // Launching Google's dialog while offline makes it hang on its own
+                    // spinner. Skip it and go straight into the app in that case.
+                    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE)
+                        as? android.net.ConnectivityManager
+                    val network = cm?.activeNetwork
+                    val caps = network?.let { cm?.getNetworkCapabilities(it) }
+                    val online = caps?.hasCapability(
+                        android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
+                    ) == true
+                    if (!online) {
+                        onGuestContinue()
+                    } else {
+                        awaitingGoogle = true
+                        try {
+                            launcher.launch(googleSignInClient.signInIntent)
+                        } catch (e: Exception) {
+                            awaitingGoogle = false
+                            onSignInFailed("Could not start Google sign-in. Please continue as guest.")
+                        }
                     }
                 },
                 enabled = !isLoading,
