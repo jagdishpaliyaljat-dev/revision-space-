@@ -54,12 +54,12 @@ import androidx.compose.animation.core.Spring
 
 // Shared Colors (Ideally from a central theme, defined here for self-containment matching the image)
 val SubPurplePrimary = Color(0xFF613FE6)
-val SubPurpleLight = Color(0xFFF3F0FF)
-val SubBackgroundWhite = Color(0xFFF8FAFC) // Very light off-white background
+val SubPurpleLight = Color(0xFFF1EEFF)
+val SubBackgroundWhite = Color(0xFFF6F7FB) // Very light off-white background
 val SubCardWhite = Color(0xFFFFFFFF)
-val SubSurfaceGray = Color(0xFFE2E8F0)
+val SubSurfaceGray = Color(0xFFE7EAF3)
 val SubTextPrimary = Color(0xFF0F172A)
-val SubTextSecondary = Color(0xFF64748B)
+val SubTextSecondary = Color(0xFF5B6478)
 
 @Composable
 fun SubjectDetailsScreenWrapper(
@@ -520,7 +520,7 @@ fun ChapterItemCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F3F9)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -552,7 +552,7 @@ fun ChapterItemCard(
                 text = chapter.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1E293B),
+                color = Color(0xFF0F172A),
                 maxLines = 2,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -568,7 +568,7 @@ fun ChapterItemCard(
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = "Chapter Options",
-                        tint = Color(0xFF94A3B8)
+                        tint = Color(0xFF8A94A6)
                     )
                 }
                 DropdownMenu(
@@ -598,7 +598,7 @@ fun ChapterItemCard(
             Icon(
                 Icons.Default.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Color(0xFF94A3B8),
+                tint = Color(0xFF8A94A6),
                 modifier = Modifier.size(20.dp)
             )
         }

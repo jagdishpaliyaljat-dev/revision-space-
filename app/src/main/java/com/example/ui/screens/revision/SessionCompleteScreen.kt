@@ -58,7 +58,7 @@ import kotlin.random.Random
 private val ScreenBackground = Color(0xFFFFFFFF)
 private val CardBackground = Color(0xFFFFFFFF)
 private val TextDark = Color(0xFF1E1B4B)
-private val TextGray = Color(0xFF64748B)
+private val TextGray = Color(0xFF5B6478)
 
 private val PurplePrimary = Color(0xFF7C4DFF)
 private val PurpleGlow = Color(0xFF7C4DFF).copy(alpha = 0.15f)
@@ -384,7 +384,7 @@ fun SessionCompleteScreen(
                                 modifier = Modifier
                                     .width(1.dp)
                                     .height(48.dp)
-                                    .background(Color(0xFFE2E8F0))
+                                    .background(Color(0xFFE7EAF3))
                             )
 
                             Column(

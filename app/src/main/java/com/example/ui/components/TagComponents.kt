@@ -246,7 +246,7 @@ fun TagEditDialog(
                     text = "Current Tags",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF64748B)
+                    color = Color(0xFF5B6478)
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -256,14 +256,14 @@ fun TagEditDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(60.dp)
-                            .background(Color(0xFFF8FAFC), RoundedCornerShape(12.dp))
-                            .border(BorderStroke(1.dp, Color(0xFFE2E8F0)), RoundedCornerShape(12.dp)),
+                            .background(Color(0xFFF6F7FB), RoundedCornerShape(12.dp))
+                            .border(BorderStroke(1.dp, Color(0xFFE7EAF3)), RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "No tags added yet. Add one below!",
                             fontSize = 12.sp,
-                            color = Color(0xFF94A3B8),
+                            color = Color(0xFF8A94A6),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -293,7 +293,7 @@ fun TagEditDialog(
                     text = "Add Custom Tag",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF64748B)
+                    color = Color(0xFF5B6478)
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -343,7 +343,7 @@ fun TagEditDialog(
                     text = "Quick Presets (Tap to Add)",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF64748B)
+                    color = Color(0xFF5B6478)
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -361,12 +361,12 @@ fun TagEditDialog(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
-                                    if (isAlreadyAdded) visuals.backgroundColor else Color(0xFFF8FAFC)
+                                    if (isAlreadyAdded) visuals.backgroundColor else Color(0xFFF6F7FB)
                                 )
                                 .border(
                                     BorderStroke(
                                         width = 1.dp,
-                                        color = if (isAlreadyAdded) visuals.borderColor else Color(0xFFE2E8F0)
+                                        color = if (isAlreadyAdded) visuals.borderColor else Color(0xFFE7EAF3)
                                     ),
                                     RoundedCornerShape(8.dp)
                                 )
@@ -418,7 +418,7 @@ fun TagEditDialog(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Cancel", color = Color(0xFF64748B))
+                Text("Cancel", color = Color(0xFF5B6478))
             }
         }
     )
@@ -435,7 +435,7 @@ fun AnimatedStrikethroughText(
     fontSize: androidx.compose.ui.unit.TextUnit,
     fontWeight: FontWeight,
     color: Color,
-    completedColor: Color = Color(0xFF94A3B8),
+    completedColor: Color = Color(0xFF8A94A6),
     modifier: Modifier = Modifier
 ) {
     val progress = animateFloatAsState(

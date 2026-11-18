@@ -65,11 +65,11 @@ import kotlinx.coroutines.launch
 // Colors
 val TdPurplePrimary = Color(0xFF613FE6)
 val TdPurpleLight = Color(0xFFF1EEFF)
-val TdBackgroundWhite = Color(0xFFF8FAFC)
+val TdBackgroundWhite = Color(0xFFF6F7FB)
 val TdCardWhite = Color(0xFFFFFFFF)
-val TdSurfaceGray = Color(0xFFE2E8F0)
+val TdSurfaceGray = Color(0xFFE7EAF3)
 val TdTextPrimary = Color(0xFF0F172A)
-val TdTextSecondary = Color(0xFF64748B)
+val TdTextSecondary = Color(0xFF5B6478)
 val TdGreen = Color(0xFF10B981)
 val TdGreenLight = Color(0xFFECFDF5)
 
@@ -325,7 +325,7 @@ fun TopicDetailScreen(
                             .padding(start = 16.dp)
                             .size(44.dp)
                             .background(TdCardWhite, RoundedCornerShape(14.dp))
-                            .border(BorderStroke(1.dp, Color(0xFFE2E8F0)), RoundedCornerShape(14.dp))
+                            .border(BorderStroke(1.dp, Color(0xFFE7EAF3)), RoundedCornerShape(14.dp))
                             .clip(RoundedCornerShape(14.dp))
                             .clickable { navController.popBackStack() },
                         contentAlignment = Alignment.Center
@@ -346,7 +346,7 @@ fun TopicDetailScreen(
                                 .padding(end = 16.dp)
                                 .size(44.dp)
                                 .background(TdCardWhite, RoundedCornerShape(14.dp))
-                                .border(BorderStroke(1.dp, Color(0xFFE2E8F0)), RoundedCornerShape(14.dp))
+                                .border(BorderStroke(1.dp, Color(0xFFE7EAF3)), RoundedCornerShape(14.dp))
                                 .clip(RoundedCornerShape(14.dp))
                                 .clickable { menuExpanded = true },
                             contentAlignment = Alignment.Center
@@ -629,7 +629,7 @@ fun TopicDetailScreen(
                                     if (topic.tags.isEmpty()) {
                                         Box(
                                             modifier = Modifier
-                                                .background(Color(0xFFF1F5F9), RoundedCornerShape(8.dp))
+                                                .background(Color(0xFFF1F3F9), RoundedCornerShape(8.dp))
                                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                                         ) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -659,12 +659,12 @@ fun TopicDetailScreen(
                                             if (topic.tags.size > 3) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(Color(0xFFE2E8F0), RoundedCornerShape(8.dp))
+                                                        .background(Color(0xFFE7EAF3), RoundedCornerShape(8.dp))
                                                         .padding(horizontal = 6.dp, vertical = 4.dp)
                                                 ) {
                                                     Text(
                                                         text = "+${topic.tags.size - 3}",
-                                                        color = Color(0xFF64748B),
+                                                        color = Color(0xFF5B6478),
                                                         fontSize = 10.sp,
                                                         fontWeight = FontWeight.Bold
                                                     )
@@ -840,7 +840,7 @@ fun TopicDetailScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(if (isSelected) selectedBg else Color(0xFFF1F5F9))
+                                        .background(if (isSelected) selectedBg else Color(0xFFF1F3F9))
                                         .clickable { 
                                             selectedDifficulty = diff
                                             currentIntervals = getSpacedRepetitionIntervals(diff)
@@ -885,8 +885,8 @@ fun TopicDetailScreen(
                                 Card(
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
-                                    border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
+                                    border = BorderStroke(1.dp, Color(0xFFF1F3F9))
                                 ) {
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1164,8 +1164,8 @@ fun TopicDetailScreen(
                                 revisionHistoryList.forEachIndexed { index, record ->
                                     Card(
                                         modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE7EAF3))
                                     ) {
                                         Column(modifier = Modifier.padding(12.dp)) {
                                             Row(
@@ -1700,7 +1700,7 @@ fun ScheduleItem(day: String, date: String, status: String) {
     val borderColor = when (status) {
         "done" -> Color.Transparent
         "next" -> TdPurplePrimary
-        else -> Color(0xFFE2E8F0)
+        else -> Color(0xFFE7EAF3)
     }
     
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(38.dp)) {

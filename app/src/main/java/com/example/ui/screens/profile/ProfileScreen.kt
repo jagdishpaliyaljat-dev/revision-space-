@@ -82,10 +82,10 @@ import java.util.*
 // Styling Color Constants
 val ProfilePurple = Color(0xFF6B4EFF)
 val ProfilePurpleLight = Color(0xFFE0D8FE)
-val ProfilePurpleSuperLight = Color(0xFFF3F0FF)
+val ProfilePurpleSuperLight = Color(0xFFF1EEFF)
 val ProfileBgLight = Color(0xFFF8F9FE)
 val ProfileTextDark = Color(0xFF1E1B4B)
-val ProfileTextGray = Color(0xFF64748B)
+val ProfileTextGray = Color(0xFF5B6478)
 
 // Sparkline trends colors
 val TrendGreen = Color(0xFF10B981)
@@ -368,7 +368,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().shadow(0.dp, RoundedCornerShape(24.dp)),
-                    border = BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                    border = BorderStroke(1.dp, Color(0xFFF1F3F9)),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -685,7 +685,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
 
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE2E8F0)),
+                    modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE7EAF3)),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -739,7 +739,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             if (userProfile != null) {
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE2E8F0)).clickable { 
+                        modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE7EAF3)).clickable { 
                             navController.navigate(com.example.ui.LeaderboardRoute)
                         },
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBEB)),
@@ -1015,7 +1015,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                         text = "Saved Topics (${bookmarkedIdsSet.size})",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color(0xFF1E293B)
+                        color = Color(0xFF0F172A)
                     )
                     IconButton(onClick = { showSavedTopicsDialog = false }) {
                         Icon(Icons.Default.Close, contentDescription = "Close")
@@ -1080,9 +1080,9 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                         showSavedTopicsDialog = false
                                         navController.navigate(TopicDetailRoute(topic.topicId, topic.subjectId, topic.chapterId))
                                     },
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -1111,12 +1111,12 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                             text = topic.topicName,
                                             fontWeight = FontWeight.SemiBold,
                                             fontSize = 13.sp,
-                                            color = Color(0xFF1E293B)
+                                            color = Color(0xFF0F172A)
                                         )
                                         Text(
                                             text = "${topic.subjectName} • ${topic.chapterName}",
                                             fontSize = 11.sp,
-                                            color = Color(0xFF64748B)
+                                            color = Color(0xFF5B6478)
                                         )
                                     }
                                     IconButton(
@@ -1180,11 +1180,11 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             currentValue = displayStudyHours.toInt(),
                             unit = "h",
                             completedColor = ProfilePurple,
-                            lockedColor = Color(0xFF94A3B8)
+                            lockedColor = Color(0xFF8A94A6)
                         )
                     }
                     
-                    HorizontalDivider(color = Color(0xFFF1F5F9))
+                    HorizontalDivider(color = Color(0xFFF1F3F9))
                     
                     // Revisions Achievement
                     Column {
@@ -1195,11 +1195,11 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             currentValue = displayRevisions.toInt(),
                             unit = "revs",
                             completedColor = TrendGreen,
-                            lockedColor = Color(0xFF94A3B8)
+                            lockedColor = Color(0xFF8A94A6)
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFFF1F5F9))
+                    HorizontalDivider(color = Color(0xFFF1F3F9))
 
                     // Coins Milestone
                     Column {
@@ -1210,7 +1210,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             currentValue = displayCoins.toInt(),
                             unit = "coins",
                             completedColor = TrendOrange,
-                            lockedColor = Color(0xFF94A3B8)
+                            lockedColor = Color(0xFF8A94A6)
                         )
                     }
                 }
@@ -1241,7 +1241,7 @@ fun StatisticSparklineCard(
             .shadow(1.dp, RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -1376,7 +1376,7 @@ fun AchievementsTimeline(
             
             // Draw background track
             drawLine(
-                color = Color(0xFFE2E8F0),
+                color = Color(0xFFE7EAF3),
                 start = androidx.compose.ui.geometry.Offset(0f, height / 2),
                 end = androidx.compose.ui.geometry.Offset(width, height / 2),
                 strokeWidth = 3.dp.toPx()
@@ -1434,7 +1434,7 @@ fun AchievementsTimeline(
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = "Locked",
-                            tint = Color(0xFF94A3B8),
+                            tint = Color(0xFF8A94A6),
                             modifier = Modifier.size(8.dp)
                         )
                     }
@@ -1656,7 +1656,7 @@ fun PhotoOptionsBottomSheet(
                 color = ProfileTextDark,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
             )
-            HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp)
+            HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
 
             ProfileSettingRow(
                 icon = Icons.Default.CameraAlt,
@@ -1668,7 +1668,7 @@ fun PhotoOptionsBottomSheet(
                     onTakePhotoClick()
                 }
             )
-            HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp)
+            HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
 
             ProfileSettingRow(
                 icon = Icons.Default.Image,
@@ -1682,7 +1682,7 @@ fun PhotoOptionsBottomSheet(
             )
             
             if (showRemoveOption) {
-                HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp)
+                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
                 ProfileSettingRow(
                     icon = Icons.Default.Delete,
                     iconBg = Color(0xFFFFE4E6),
@@ -1695,7 +1695,7 @@ fun PhotoOptionsBottomSheet(
                 )
             }
             
-            HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp)
+            HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
             ProfileSettingRow(
                 icon = Icons.Default.Close,
                 iconBg = Color(0xFFEEF2F6),
@@ -1806,37 +1806,37 @@ fun ReferralSection(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(0.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFF1F5F9), RoundedCornerShape(16.dp))
+        modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFF1F3F9), RoundedCornerShape(16.dp))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Refer & Earn", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+            Text("Refer & Earn", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text("Total Referrals", color = Color(0xFF64748B), fontSize = 12.sp)
-                    Text("$totalReferrals", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+                    Text("Total Referrals", color = Color(0xFF5B6478), fontSize = 12.sp)
+                    Text("$totalReferrals", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
                 }
                 Column {
-                    Text("Successful", color = Color(0xFF64748B), fontSize = 12.sp)
+                    Text("Successful", color = Color(0xFF5B6478), fontSize = 12.sp)
                     Text("$successfulReferrals", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF10B981))
                 }
                 Column {
-                    Text("Coins Earned", color = Color(0xFF64748B), fontSize = 12.sp)
+                    Text("Coins Earned", color = Color(0xFF5B6478), fontSize = 12.sp)
                     Text("$totalEarnings", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFFF59E0B))
                 }
             }
             
             Spacer(modifier = Modifier.height(20.dp))
             
-            Text("My Referral Code", color = Color(0xFF64748B), fontSize = 12.sp)
+            Text("My Referral Code", color = Color(0xFF5B6478), fontSize = 12.sp)
             Spacer(modifier = Modifier.height(8.dp))
             
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF1F5F9))
+                    .background(Color(0xFFF1F3F9))
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween

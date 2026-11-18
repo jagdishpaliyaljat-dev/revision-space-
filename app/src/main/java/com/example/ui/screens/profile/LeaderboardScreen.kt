@@ -115,10 +115,10 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color(0xFF1E1B4B))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF8FAFC))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF6F7FB))
             )
         },
-        containerColor = Color(0xFFF8FAFC)
+        containerColor = Color(0xFFF6F7FB)
     ) { padding ->
         Column(
             modifier = Modifier
@@ -168,7 +168,7 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                             .padding(bottom = 10.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -179,7 +179,7 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 PrizeBadge("🥇 Rank 1", "+1,000 Coins", Color(0xFFFBBF24))
-                                PrizeBadge("🥈 Rank 2", "+500 Coins", Color(0xFF94A3B8))
+                                PrizeBadge("🥈 Rank 2", "+500 Coins", Color(0xFF8A94A6))
                                 PrizeBadge("🥉 Rank 3", "+200 Coins", Color(0xFFB45309))
                             }
                         }
@@ -195,9 +195,9 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                                 .padding(40.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(Icons.Default.Group, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(48.dp))
+                            Icon(Icons.Default.Group, contentDescription = null, tint = Color(0xFF8A94A6), modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("No users logged study hours yet", color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                            Text("No users logged study hours yet", color = Color(0xFF5B6478), fontWeight = FontWeight.Bold)
                         }
                     }
                 } else {
@@ -244,14 +244,14 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("You (${safeCurrentUserProfile.name.ifEmpty { "User" }})", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1E293B))
-                            Text("Continuous Focus Session Tracker", fontSize = 11.sp, color = Color(0xFF64748B))
+                            Text("You (${safeCurrentUserProfile.name.ifEmpty { "User" }})", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF0F172A))
+                            Text("Continuous Focus Session Tracker", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                         Text(
                             text = String.format("%.1fh", safeCurrentUserProfile.studyTimeMinutes / 60.0),
                             fontWeight = FontWeight.Black,
                             fontSize = 16.sp,
-                            color = Color(0xFF1E293B)
+                            color = Color(0xFF0F172A)
                         )
                     }
                 }
@@ -272,7 +272,7 @@ fun LeaderboardPodiumSection(topThree: List<UserProfile>) {
         // Rank #2 (Silver)
         if (topThree.size >= 2) {
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomCenter) {
-                PodiumColumn(topThree[1], 120.dp, "2", Color(0xFF94A3B8), Color(0xFFE2E8F0))
+                PodiumColumn(topThree[1], 120.dp, "2", Color(0xFF8A94A6), Color(0xFFE7EAF3))
             }
         } else {
             Spacer(modifier = Modifier.weight(1f))
@@ -324,7 +324,7 @@ fun PodiumColumn(user: UserProfile, height: androidx.compose.ui.unit.Dp, rankTex
             text = user.name.ifEmpty { user.email.substringBefore("@") },
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp,
-            color = Color(0xFF1E293B),
+            color = Color(0xFF0F172A),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -359,7 +359,7 @@ fun PrizeBadge(rankLabel: String, coinsLabel: String, tintCol: Color) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(rankLabel, fontWeight = FontWeight.Bold, color = tintCol, fontSize = 11.sp)
-            Text(coinsLabel, fontWeight = FontWeight.Black, color = Color(0xFF1E293B), fontSize = 11.sp)
+            Text(coinsLabel, fontWeight = FontWeight.Black, color = Color(0xFF0F172A), fontSize = 11.sp)
         }
     }
 }
@@ -374,7 +374,7 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.2f) else Color(0xFFF1F5F9)
+            color = if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.2f) else Color(0xFFF1F3F9)
         )
     ) {
         Row(
@@ -387,24 +387,24 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
                 text = if (rank <= 3) "" else "#$rank",
                 fontWeight = FontWeight.Black,
                 fontSize = 14.sp,
-                color = Color(0xFF64748B),
+                color = Color(0xFF5B6478),
                 modifier = Modifier.width(36.dp),
                 textAlign = TextAlign.Start
             )
             if (rank == 1) Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFFFD700), modifier = Modifier.size(20.dp).padding(end = 4.dp))
-            else if (rank == 2) Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(18.dp).padding(end = 4.dp))
+            else if (rank == 2) Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFF8A94A6), modifier = Modifier.size(18.dp).padding(end = 4.dp))
             else if (rank == 3) Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFB45309), modifier = Modifier.size(16.dp).padding(end = 4.dp))
 
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.12f) else Color(0xFFF1F5F9)),
+                    .background(if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.12f) else Color(0xFFF1F3F9)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = user.name.take(1).ifEmpty { user.email.take(1) }.uppercase(),
-                    color = if (isMe) Color(0xFF6C4DFF) else Color(0xFF64748B),
+                    color = if (isMe) Color(0xFF6C4DFF) else Color(0xFF5B6478),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -417,12 +417,12 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
                     text = if (isMe) "${user.name.ifEmpty { "Me" }} (You)" else user.name.ifEmpty { "User" },
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = Color(0xFF1E293B)
+                    color = Color(0xFF0F172A)
                 )
                 Text(
                     text = "Weekly study sessions",
                     fontSize = 11.sp,
-                    color = Color(0xFF94A3B8)
+                    color = Color(0xFF8A94A6)
                 )
             }
 
@@ -430,7 +430,7 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
                 text = String.format("%.1fh", user.studyTimeMinutes / 60.0),
                 fontWeight = FontWeight.Black,
                 fontSize = 16.sp,
-                color = Color(0xFF1E293B)
+                color = Color(0xFF0F172A)
             )
         }
     }

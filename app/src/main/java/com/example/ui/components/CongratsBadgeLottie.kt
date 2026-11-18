@@ -204,7 +204,7 @@ fun DailyGoalCongratsDialog(
                         text = "Congrats! 🎉",
                         fontWeight = FontWeight.Black,
                         fontSize = 26.sp,
-                        color = Color(0xFF1E293B),
+                        color = Color(0xFF0F172A),
                         textAlign = TextAlign.Center
                     )
 
@@ -214,7 +214,7 @@ fun DailyGoalCongratsDialog(
                     Text(
                         text = "You've crushed your daily goal of $goalTarget $unitName today! Consistent effort builds extraordinary success.",
                         fontSize = 14.sp,
-                        color = Color(0xFF64748B),
+                        color = Color(0xFF5B6478),
                         textAlign = TextAlign.Center,
                         lineHeight = 20.sp,
                         modifier = Modifier.padding(horizontal = 8.dp)
@@ -343,14 +343,14 @@ fun CongratsBadgeCard(
                         text = "Daily Goal Reached! 🎉",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = Color(0xFF1E293B)
+                        color = Color(0xFF0F172A)
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "You completed $goalTarget $unitName today. Tap to view your congrats badge!",
                     fontSize = 12.sp,
-                    color = Color(0xFF64748B),
+                    color = Color(0xFF5B6478),
                     lineHeight = 16.sp
                 )
             }

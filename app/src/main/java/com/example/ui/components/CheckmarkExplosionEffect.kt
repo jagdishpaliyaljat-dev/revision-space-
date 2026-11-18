@@ -201,7 +201,7 @@ fun CheckmarkExplosionEffect(
                         text = title,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = Color(0xFF1E293B)
+                        color = Color(0xFF0F172A)
                     )
                 }
             }

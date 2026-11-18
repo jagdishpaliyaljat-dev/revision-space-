@@ -48,7 +48,7 @@ fun OfflineNotesScreen(navController: NavController) {
                 Icon(Icons.Default.Add, contentDescription = "Add Note", tint = Color.White)
             }
         },
-        containerColor = Color(0xFFF8FAFC)
+        containerColor = Color(0xFFF6F7FB)
     ) { padding ->
         LazyColumn(contentPadding = padding, modifier = Modifier.fillMaxSize()) {
             items(notes) { note ->

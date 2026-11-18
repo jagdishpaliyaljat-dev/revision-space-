@@ -62,7 +62,7 @@ import com.example.data.UserProfile
 import kotlin.math.cos
 import kotlin.math.sin
 
-val AnalyticsBg = Color(0xFFF8FAFC)
+val AnalyticsBg = Color(0xFFF6F7FB)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +80,7 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
         containerColor = AnalyticsBg,
         topBar = {
             TopAppBar(
-                title = { Text("Analytics Dashboard", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color(0xFF1E293B)) },
+                title = { Text("Analytics Dashboard", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color(0xFF0F172A)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -93,12 +93,12 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
                                 modifier = Modifier
                                     .padding(8.dp)
                                     .size(24.dp),
-                                color = Color(0xFF1E293B),
+                                color = Color(0xFF0F172A),
                                 strokeWidth = 2.dp
                             )
                         } else {
                             IconButton(onClick = { showDownloadMenu = true }) {
-                                Icon(Icons.Outlined.Download, contentDescription = "Download Reports", tint = Color(0xFF1E293B))
+                                Icon(Icons.Outlined.Download, contentDescription = "Download Reports", tint = Color(0xFF0F172A))
                             }
                         }
                         DropdownMenu(
@@ -187,7 +187,7 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
                             "Subject Progress", 
                             fontWeight = FontWeight.Bold, 
                             fontSize = 18.sp, 
-                            color = Color(0xFF1E293B),
+                            color = Color(0xFF0F172A),
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
@@ -231,7 +231,7 @@ fun SegmentedTimeFilters(selectedFilter: String, onFilterSelected: (String) -> U
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .background(Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
+            .background(Color(0xFFE7EAF3), RoundedCornerShape(24.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -250,7 +250,7 @@ fun SegmentedTimeFilters(selectedFilter: String, onFilterSelected: (String) -> U
                     text = filter,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     fontSize = 13.sp,
-                    color = if (isSelected) Color(0xFF0F172A) else Color(0xFF64748B)
+                    color = if (isSelected) Color(0xFF0F172A) else Color(0xFF5B6478)
                 )
             }
         }
@@ -270,15 +270,15 @@ fun EmptyAnalyticsState() {
             Icons.Outlined.Analytics,
             contentDescription = null,
             modifier = Modifier.size(80.dp),
-            tint = Color(0xFF94A3B8)
+            tint = Color(0xFF8A94A6)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text("No Analytics Yet", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+        Text("No Analytics Yet", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "Start studying, completing tasks, and running focus sessions to see your data here.",
             fontSize = 14.sp,
-            color = Color(0xFF64748B),
+            color = Color(0xFF5B6478),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -455,7 +455,7 @@ fun FocusInsightsCard(metrics: AnalyticsMetrics) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.Insights, contentDescription = null, tint = Color(0xFF8B5CF6))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Focus & Session Insights", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+                Text("Focus & Session Insights", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
             }
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -491,8 +491,8 @@ fun InsightItem(icon: ImageVector, title: String, value: String, iconColor: Colo
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(title, fontSize = 11.sp, color = Color(0xFF64748B))
-            Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+            Text(title, fontSize = 11.sp, color = Color(0xFF5B6478))
+            Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
         }
     }
 }
@@ -506,7 +506,7 @@ fun DailyStudyHoursChart(metrics: AnalyticsMetrics) {
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Study Hours (This Week)", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+            Text("Study Hours (This Week)", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
             Spacer(modifier = Modifier.height(24.dp))
             
             com.example.ui.components.VicoStudyTrendsChart(studyHoursPerDay = metrics.dailyHours)
@@ -534,12 +534,12 @@ fun SubjectTimeDonutChart(metrics: AnalyticsMetrics) {
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Subject Time Distribution", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+            Text("Subject Time Distribution", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
             Spacer(modifier = Modifier.height(24.dp))
             
             if (subjects.isEmpty() || totalMins == 0) {
                 Box(modifier = Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
-                    Text("No subject data available", color = Color(0xFF94A3B8), fontSize = 14.sp)
+                    Text("No subject data available", color = Color(0xFF8A94A6), fontSize = 14.sp)
                 }
             } else {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -563,7 +563,7 @@ fun SubjectTimeDonutChart(metrics: AnalyticsMetrics) {
                             "${(totalMins / 60)}h ${(totalMins % 60)}m",
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color(0xFF1E293B),
+                            color = Color(0xFF0F172A),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -576,7 +576,7 @@ fun SubjectTimeDonutChart(metrics: AnalyticsMetrics) {
                                 Box(modifier = Modifier.size(10.dp).background(color, CircleShape))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(subj.name, fontSize = 12.sp, color = Color(0xFF475569), modifier = Modifier.weight(1f), maxLines = 1)
-                                Text("$percent%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                                Text("$percent%", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                             }
                         }
                     }
@@ -605,7 +605,7 @@ fun StreaksCard(modifier: Modifier = Modifier, metrics: AnalyticsMetrics, isStre
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.LocalFireDepartment, contentDescription = null, tint = Color(0xFFF97316), modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Streaks", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+                    Text("Streaks", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -614,11 +614,11 @@ fun StreaksCard(modifier: Modifier = Modifier, metrics: AnalyticsMetrics, isStre
                     modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Color(0xFFFFF7ED)).padding(12.dp)
                 ) {
                     Column {
-                        Text("Current Streak", fontSize = 11.sp, color = Color(0xFF64748B))
+                        Text("Current Streak", fontSize = 11.sp, color = Color(0xFF5B6478))
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.Bottom) {
-                            Text(if (isStreakSystemEnabled) metrics.currentStreak.toString() else "0", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
-                            Text("Days", fontSize = 11.sp, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
+                            Text(if (isStreakSystemEnabled) metrics.currentStreak.toString() else "0", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("Days", fontSize = 11.sp, color = Color(0xFF5B6478), modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
                         }
                         Icon(Icons.Default.Whatshot, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.align(Alignment.End).size(28.dp))
                     }
@@ -627,11 +627,11 @@ fun StreaksCard(modifier: Modifier = Modifier, metrics: AnalyticsMetrics, isStre
                     modifier = Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(Color(0xFFFEF2F2)).padding(12.dp)
                 ) {
                     Column {
-                        Text("Best Streak", fontSize = 11.sp, color = Color(0xFF64748B))
+                        Text("Best Streak", fontSize = 11.sp, color = Color(0xFF5B6478))
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.Bottom) {
-                            Text(metrics.bestStreak.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
-                            Text("Days", fontSize = 11.sp, color = Color(0xFF64748B), modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
+                            Text(metrics.bestStreak.toString(), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("Days", fontSize = 11.sp, color = Color(0xFF5B6478), modifier = Modifier.padding(bottom = 6.dp, start = 4.dp))
                         }
                         Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.align(Alignment.End).size(28.dp))
                     }
@@ -662,15 +662,15 @@ fun ExamReadinessCard(metrics: AnalyticsMetrics) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.GpsFixed, contentDescription = null, tint = Color(0xFFF43F5E), modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Exam Readiness", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+                Text("Exam Readiness", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
             }
             Spacer(modifier = Modifier.height(20.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Target Exam", fontSize = 12.sp, color = Color(0xFF64748B))
-                    Text(metrics.targetExamName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                    Text("Target Exam", fontSize = 12.sp, color = Color(0xFF5B6478))
+                    Text(metrics.targetExamName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Preparation Level", fontSize = 12.sp, color = Color(0xFF64748B))
+                    Text("Preparation Level", fontSize = 12.sp, color = Color(0xFF5B6478))
                     Spacer(modifier = Modifier.height(6.dp))
                     LinearProgressIndicator(
                         progress = { animatedProgress },
@@ -685,7 +685,7 @@ fun ExamReadinessCard(metrics: AnalyticsMetrics) {
                         drawArc(Color(0xFFFFE4E6), 0f, 360f, false, style = Stroke(strokeWidth, cap = StrokeCap.Round))
                         drawArc(Color(0xFFE11D48), 270f, (metrics.readinessPercentage / 100f) * 360f, false, style = Stroke(strokeWidth, cap = StrokeCap.Round))
                     }
-                    Text("${metrics.readinessPercentage}%", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+                    Text("${metrics.readinessPercentage}%", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                 }
             }
         }
@@ -702,7 +702,7 @@ fun RevisionStats(modifier: Modifier = Modifier, metrics: AnalyticsMetrics) {
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Revision Overview", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
+            Text("Revision Overview", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
             Spacer(modifier = Modifier.height(16.dp))
             RevisionStatRow(icon = Icons.Outlined.DoneAll, iconColor = Color(0xFF10B981), iconBg = Color(0xFFECFDF5), title = "Total Revisions", value = metrics.totalRevisions.toString())
             RevisionStatRow(icon = Icons.Outlined.PlaylistAddCheck, iconColor = Color(0xFF3B82F6), iconBg = Color(0xFFEFF6FF), title = "Completed Topics", value = metrics.completedTopics.toString())
@@ -713,7 +713,7 @@ fun RevisionStats(modifier: Modifier = Modifier, metrics: AnalyticsMetrics) {
 }
 
 @Composable
-fun RevisionStatRow(icon: ImageVector, iconColor: Color, iconBg: Color, title: String, value: String, valueColor: Color = Color(0xFF1E293B)) {
+fun RevisionStatRow(icon: ImageVector, iconColor: Color, iconBg: Color, title: String, value: String, valueColor: Color = Color(0xFF0F172A)) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Box(
             modifier = Modifier.size(32.dp).clip(CircleShape).background(iconBg),
@@ -751,9 +751,9 @@ fun PremiumSubjectCard(prog: com.example.data.SubjectProgress, onClick: () -> Un
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(prog.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF1E293B))
+                    Text(prog.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF0F172A))
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("${prog.completedTopics} / ${prog.totalTopics} Topics", fontSize = 12.sp, color = Color(0xFF64748B))
+                    Text("${prog.completedTopics} / ${prog.totalTopics} Topics", fontSize = 12.sp, color = Color(0xFF5B6478))
                 }
                 Text(prog.percentage, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = themeColor)
             }

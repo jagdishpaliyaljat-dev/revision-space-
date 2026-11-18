@@ -125,10 +125,10 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color(0xFF1E1B4B))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF8FAFC))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF6F7FB))
             )
         },
-        containerColor = Color(0xFFF8FAFC)
+        containerColor = Color(0xFFF6F7FB)
     ) { padding ->
         var selectedCategory by remember { mutableStateOf("All") }
         var selectedBadge by remember { mutableStateOf<Badge?>(null) }
@@ -163,7 +163,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(currentStreak.toString(), fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1E1B4B))
-                            Text("Current Streak", fontSize = 11.sp, color = Color(0xFF64748B))
+                            Text("Current Streak", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                         
                         // Longest Streak
@@ -173,7 +173,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(longestStreak.toString(), fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1E1B4B))
-                            Text("Longest Streak", fontSize = 11.sp, color = Color(0xFF64748B))
+                            Text("Longest Streak", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                         
                         // Consistency
@@ -183,11 +183,11 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("$consistencyPercentage%", fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1E1B4B))
-                            Text("Consistency %", fontSize = 11.sp, color = Color(0xFF64748B))
+                            Text("Consistency %", fontSize = 11.sp, color = Color(0xFF5B6478))
                         }
                     }
                     
-                    HorizontalDivider(color = Color(0xFFF1F5F9))
+                    HorizontalDivider(color = Color(0xFFF1F3F9))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -235,7 +235,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             Text(
                                 text = "Earn medals as you make progress",
                                 fontSize = 11.sp,
-                                color = Color(0xFF64748B)
+                                color = Color(0xFF5B6478)
                             )
                         }
                         
@@ -266,7 +266,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(if (isSelected) Color(0xFF4F46E5) else Color(0xFFF1F5F9))
+                                    .background(if (isSelected) Color(0xFF4F46E5) else Color(0xFFF1F3F9))
                                     .clickable { selectedCategory = cat }
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
@@ -274,7 +274,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                     text = cat,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isSelected) Color.White else Color(0xFF64748B)
+                                    color = if (isSelected) Color.White else Color(0xFF5B6478)
                                 )
                             }
                         }
@@ -323,7 +323,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     LegendItem(Color(0xFFECFDF5), Color(0xFF10B981), "Studied")
                     LegendItem(Color(0xFFFEF2F2), Color(0xFFEF4444), "Missed")
-                    LegendItem(Color(0xFFF1F5F9), Color(0xFF94A3B8), "No Act")
+                    LegendItem(Color(0xFFF1F3F9), Color(0xFF8A94A6), "No Act")
                 }
             }
             
@@ -344,12 +344,12 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 val backgroundColor = when (day.status) {
                                     "STUDIED" -> Color(0xFFD1FAE5)
                                     "MISSED" -> Color(0xFFFEE2E2)
-                                    else -> Color(0xFFF1F5F9)
+                                    else -> Color(0xFFF1F3F9)
                                 }
                                 val tintColor = when (day.status) {
                                     "STUDIED" -> Color(0xFF065F46)
                                     "MISSED" -> Color(0xFF991B1B)
-                                    else -> Color(0xFF64748B)
+                                    else -> Color(0xFF5B6478)
                                 }
                                 
                                 Box(
@@ -414,7 +414,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                         )
                                     } else {
                                         Brush.linearGradient(
-                                            colors = listOf(Color(0xFFE2E8F0), Color(0xFFF1F5F9))
+                                            colors = listOf(Color(0xFFE7EAF3), Color(0xFFF1F3F9))
                                         )
                                     }
                                 ),
@@ -427,7 +427,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             text = badge.title,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color(0xFF1E293B),
+                            color = Color(0xFF0F172A),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -450,7 +450,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
-                                    if (badge.isUnlocked) Color(0xFFDCFCE7) else Color(0xFFF1F5F9)
+                                    if (badge.isUnlocked) Color(0xFFDCFCE7) else Color(0xFFF1F3F9)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
@@ -458,7 +458,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 text = if (badge.isUnlocked) "🏆 Unlocked Milestone" else "🔒 Locked Milestone",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (badge.isUnlocked) Color(0xFF15803D) else Color(0xFF64748B)
+                                color = if (badge.isUnlocked) Color(0xFF15803D) else Color(0xFF5B6478)
                             )
                         }
 
@@ -477,13 +477,13 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                     text = "Progress",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF64748B)
+                                    color = Color(0xFF5B6478)
                                 )
                                 Text(
                                     text = "${badge.currentValue} / ${badge.targetValue} ${badge.valueSuffix}",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1E293B)
+                                    color = Color(0xFF0F172A)
                                 )
                             }
                             LinearProgressIndicator(
@@ -492,8 +492,8 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                     .fillMaxWidth()
                                     .height(8.dp)
                                     .clip(CircleShape),
-                                color = if (badge.isUnlocked) Color(0xFF8B5CF6) else Color(0xFF94A3B8),
-                                trackColor = Color(0xFFE2E8F0)
+                                color = if (badge.isUnlocked) Color(0xFF8B5CF6) else Color(0xFF8A94A6),
+                                trackColor = Color(0xFFE7EAF3)
                             )
                         }
                     }
@@ -530,11 +530,11 @@ fun BadgeItem(
             .testTag("badge_item_${badge.id}"),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (badge.isUnlocked) Color(0xFFFAF5FF) else Color(0xFFF8FAFC)
+            containerColor = if (badge.isUnlocked) Color(0xFFFAF5FF) else Color(0xFFF6F7FB)
         ),
         border = BorderStroke(
             1.dp,
-            if (badge.isUnlocked) Color(0xFFE9D5FF) else Color(0xFFE2E8F0)
+            if (badge.isUnlocked) Color(0xFFE9D5FF) else Color(0xFFE7EAF3)
         )
     ) {
         Column(
@@ -555,7 +555,7 @@ fun BadgeItem(
                             )
                         } else {
                             Brush.linearGradient(
-                                colors = listOf(Color(0xFFE2E8F0), Color(0xFFF1F5F9))
+                                colors = listOf(Color(0xFFE7EAF3), Color(0xFFF1F3F9))
                             )
                         }
                     ),
@@ -573,7 +573,7 @@ fun BadgeItem(
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = "Locked",
-                            tint = Color(0xFF64748B),
+                            tint = Color(0xFF5B6478),
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -616,14 +616,14 @@ fun BadgeItem(
                             .fillMaxWidth(0.8f)
                             .height(4.dp)
                             .clip(CircleShape),
-                        color = Color(0xFF94A3B8),
-                        trackColor = Color(0xFFE2E8F0)
+                        color = Color(0xFF8A94A6),
+                        trackColor = Color(0xFFE7EAF3)
                     )
                     Text(
                         text = "${badge.currentValue}/${badge.targetValue}",
                         fontSize = 8.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF64748B)
+                        color = Color(0xFF5B6478)
                     )
                 }
             }

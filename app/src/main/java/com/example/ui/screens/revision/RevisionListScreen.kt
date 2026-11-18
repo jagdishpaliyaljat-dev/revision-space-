@@ -306,14 +306,14 @@ fun SearchEmptyState(onClearSearch: () -> Unit) {
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFF1F5F9)),
+                    .background(Color(0xFFF1F3F9)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
                     modifier = Modifier.size(48.dp),
-                    tint = Color(0xFF64748B)
+                    tint = Color(0xFF5B6478)
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))

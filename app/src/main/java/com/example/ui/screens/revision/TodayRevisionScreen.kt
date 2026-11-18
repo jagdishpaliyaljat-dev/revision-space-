@@ -57,7 +57,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // Design Theme Colors matching Material 3 & Image Reference
-val RevBgLight = Color(0xFFFAFAFC)
+val RevBgLight = Color(0xFFF6F7FB)
 val RevTextDark = Color(0xFF111827)
 val RevTextGray = Color(0xFF6B7280)
 val RevPrimary = Color(0xFF1D4ED8)
@@ -998,21 +998,21 @@ fun OverdueTopicCard(
                     label = "Last Revision Date",
                     value = formattedLastDate
                 )
-                HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 0.5.dp)
+                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 0.5.dp)
 
                 OverdueInfoRow(
                     icon = Icons.Outlined.Timer,
                     label = "Last Revision Time",
                     value = "$lastRevMins min"
                 )
-                HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 0.5.dp)
+                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 0.5.dp)
 
                 OverdueInfoRow(
                     icon = Icons.Outlined.History,
                     label = "Total Revisions",
                     value = topic.revisionCount.toString()
                 )
-                HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 0.5.dp)
+                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 0.5.dp)
 
                 OverdueInfoRow(
                     icon = Icons.Outlined.HourglassEmpty,
@@ -1291,7 +1291,7 @@ fun UpcomingRevisionsView(
     val sheetState = rememberModalBottomSheetState()
 
     Scaffold(
-        containerColor = Color(0xFFF8FAFC),
+        containerColor = Color(0xFFF6F7FB),
         topBar = {
             TopAppBar(
                 title = {
@@ -1381,7 +1381,7 @@ fun UpcomingRevisionsView(
                     Text(
                         text = "You're fully scheduled for now.",
                         fontSize = 14.sp,
-                        color = Color(0xFF64748B),
+                        color = Color(0xFF5B6478),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -1447,7 +1447,7 @@ fun UpcomingRevisionsView(
                                 containerColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                         ) {
                             Row(
                                 modifier = Modifier
@@ -1474,7 +1474,7 @@ fun UpcomingRevisionsView(
                                         Text(
                                             text = "Upcoming Topics",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF64748B),
+                                            color = Color(0xFF5B6478),
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
@@ -1492,7 +1492,7 @@ fun UpcomingRevisionsView(
                                     modifier = Modifier
                                         .width(1.dp)
                                         .height(40.dp)
-                                        .background(Color(0xFFE2E8F0))
+                                        .background(Color(0xFFE7EAF3))
                                 )
 
                                 // Right Section: Total Time
@@ -1514,7 +1514,7 @@ fun UpcomingRevisionsView(
                                         Text(
                                             text = "Total Time",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF64748B),
+                                            color = Color(0xFF5B6478),
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
@@ -1539,7 +1539,7 @@ fun UpcomingRevisionsView(
                             Text(
                                 text = "Sorted by $selectedSortOption ${if (selectedSortOrder == "Ascending") "↑" else "↓"}",
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B),
+                                color = Color(0xFF5B6478),
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -1572,7 +1572,7 @@ fun UpcomingRevisionsView(
                                 containerColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp)
@@ -1605,7 +1605,7 @@ fun UpcomingRevisionsView(
                                             Text(
                                                 text = "Chapter: ",
                                                 fontSize = 11.sp,
-                                                color = Color(0xFF64748B)
+                                                color = Color(0xFF5B6478)
                                             )
                                             Text(
                                                 text = topic.chapterName,
@@ -1625,12 +1625,12 @@ fun UpcomingRevisionsView(
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(
                                                 if (daysRemaining == 1) Color(0xFFEFF6FF)
-                                                else Color(0xFFF1F5F9)
+                                                else Color(0xFFF1F3F9)
                                             )
                                             .border(
                                                 1.dp,
                                                 if (daysRemaining == 1) Color(0xFFDBEAFE)
-                                                else Color(0xFFE2E8F0),
+                                                else Color(0xFFE7EAF3),
                                                 RoundedCornerShape(8.dp)
                                             )
                                             .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -1645,7 +1645,7 @@ fun UpcomingRevisionsView(
                                 }
 
                                 Spacer(modifier = Modifier.height(14.dp))
-                                HorizontalDivider(color = Color(0xFFF1F5F9))
+                                HorizontalDivider(color = Color(0xFFF1F3F9))
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 // Next Revision Date Info Row
@@ -1656,14 +1656,14 @@ fun UpcomingRevisionsView(
                                     Icon(
                                         imageVector = Icons.Outlined.CalendarToday,
                                         contentDescription = null,
-                                        tint = Color(0xFF94A3B8),
+                                        tint = Color(0xFF8A94A6),
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Next Revision Date",
                                         fontSize = 13.sp,
-                                        color = Color(0xFF64748B)
+                                        color = Color(0xFF5B6478)
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
@@ -1684,14 +1684,14 @@ fun UpcomingRevisionsView(
                                     Icon(
                                         imageVector = Icons.Outlined.Timer,
                                         contentDescription = null,
-                                        tint = Color(0xFF94A3B8),
+                                        tint = Color(0xFF8A94A6),
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = "Expected Time",
                                         fontSize = 13.sp,
-                                        color = Color(0xFF64748B)
+                                        color = Color(0xFF5B6478)
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
@@ -1703,7 +1703,7 @@ fun UpcomingRevisionsView(
                                 }
 
                                 Spacer(modifier = Modifier.height(12.dp))
-                                HorizontalDivider(color = Color(0xFFF1F5F9))
+                                HorizontalDivider(color = Color(0xFFF1F3F9))
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 // Countdown element at bottom right
@@ -1910,11 +1910,11 @@ fun CustomFilterChip(
     label: String
 ) {
     val bgColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFFEFF6FF) else Color(0xFFF1F5F9),
+        targetValue = if (selected) Color(0xFFEFF6FF) else Color(0xFFF1F3F9),
         animationSpec = tween(durationMillis = 200)
     )
     val borderColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF1D4ED8) else Color(0xFFE2E8F0),
+        targetValue = if (selected) Color(0xFF1D4ED8) else Color(0xFFE7EAF3),
         animationSpec = tween(durationMillis = 200)
     )
     val textColor by animateColorAsState(

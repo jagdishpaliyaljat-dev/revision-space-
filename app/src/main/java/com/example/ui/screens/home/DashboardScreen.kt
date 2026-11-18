@@ -71,10 +71,10 @@ import java.util.*
 import com.airbnb.lottie.compose.*
 
 val DashPurplePrimary = Color(0xFF6C4DFF)
-val DashPurpleLight = Color(0xFFF3F0FF)
-val DashBackground = Color(0xFFFAFAFC) // Sleek white-gray background
-val DashTextDark = Color(0xFF1E293B)
-val DashTextGray = Color(0xFF64748B)
+val DashPurpleLight = Color(0xFFF1EEFF)
+val DashBackground = Color(0xFFF6F7FB) // Sleek white-gray background
+val DashTextDark = Color(0xFF0F172A)
+val DashTextGray = Color(0xFF5B6478)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -256,47 +256,56 @@ fun DashboardScreen(
                 TopAppBar(
                     title = {
                         val greetName = userProfile?.name?.takeIf { it.isNotBlank() }?.split(" ")?.get(0) ?: "Aspirant"
-                        Text(
-                            text = "Hi, $greetName! \uD83D\uDC4B",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DashTextDark,
-                            letterSpacing = (-0.5).sp
-                        )
+                        Column {
+                            Text(
+                                text = "Hi, $greetName! \uD83D\uDC4B",
+                                fontSize = 21.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = DashTextDark,
+                                letterSpacing = (-0.4).sp
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Ready for today's revision?",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = DashTextGray
+                            )
+                        }
                     },
                     navigationIcon = {
                         IconButton(
                             onClick = { scope.launch { drawerState.open() } },
                             modifier = Modifier
                                 .padding(start = 12.dp)
-                                .shadow(2.dp, RoundedCornerShape(12.dp))
-                                .background(Color.White, RoundedCornerShape(12.dp))
-                                .size(44.dp)
+                                .size(42.dp)
+                                .background(Color.White, RoundedCornerShape(14.dp))
+                                .border(1.dp, Color(0xFFE7EAF3), RoundedCornerShape(14.dp))
                         ) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = DashTextDark)
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = DashTextDark, modifier = Modifier.size(20.dp))
                         }
                     },
                     actions = {
                         // Notification bell
                         Box(
                             modifier = Modifier
-                                .shadow(2.dp, RoundedCornerShape(12.dp))
-                                .background(Color.White, RoundedCornerShape(12.dp))
-                                .size(44.dp)
+                                .size(42.dp)
+                                .background(Color.White, RoundedCornerShape(14.dp))
+                                .border(1.dp, Color(0xFFE7EAF3), RoundedCornerShape(14.dp))
                                 .clickable {
                                     onNavigateToNotifications()
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = DashTextDark)
+                            Icon(Icons.Outlined.Notifications, contentDescription = "Notifications", tint = DashTextDark, modifier = Modifier.size(20.dp))
                             if (unreadNotificationsCount > 0) {
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
-                                        .padding(6.dp)
-                                        .size(14.dp) // Slightly larger to fit text
+                                        .padding(5.dp)
+                                        .size(15.dp) // Slightly larger to fit text
                                         .clip(CircleShape)
-                                        .background(Color.Red),
+                                        .background(Color(0xFFEF4444)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -313,7 +322,9 @@ fun DashboardScreen(
                         Box(
                             modifier = Modifier
                                 .padding(end = 16.dp)
-                                .size(44.dp)
+                                .size(46.dp)
+                                .background(Color(0xFFEDE9FF), CircleShape)
+                                .padding(2.dp)
                                 .clip(CircleShape)
                                 .background(DashPurplePrimary)
                                 .clickable { onNavigateToProfile() },
@@ -418,7 +429,7 @@ fun DashboardScreen(
                                 .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(24.dp),
-                            border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+                            border = BorderStroke(1.dp, Color(0xFFF1F3F9))
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(24.dp),
@@ -486,100 +497,169 @@ fun DashboardScreen(
                         }
                     }
 
-                    Card(
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp, vertical = 12.dp)
-                            .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f))
-                            .bounceClick { startRevisionAction() },
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+                            .shadow(
+                                elevation = 14.dp,
+                                shape = RoundedCornerShape(24.dp),
+                                clip = false,
+                                spotColor = DashPurplePrimary.copy(alpha = 0.35f),
+                                ambientColor = DashPurplePrimary.copy(alpha = 0.22f)
+                            )
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF))
+                                )
+                            )
+                            .bounceClick { startRevisionAction() }
                     ) {
+                        // Soft decorative glow for depth
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .offset(x = 48.dp, y = (-52).dp)
+                                .size(150.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.08f))
+                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .offset(x = 30.dp, y = 40.dp)
+                                .size(90.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.06f))
+                        )
+
                         Column(
                             modifier = Modifier
                                 .padding(20.dp)
                                 .fillMaxWidth()
                         ) {
-                            // Header
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    tint = DashPurplePrimary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Today's Plan",
-                                    color = DashTextDark,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Content
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(Color.White.copy(alpha = 0.18f)),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.MenuBook,
+                                        imageVector = Icons.Default.CalendarToday,
                                         contentDescription = null,
-                                        tint = DashTextGray,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "Total Today's Topics: $totalTodayTopics",
-                                        color = DashTextDark,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Timer,
-                                        contentDescription = null,
-                                        tint = DashTextGray,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
                                     Text(
-                                        text = "Estimated Study Time: $estimatedStudyTimeStr",
-                                        color = DashTextDark,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium
+                                        text = "Today's Plan",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp,
+                                        letterSpacing = (-0.2).sp
+                                    )
+                                    Text(
+                                        text = "Small steps, every single day",
+                                        color = Color.White.copy(alpha = 0.78f),
+                                        fontSize = 12.sp
                                     )
                                 }
                             }
 
                             Spacer(modifier = Modifier.height(18.dp))
 
-                            // Full-width Primary Button
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                // Topics chip
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(Color.White.copy(alpha = 0.14f))
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MenuBook,
+                                        contentDescription = null,
+                                        tint = Color.White.copy(alpha = 0.9f),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = "$totalTodayTopics",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp
+                                        )
+                                        Text(
+                                            text = "Topics",
+                                            color = Color.White.copy(alpha = 0.75f),
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+                                // Time chip
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(Color.White.copy(alpha = 0.14f))
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Timer,
+                                        contentDescription = null,
+                                        tint = Color.White.copy(alpha = 0.9f),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = estimatedStudyTimeStr,
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp
+                                        )
+                                        Text(
+                                            text = "Study time",
+                                            color = Color.White.copy(alpha = 0.75f),
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(18.dp))
+
                             Button(
                                 onClick = { startRevisionAction() },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(48.dp)
+                                    .height(50.dp)
                                     .scale(buttonScale),
-                                colors = ButtonDefaults.buttonColors(containerColor = DashPurplePrimary),
-                                shape = RoundedCornerShape(12.dp)
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White,
+                                    contentColor = DashPurplePrimary
+                                ),
+                                shape = RoundedCornerShape(16.dp)
                             ) {
                                 Text(
                                     text = "Start Revision",
-                                    color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForward,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
@@ -605,9 +685,9 @@ fun DashboardScreen(
                         if (combinedDue.isEmpty()) {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
                             ) {
                                 Box(
                                     modifier = Modifier.fillMaxWidth().padding(24.dp),
@@ -635,7 +715,7 @@ fun DashboardScreen(
                                 .clickable { onNavigateToTopic(topic.topicId) },
                             colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                            border = BorderStroke(1.dp, Color(0xFFF1F3F9)),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
                             Column(
@@ -838,7 +918,7 @@ fun DividerDivider(modifier: Modifier = Modifier) {
         modifier = modifier
             .width(1.dp)
             .height(36.dp)
-            .background(Color(0xFFE2E8F0))
+            .background(Color(0xFFE7EAF3))
     )
 }
 
@@ -882,7 +962,7 @@ fun StudyToolCard(
             .bounceClick { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Column(
             modifier = Modifier
@@ -1099,7 +1179,7 @@ fun PremiumNearestExamCard(
             .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -1111,16 +1191,16 @@ fun PremiumNearestExamCard(
                             .clip(CircleShape)
                             .background(
                                 brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFFFFCCBC), Color(0xFFFFAB91))
+                                    colors = listOf(Color(0xFFEDE9FF), Color(0xFFF6F4FF))
                                 )
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFFD84315), modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFF6C4DFF), modifier = Modifier.size(24.dp))
                             Text(
                                 text = if (exam.name.length >= 3) exam.name.take(3).uppercase() else "EXM",
-                                color = Color(0xFFD84315),
+                                color = Color(0xFF6C4DFF),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp
                             )
@@ -1150,7 +1230,7 @@ fun PremiumNearestExamCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFFF8E7))
+                        .background(Color(0xFFF6F4FF))
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Row(
@@ -1162,7 +1242,7 @@ fun PremiumNearestExamCard(
                             Icon(
                                 imageVector = Icons.Default.HourglassTop,
                                 contentDescription = null,
-                                tint = Color(0xFFD97706),
+                                tint = Color(0xFF6C4DFF),
                                 modifier = Modifier.size(28.dp)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
@@ -1171,9 +1251,9 @@ fun PremiumNearestExamCard(
                                     text = String.format("%dD %02dH %02dM %02dS", days, hours, minutes, seconds),
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFFD97706)
+                                    color = Color(0xFF6C4DFF)
                                 )
-                                Text("Remaining", color = Color(0xFFD97706), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                Text("Remaining", color = Color(0xFF6C4DFF), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                         
@@ -1207,13 +1287,17 @@ fun PremiumNearestExamCard(
                         Text("${exam.progress.toInt()}%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = DashPurplePrimary)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE2E8F0))) {
+                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE7EAF3))) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(animatedExamProgress)
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(DashPurplePrimary)
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B6BFF))
+                                    )
+                                )
                         )
                     }
                 }
@@ -1578,7 +1662,7 @@ fun DashboardDrawerContent(
                             Text("Coins", fontSize = 13.sp, color = DashTextGray)
                         }
                         
-                        Box(modifier = Modifier.width(1.dp).height(60.dp).background(Color(0xFFF1F5F9)))
+                        Box(modifier = Modifier.width(1.dp).height(60.dp).background(Color(0xFFF1F3F9)))
                         
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f).clickable { onNavigateToStreak(); closeDrawer() }) {
                             Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFFFEDD5)), contentAlignment = Alignment.Center) {
@@ -1599,7 +1683,7 @@ fun DashboardDrawerContent(
                     DrawerMenuItem2(icon = Icons.Default.Language, iconTint = DashPurplePrimary, iconBg = Color(0xFFF3E8FF), title = "Language", subtitle = "English", onClick = { onNavigateToLanguage(); closeDrawer() })
                     DrawerMenuItem2(icon = Icons.Default.HeadsetMic, iconTint = Color(0xFF3B82F6), iconBg = Color(0xFFEFF6FF), title = "Help & Support", subtitle = "Get help and support", onClick = { onNavigateToHelpAndSupport(); closeDrawer() })
                     
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFE2E8F0), thickness = 0.5.dp)
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFE7EAF3), thickness = 0.5.dp)
                     
                     DrawerMenuItem2(icon = Icons.Default.Logout, iconTint = Color(0xFFEF4444), iconBg = Color(0xFFFFE4E6), title = "Logout", subtitle = "Sign out from your account", onClick = { onLogoutClick(); closeDrawer() })
                 }
@@ -1847,7 +1931,7 @@ fun SubjectBreakdownVisualizationSection(metrics: com.example.data.AnalyticsMetr
                                 .fillMaxWidth()
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFF1F5F9))
+                                .background(Color(0xFFF1F3F9))
                         ) {
                             Box(
                                 modifier = Modifier
@@ -1879,7 +1963,7 @@ fun DashboardSubjectCard(
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -1925,7 +2009,7 @@ fun DashboardSubjectCard(
             Box(contentAlignment = Alignment.Center) {
                 androidx.compose.material3.CircularProgressIndicator(
                     progress = { 1f },
-                    color = Color(0xFFF1F5F9),
+                    color = Color(0xFFF1F3F9),
                     modifier = Modifier.size(36.dp),
                     strokeWidth = 4.dp
                 )
@@ -1958,7 +2042,7 @@ fun DashboardDeadlineCard(
             .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = color.copy(alpha = 0.15f)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -2076,7 +2160,7 @@ fun RecentSessionsListSection(metrics: com.example.data.AnalyticsMetrics) {
                         }
                     }
                     if (index < minOf(metrics.recentSessions.size, 5) - 1) {
-                        HorizontalDivider(color = Color(0xFFF1F5F9))
+                        HorizontalDivider(color = Color(0xFFF1F3F9))
                     }
                 }
             }

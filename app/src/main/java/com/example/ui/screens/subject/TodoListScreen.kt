@@ -49,9 +49,9 @@ import java.util.*
 import androidx.compose.ui.draw.alpha
 
 val TodoPurple = Color(0xFF6366F1)
-val TodoBgLight = Color(0xFFF8FAFC)
-val TodoTextDark = Color(0xFF1E293B)
-val TodoTextGray = Color(0xFF64748B)
+val TodoBgLight = Color(0xFFF6F7FB)
+val TodoTextDark = Color(0xFF0F172A)
+val TodoTextGray = Color(0xFF5B6478)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

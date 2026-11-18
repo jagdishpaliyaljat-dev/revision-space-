@@ -67,7 +67,7 @@ val FocusBgLight = Color(0xFFF8F9FE)
 val FocusPurple = Color(0xFF6B4EFF)
 val FocusPurpleLight = Color(0xFFE0D8FE)
 val FocusTextDark = Color(0xFF1E1B4B)
-val FocusTextGray = Color(0xFF64748B)
+val FocusTextGray = Color(0xFF5B6478)
 
 @Composable
 fun TimerScreenWrapper(viewModel: RevisionViewModel, navController: NavController, backStackEntry: NavBackStackEntry) {
@@ -354,7 +354,7 @@ fun TimerScreen(
                             viewModel.cancelCompletionNotification()
                             viewModel.resetTimer()
                         },
-                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = FocusTextDark)
@@ -422,12 +422,12 @@ fun TimerScreen(
                 actions = {
                     Row(modifier = Modifier.padding(end = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         val context = androidx.compose.ui.platform.LocalContext.current
-                        Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF3F0FF)).clickable {
+                        Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF1EEFF)).clickable {
                              showAmbientSoundSheet = true
                         }, contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.MusicNote, contentDescription = "Music", tint = FocusTextDark, modifier = Modifier.size(20.dp))
                         }
-                        Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF3F0FF)).clickable { showSettingsSheet = true }, contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF1EEFF)).clickable { showSettingsSheet = true }, contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.Settings, contentDescription = "Settings", tint = FocusTextDark, modifier = Modifier.size(20.dp))
                         }
                     }
@@ -558,7 +558,7 @@ fun TimerScreen(
                     CircularProgressIndicator(
                         progress = { 1f },
                         modifier = Modifier.fillMaxSize(),
-                        color = Color(0xFFF1F5F9),
+                        color = Color(0xFFF1F3F9),
                         strokeWidth = 10.dp,
                     )
                     AnimatedCircularProgress(
@@ -570,7 +570,7 @@ fun TimerScreen(
                     )
                     
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(modifier = Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF3F0FF)), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF1EEFF)), contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.TurnedInNot, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(24.dp))
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -609,7 +609,7 @@ fun TimerScreen(
                         )
                         Spacer(modifier = Modifier.height(6.dp))
 
-                        Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF3F0FF)) {
+                        Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF1EEFF)) {
                             Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Outlined.Timer, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -695,7 +695,7 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape)
-                            .background(if (stopClickable) Color(0xFFF3F0FF) else Color(0xFFE2E8F0))
+                            .background(if (stopClickable) Color(0xFFF1EEFF) else Color(0xFFE7EAF3))
                             .clickable(enabled = stopClickable) { 
                                 if (elapsedMs > 0 || isRunning || isPaused) showStopDialog = true else navController.popBackStack()
                             }
@@ -705,7 +705,7 @@ fun TimerScreen(
                         Icon(
                             Icons.Default.Stop, 
                             contentDescription = "Stop", 
-                            tint = if (stopClickable) FocusPurple else Color(0xFF94A3B8), 
+                            tint = if (stopClickable) FocusPurple else Color(0xFF8A94A6), 
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -721,7 +721,7 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(80.dp)
                             .clip(CircleShape)
-                            .background(if (startEnabled) Color(0xFF6B4EFF) else Color(0xFF94A3B8))
+                            .background(if (startEnabled) Color(0xFF6B4EFF) else Color(0xFF8A94A6))
                             .clickable(enabled = startEnabled) {
                                 if (isRunning && !isPaused) {
                                     viewModel.pauseTimer()
@@ -765,7 +765,7 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape)
-                            .background(if (skipClickable) Color(0xFFF3F0FF) else Color(0xFFE2E8F0))
+                            .background(if (skipClickable) Color(0xFFF1EEFF) else Color(0xFFE7EAF3))
                             .clickable(enabled = skipClickable) { 
                                 viewModel.skipSession(
                                     chapterId = currentChapterId,
@@ -782,7 +782,7 @@ fun TimerScreen(
                         Icon(
                             Icons.Default.SkipNext, 
                             contentDescription = "Skip", 
-                            tint = if (skipClickable) FocusPurple else Color(0xFF94A3B8), 
+                            tint = if (skipClickable) FocusPurple else Color(0xFF8A94A6), 
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -904,15 +904,15 @@ fun TimerScreen(
                     modifier = Modifier.fillMaxWidth().shadow(1.dp, RoundedCornerShape(16.dp)),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+                    border = BorderStroke(1.dp, Color(0xFFF1F3F9))
                 ) {
                     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                        SummaryColumnItem(Icons.Default.Timer, Color(0xFF8B5CF6), Color(0xFFF3F0FF), "Study Time", todayStudyTimeStr)
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F5F9)))
+                        SummaryColumnItem(Icons.Default.Timer, Color(0xFF8B5CF6), Color(0xFFF1EEFF), "Study Time", todayStudyTimeStr)
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F3F9)))
                         SummaryColumnItem(Icons.Default.MenuBook, Color(0xFF3B82F6), Color(0xFFEFF6FF), "Sessions", "$focusSessionsToday")
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F5F9)))
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F3F9)))
                         SummaryColumnItem(Icons.Default.FactCheck, Color(0xFF22C55E), Color(0xFFECFDF5), "Chapters Done", "$chaptersCompletedToday")
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F5F9)))
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F3F9)))
                         SummaryColumnItem(Icons.Default.Adjust, Color(0xFFF43F5E), Color(0xFFFFF1F2), "Accuracy", accuracyValue)
                     }
                 }
@@ -1017,7 +1017,7 @@ fun FocusSettingsBottomSheet(
                 onSelect = { draftSettings = draftSettings.copy(longBreakDuration = it) }
             )
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFF1F5F9))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFF1F3F9))
 
             // Toggles
             SettingSectionTitle("🔄 Automation")
@@ -1025,7 +1025,7 @@ fun FocusSettingsBottomSheet(
                 draftSettings = draftSettings.copy(autoStartFocus = it)
             }
             
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFF1F5F9))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFF1F3F9))
 
             SettingSectionTitle("📳 Feedback")
             SwitchSettingItem("Enable Vibration", draftSettings.vibrationEnabled) {
@@ -1060,7 +1060,7 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) FocusPurple else Color.White)
-                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
@@ -1095,7 +1095,7 @@ fun DurationSelectorStr(options: List<String>, selected: String, onSelect: (Stri
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) FocusPurple else Color.White)
-                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {

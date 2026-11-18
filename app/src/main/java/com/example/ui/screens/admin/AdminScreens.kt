@@ -57,10 +57,10 @@ import java.util.Date
 import java.util.Locale
 
 val PrimaryAdmin = Color(0xFF6C4DFF)
-val BackgroundAdmin = Color(0xFFF8FAFC)
+val BackgroundAdmin = Color(0xFFF6F7FB)
 val SurfaceAdmin = Color(0xFFFFFFFF)
-val TextPrimaryAdmin = Color(0xFF1E293B)
-val TextSecondaryAdmin = Color(0xFF64748B)
+val TextPrimaryAdmin = Color(0xFF0F172A)
+val TextSecondaryAdmin = Color(0xFF5B6478)
 
 @Composable
 fun DashboardErrorBoundary(
@@ -383,7 +383,7 @@ fun LeaderboardTabAdmin(viewModel: RevisionViewModel) {
                 Text("Top 3 Podium", color = PrimaryAdmin, fontWeight = FontWeight.Bold, fontSize = 14.sp, modifier = Modifier.padding(start = 8.dp, bottom = 16.dp))
                 Row(modifier = Modifier.fillMaxWidth().height(200.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Bottom) {
                     if (realLeaderboard.size > 1) {
-                        AdminPodiumItem(user = realLeaderboard[1], rank = 2, height = 130.dp, color = Color(0xFF94A3B8))
+                        AdminPodiumItem(user = realLeaderboard[1], rank = 2, height = 130.dp, color = Color(0xFF8A94A6))
                     }
                     if (realLeaderboard.isNotEmpty()) {
                         AdminPodiumItem(user = realLeaderboard[0], rank = 1, height = 180.dp, color = Color(0xFFFBBF24))
@@ -526,7 +526,7 @@ fun CoinsAndRewardsTab(viewModel: RevisionViewModel) {
                 .padding(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+            border = BorderStroke(1.dp, Color(0xFFF1F3F9))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Coin Economy & Admin Panel", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimaryAdmin)

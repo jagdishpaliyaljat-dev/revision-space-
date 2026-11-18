@@ -1,28 +1,16 @@
 package com.example.ui.theme
-import com.example.ui.*
-
-import com.example.ui.screens.auth.*
-import com.example.ui.screens.home.*
-import com.example.ui.screens.revision.*
-import com.example.ui.screens.subject.*
-import com.example.ui.screens.profile.*
-import com.example.ui.screens.rewards.*
-import com.example.ui.screens.settings.*
-import com.example.ui.screens.admin.*
-import com.example.ui.components.*
-import com.example.ui.utils.*
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
 private val DarkColorScheme = darkColorScheme(
@@ -49,6 +37,7 @@ private val DarkColorScheme = darkColorScheme(
     surfaceVariant = md_theme_dark_surfaceVariant,
     onSurfaceVariant = md_theme_dark_onSurfaceVariant,
     outline = md_theme_dark_outline,
+    outlineVariant = md_theme_dark_outlineVariant,
     inverseOnSurface = md_theme_dark_inverseOnSurface,
     inverseSurface = md_theme_dark_inverseSurface,
     inversePrimary = md_theme_dark_inversePrimary,
@@ -78,21 +67,22 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = md_theme_light_surfaceVariant,
     onSurfaceVariant = md_theme_light_onSurfaceVariant,
     outline = md_theme_light_outline,
+    outlineVariant = md_theme_light_outlineVariant,
     inverseOnSurface = md_theme_light_inverseOnSurface,
     inverseSurface = md_theme_light_inverseSurface,
     inversePrimary = md_theme_light_inversePrimary,
 )
 
-private val AppShapes = androidx.compose.material3.Shapes(
+private val AppShapes = Shapes(
     small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(24.dp),
-    large = RoundedCornerShape(32.dp)
+    medium = RoundedCornerShape(20.dp),
+    large = RoundedCornerShape(28.dp)
 )
 
 @Composable
 fun RevisionSpaceTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  // Disable dynamic colors by default to enforce Immersive UI branding
+  // Dynamic color stays off so the Revision Space brand remains recognisable.
   dynamicColor: Boolean = false,
   content: @Composable () -> Unit,
 ) {

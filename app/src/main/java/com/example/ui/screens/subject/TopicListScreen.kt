@@ -63,7 +63,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
     var deletingTopic by remember { mutableStateOf<com.example.data.TopicWithSubjectAndChapter?>(null) }
 
     Scaffold(
-        containerColor = Color(0xFFF8FAFC),
+        containerColor = Color(0xFFF6F7FB),
         topBar = {
             TopAppBar(
                 title = { Text(chapterName, fontWeight = FontWeight.Bold) },
@@ -87,7 +87,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
     ) { padding ->
         if (chapterTopics.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("No topics yet. Tap + to add one.", color = Color(0xFF64748B))
+                Text("No topics yet. Tap + to add one.", color = Color(0xFF5B6478))
             }
         } else {
             LazyColumn(
@@ -105,7 +105,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                             .clickable { navController.navigate(TopicDetailRoute(topic.topicId)) },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                        border = BorderStroke(1.dp, Color(0xFFF1F3F9)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
                         Row(
@@ -137,7 +137,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                                 text = topic.topicName,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF1E293B),
+                                color = Color(0xFF0F172A),
                                 maxLines = 2,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f)
@@ -153,7 +153,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                                     Icon(
                                         Icons.Default.MoreVert,
                                         contentDescription = "Topic Options",
-                                        tint = Color(0xFF94A3B8)
+                                        tint = Color(0xFF8A94A6)
                                     )
                                 }
                                 DropdownMenu(
@@ -185,7 +185,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                             Icon(
                                 Icons.Default.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = Color(0xFF94A3B8),
+                                tint = Color(0xFF8A94A6),
                                 modifier = Modifier.size(20.dp)
                             )
                         }

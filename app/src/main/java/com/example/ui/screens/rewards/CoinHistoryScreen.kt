@@ -109,10 +109,10 @@ fun CoinHistoryScreen(viewModel: RevisionViewModel, navController: NavController
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color(0xFF1E1B4B))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF8FAFC))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF6F7FB))
             )
         },
-        containerColor = Color(0xFFF8FAFC)
+        containerColor = Color(0xFFF6F7FB)
     ) { padding ->
         Column(
             modifier = Modifier
@@ -346,7 +346,7 @@ fun QuickActionCard(title: String, subtitle: String, icon: androidx.compose.ui.g
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -362,8 +362,8 @@ fun QuickActionCard(title: String, subtitle: String, icon: androidx.compose.ui.g
                 Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF1E293B))
-            Text(subtitle, fontSize = 9.sp, color = Color(0xFF94A3B8))
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF0F172A))
+            Text(subtitle, fontSize = 9.sp, color = Color(0xFF8A94A6))
         }
     }
 }
@@ -375,7 +375,7 @@ fun CoinTransactionRow(tx: CoinTransaction) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Row(
             modifier = Modifier
@@ -399,11 +399,11 @@ fun CoinTransactionRow(tx: CoinTransaction) {
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(tx.description, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF1E293B))
+                Text(tx.description, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF0F172A))
                 Text(
                     text = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(Date(tx.timestampMs)),
                     fontSize = 11.sp,
-                    color = Color(0xFF94A3B8)
+                    color = Color(0xFF8A94A6)
                 )
             }
 
@@ -423,7 +423,7 @@ fun WithdrawalRecordListItem(req: WithdrawalRequest) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Row(
             modifier = Modifier
@@ -432,11 +432,11 @@ fun WithdrawalRecordListItem(req: WithdrawalRequest) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Cashed Out ₹${req.amountInInr}", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF1E293B))
+                Text("Cashed Out ₹${req.amountInInr}", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF0F172A))
                 Text(
                     text = "${req.method} Transfer • ${SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(Date(req.createdAtMs))}",
                     fontSize = 11.sp,
-                    color = Color(0xFF94A3B8)
+                    color = Color(0xFF8A94A6)
                 )
             }
 
@@ -465,9 +465,9 @@ fun EmptyStateHelper(text: String) {
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(Icons.Outlined.ContentPasteOff, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(40.dp))
+        Icon(Icons.Outlined.ContentPasteOff, contentDescription = null, tint = Color(0xFF8A94A6), modifier = Modifier.size(40.dp))
         Spacer(modifier = Modifier.height(10.dp))
-        Text(text, fontSize = 13.sp, color = Color(0xFF64748B), fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
+        Text(text, fontSize = 13.sp, color = Color(0xFF5B6478), fontWeight = FontWeight.Medium, textAlign = TextAlign.Center)
     }
 }
 
@@ -479,7 +479,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
             .testTag("recent_activity_widget"),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -507,7 +507,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                         text = "Recent Activity",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B)
+                        color = Color(0xFF0F172A)
                     )
                 }
                 
@@ -547,14 +547,14 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                     Icon(
                         Icons.Outlined.SentimentDissatisfied,
                         contentDescription = null,
-                        tint = Color(0xFF94A3B8),
+                        tint = Color(0xFF8A94A6),
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "No recent study or referral rewards logged.",
                         fontSize = 12.sp,
-                        color = Color(0xFF64748B),
+                        color = Color(0xFF5B6478),
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
                     )
@@ -562,7 +562,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                     Text(
                         text = "Complete your first study focus block to unlock!",
                         fontSize = 10.sp,
-                        color = Color(0xFF94A3B8),
+                        color = Color(0xFF8A94A6),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -579,7 +579,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFFF8FAFC), RoundedCornerShape(16.dp))
+                                .background(Color(0xFFF6F7FB), RoundedCornerShape(16.dp))
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -605,7 +605,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                                     text = tx.description,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp,
-                                    color = Color(0xFF1E293B),
+                                    color = Color(0xFF0F172A),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -613,7 +613,7 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                                 Text(
                                     text = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(Date(tx.timestampMs)),
                                     fontSize = 10.sp,
-                                    color = Color(0xFF94A3B8)
+                                    color = Color(0xFF8A94A6)
                                 )
                             }
                             
@@ -678,7 +678,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
             .testTag("daily_earnings_chart"),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+        border = BorderStroke(1.dp, Color(0xFFF1F3F9))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -704,7 +704,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
                     text = "Weekly Earnings",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E293B)
+                    color = Color(0xFF0F172A)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -743,7 +743,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
                         Text(
                             text = labels[index],
                             fontSize = 10.sp,
-                            color = Color(0xFF94A3B8),
+                            color = Color(0xFF8A94A6),
                             fontWeight = FontWeight.Medium
                         )
                     }
