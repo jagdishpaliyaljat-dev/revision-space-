@@ -473,7 +473,7 @@ class FocusTimerService : Service() {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         
         val isBreak = currentSessionType.value == "Break"
-        val titleText = if (isBreak) "☕ Break Finished" else "✅ Focus Session Completed"
+        val titleText = if (isBreak) "Break Finished" else "Focus Session Completed"
         val contentText = if (isBreak) {
             "Ready for the next focus session?"
         } else {

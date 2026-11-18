@@ -80,7 +80,6 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
     val allTopics by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle(emptyList())
     val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
     val syncError by viewModel.syncError.collectAsStateWithLifecycle()
-    val realtimeCompletionPct by viewModel.realtimeCompletionPercentage.collectAsStateWithLifecycle()
     val isTopicsLoaded by viewModel.isTopicsLoaded.collectAsStateWithLifecycle(false)
 
     val isInitiallyLoading = !isTopicsLoaded && syncError == null
@@ -91,37 +90,36 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
     }
 
     val settings by viewModel.revisionSettings.collectAsStateWithLifecycle()
-    var hasShownToastToday by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(metrics.todayRevisedCount, settings.dailyGoal) {
-        val dailyGoal = settings.dailyGoal
-        val todayRevisedCount = metrics.todayRevisedCount
-        if (!hasShownToastToday && dailyGoal > 0 && todayRevisedCount < dailyGoal) {
-            Toast.makeText(
-                context,
-                "Reminder: You have completed $todayRevisedCount/$dailyGoal of your daily revision sessions.",
-                Toast.LENGTH_LONG
-            ).show()
-            hasShownToastToday = true
-        }
-    }
-
+    var toastShownDayKey by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
     var showGoalDialog by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     var showConfetti by remember { mutableStateOf(false) }
     var showTopicExplosion by remember { mutableStateOf(false) }
     var completedTopicTitle by remember { mutableStateOf("Topic Marked as Revised!") }
     var previousCompletedCount by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<Int?>(null) }
 
+    // One effect handles both the daily reminder and the goal-reached celebration.
     LaunchedEffect(metrics.todayRevisedCount, settings.dailyGoal) {
         val dailyGoal = settings.dailyGoal
         val todayRevisedCount = metrics.todayRevisedCount
-        
+        val todayKey = java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.getDefault())
+            .format(java.util.Date())
+
+        // Reminder — once per calendar day (survives midnight while the app is open)
+        if (toastShownDayKey != todayKey && dailyGoal > 0 && todayRevisedCount < dailyGoal) {
+            Toast.makeText(
+                context,
+                "Reminder: You have completed $todayRevisedCount/$dailyGoal of your daily revision sessions.",
+                Toast.LENGTH_LONG
+            ).show()
+            toastShownDayKey = todayKey
+        }
+
+        // Goal reached — confetti + congrats dialog
         if (dailyGoal > 0) {
             val prev = previousCompletedCount
-            if (prev != null) {
-                if (prev < dailyGoal && todayRevisedCount >= dailyGoal) {
-                    showConfetti = true
-                    showGoalDialog = true
-                }
+            if (prev != null && prev < dailyGoal && todayRevisedCount >= dailyGoal) {
+                showConfetti = true
+                showGoalDialog = true
             }
             previousCompletedCount = todayRevisedCount
         }
@@ -148,7 +146,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
             ErrorStateScreen(
                 message = syncError ?: "Unable to sync with Firestore.",
                 onRetry = {
-                    viewModel.clearSyncError()
+                    viewModel.retrySync()
                 }
             )
         }

@@ -46,7 +46,7 @@ object NotificationHelper {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_revision)
-            .setContentTitle("📚 Time for Today's Revision")
+            .setContentTitle("Time for Today's Revision")
             .setContentText("Complete your planned 1, 3, 7, 14, 30-day revision session to keep your streak alive!")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
@@ -83,9 +83,9 @@ object NotificationHelper {
         )
 
         val title = if (dueCount == 1) {
-            "📚 Revision Due: $firstTopicName"
+            "Revision Due: $firstTopicName"
         } else {
-            "🎯 $dueCount Topics Due for Revision Today!"
+            "$dueCount Topics Due for Revision Today!"
         }
 
         val text = if (dueCount == 1) {

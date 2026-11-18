@@ -171,8 +171,20 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
     )
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
 
-    val syncError = MutableStateFlow<String?>(null)
-    fun clearSyncError() { syncError.value = null }
+    private val _syncError = MutableStateFlow<String?>(null)
+    val syncError: kotlinx.coroutines.flow.StateFlow<String?> = _syncError.asStateFlow()
+
+    fun clearSyncError() { _syncError.value = null }
+
+    /** Retry the lightweight Firestore sync before dismissing a sync error. */
+    fun retrySync() = launchSafe {
+        try {
+            repository.checkAndUpdateOverdueRevisionsStatus()
+            _syncError.value = null
+        } catch (e: Exception) {
+            _syncError.value = e.message ?: "Unable to sync with Firestore."
+        }
+    }
 
     private val _goalReachedEvent = MutableSharedFlow<Unit>()
     val goalReachedEvent = _goalReachedEvent.asSharedFlow()
@@ -483,9 +495,15 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
             }
 
         // Return a stable list
-        cachedTopicsDetails.values.toList()
+        cachedTopicsDetails.values
+            .sortedWith(compareBy<com.example.data.TopicWithSubjectAndChapter> { it.nextRevisionDateMs }
+                .thenBy { it.topicName })
     }.flowOn(kotlinx.coroutines.Dispatchers.Default)
-    .catch { e: Throwable -> e.printStackTrace() }
+    .catch { e: Throwable ->
+        e.printStackTrace()
+        _isTopicsLoaded.value = true
+        _syncError.value = e.message ?: "Unable to load revision topics."
+    }
     .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val allRevisions = repository.allRevisions.map { revisions ->
@@ -818,7 +836,7 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
             if (sessionKey.isNotEmpty()) {
                 completedSessionKeys.remove(sessionKey)
             }
-            syncError.value = e.message ?: "Failed to save revision session"
+            _syncError.value = e.message ?: "Failed to save revision session"
             false
         }
     }
@@ -1443,7 +1461,7 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
         try {
             repository.updateTopicSpacedRepetition(topicId, difficulty, revisionPattern, nextRevisionDateMs, startDateMs)
         } catch (e: Exception) {
-            syncError.value = e.message ?: "Failed to save revision settings"
+            _syncError.value = e.message ?: "Failed to save revision settings"
             throw e
         } finally {
             mutex.unlock()
@@ -1562,7 +1580,7 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            syncError.value = e.message ?: "Sync Failed"
+            _syncError.value = e.message ?: "Sync Failed"
             throw e
         } finally {
             mutex.unlock()
@@ -1799,7 +1817,7 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
                                 showRealLocalNotification(
                                     context,
                                     topic.id,
-                                    "📚 Revision Due Today",
+                                    "Revision Due Today",
                                     "${topic.name} revision is scheduled today. Tap to revise now.",
                                     "DUE"
                                 )
@@ -1812,7 +1830,7 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
                                 showRealLocalNotification(
                                     context,
                                     topic.id,
-                                    "⚠ Revision Missed",
+                                    "Revision Missed",
                                     "You missed your ${topic.name} revision yesterday. Revise now.",
                                     "MISSED"
                                 )

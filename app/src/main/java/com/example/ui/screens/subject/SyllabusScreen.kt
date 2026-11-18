@@ -90,7 +90,7 @@ fun SyllabusMainContent(
     
     val totalSubjects = allSubjects.size
     val totalTopics = allTopics.count { it.subjectId.isNotEmpty() } + allTopics.count { it.subjectId.isEmpty() }
-    val completedTopicsCount = allTopics.count { it.status != "Pending" }
+    val completedTopicsCount = allTopics.count { it.status == "Completed" || it.status == "Complete" }
     val remainingTopics = maxOf(0, totalTopics - completedTopicsCount)
     val totalRevisions = allTopics.sumOf { it.revisionCount }
 
@@ -247,7 +247,7 @@ fun SyllabusMainContent(
                 
                 itemsIndexed(allSubjects, key = { _, it -> it.id }) { index, subject ->
                     val subjectTopics = allTopics.filter { it.subjectId == subject.id }
-                    val completed = subjectTopics.count { it.status != "Pending" }
+                    val completed = subjectTopics.count { it.status == "Completed" || it.status == "Complete" }
                     val revisions = subjectTopics.sumOf { it.revisionCount }
                     val lastRevisionMs = subjectTopics.maxOfOrNull { it.lastRevisionDateMs } ?: 0L
                     

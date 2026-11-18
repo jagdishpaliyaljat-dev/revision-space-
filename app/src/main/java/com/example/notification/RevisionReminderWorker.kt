@@ -47,9 +47,9 @@ class RevisionReminderWorker(
                 )
 
                 val notifTitle = if (dueTopics.size == 1) {
-                    "📚 Revision Due: ${firstTopic.name}"
+                    "Revision Due: ${firstTopic.name}"
                 } else {
-                    "📚 ${dueTopics.size} Revisions Due Today"
+                    "${dueTopics.size} Revisions Due Today"
                 }
 
                 val notifMessage = "Subject: $subjectName • Next revision scheduled on 1, 3, 7, 14, 30-day pattern."

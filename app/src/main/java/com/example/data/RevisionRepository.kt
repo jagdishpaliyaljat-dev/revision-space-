@@ -1295,7 +1295,7 @@ open class RevisionRepository {
         notifRef.set(mapOf(
             "id" to notifRef.id,
             "topicId" to topic.id,
-            "title" to "📚 Revision Due Today",
+            "title" to "Revision Due Today",
             "message" to "${topic.name} revision is scheduled today. Tap to revise now.",
             "timestampMs" to nextRevisionMs,
             "isRead" to false,

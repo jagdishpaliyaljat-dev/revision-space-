@@ -119,7 +119,7 @@ fun SubjectDetailsScreen(
     val chapters = allChapters.filter { it.subjectId == subjectId }
     val topics = allTopics.filter { it.subjectId == subjectId }
     
-    val completedTopics = topics.count { it.status != "Pending" }
+    val completedTopics = topics.count { it.status == "Completed" || it.status == "Complete" }
     val totalTopics = topics.size
     val progressPercent = if (totalTopics > 0) (completedTopics * 100) / totalTopics else 0
     val progress = progressPercent / 100f

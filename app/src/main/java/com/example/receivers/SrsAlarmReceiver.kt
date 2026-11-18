@@ -84,7 +84,7 @@ class SrsAlarmReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             ACTION_REVISION_DUE -> {
-                val title = "📚 Revision Due"
+                val title = "Revision Due"
                 val body = "Subject: $subjectName\nChapter: $chapterName\nTopic: $topicName\nEstimated Time: $estimatedMins Minutes"
 
                 val mainIntent = Intent(context, MainActivity::class.java).apply {

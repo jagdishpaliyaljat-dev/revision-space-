@@ -53,7 +53,7 @@ class DailySrsWorker(
                 val daysOverdue = (now - topic.nextRevisionDateMs) / 86400000L
                 if (daysOverdue > 0) {
                     val subjectName = subjects[topic.subjectId]?.name ?: "Subject"
-                    val title = "⚠️ Pending Revision: ${topic.name}"
+                    val title = "Pending Revision: ${topic.name}"
                     val body = "Subject: $subjectName • Overdue by $daysOverdue days (1, 3, 7, 14, 30 days pattern)"
                     sendNotification(manager, topic.id.hashCode(), title, body, topic)
 
@@ -80,7 +80,7 @@ class DailySrsWorker(
                 val estimatedMins = todayTopics.sumOf { it.estimatedRevisionTimeMins }
                 val sampleNames = todayTopics.take(2).joinToString(", ") { it.name }
 
-                val title = "🎯 Today's Revision Mission ($totalTopics Topics)"
+                val title = "Today's Revision Mission ($totalTopics Topics)"
                 val body = "Topics: $sampleNames\nEstimated Time: ${estimatedMins} mins (1, 3, 7, 14, 30 days schedule)"
 
                 sendNotification(manager, "today_mission".hashCode(), title, body, todayTopics.firstOrNull())

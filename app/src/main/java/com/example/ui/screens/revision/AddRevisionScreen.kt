@@ -45,7 +45,6 @@ fun AddRevisionScreen(viewModel: RevisionViewModel, navController: NavController
     val allTopics by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle()
     
     var selectedTopicId by remember { mutableStateOf<String?>(null) }
-    var notes by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     var expandedTopic by remember { mutableStateOf(false) }
 
@@ -64,7 +63,7 @@ fun AddRevisionScreen(viewModel: RevisionViewModel, navController: NavController
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            "Set the date and pattern",
+                            "Log time against a topic",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -125,14 +124,6 @@ fun AddRevisionScreen(viewModel: RevisionViewModel, navController: NavController
                 onValueChange = { duration = it.filter { char -> char.isDigit() } },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
-            )
-            
-            Text("Notes (Optional)", fontWeight = FontWeight.SemiBold)
-            OutlinedTextField(
-                value = notes,
-                onValueChange = { notes = it },
-                modifier = Modifier.fillMaxWidth().height(100.dp),
-                maxLines = 3
             )
             
             Spacer(modifier = Modifier.weight(1f))

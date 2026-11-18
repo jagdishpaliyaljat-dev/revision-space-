@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.activity.compose.BackHandler
 import com.example.viewmodel.RevisionViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -75,9 +76,8 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
     var showSubjectDropdown by remember { mutableStateOf(false) }
     var showDifficultyDropdown by remember { mutableStateOf(false) }
     
-    val metrics by viewModel.dashboardMetrics.collectAsState()
-    val allTopics by viewModel.allTopicsWithDetails.collectAsState()
-    val now = System.currentTimeMillis()
+    val metrics by viewModel.dashboardMetrics.collectAsStateWithLifecycle()
+    val allTopics by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle()
     
     val focusRequester = remember { FocusRequester() }
     
@@ -421,14 +421,19 @@ fun RevisionItemCard(topic: com.example.data.TopicWithSubjectAndChapter, onClick
         exit = shrinkVertically(animationSpec = tween(400)) + fadeOut(animationSpec = tween(400))
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth().scale(cardScale).clickable { onClick() },
+            modifier = Modifier.fillMaxWidth().scale(cardScale),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(2.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onClick() }
+                    ) {
                         if (topic.subjectName.isNotBlank() && topic.chapterName.isNotBlank()) {
                             Text(
                                 text = "${topic.subjectName} • ${topic.chapterName}",

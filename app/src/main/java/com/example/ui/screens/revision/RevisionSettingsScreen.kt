@@ -183,32 +183,28 @@ fun RevisionSettingsScreen(viewModel: RevisionViewModel, navController: NavContr
             // 4. Data Management
             SettingsCard(title = "Data Management") {
                 OutlinedButton(
-                    onClick = { 
-                        Toast.makeText(context, "Revision data reset successfully.", Toast.LENGTH_SHORT).show()
-                        // Add reset logic here if needed, or clear user streak
-                    }, 
+                    onClick = { },
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
                 ) {
-                    Text("Reset Revision Data")
+                    Text("Reset Revision Data (Coming soon)")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
-                    onClick = { 
-                        Toast.makeText(context, "Revision History Exported.", Toast.LENGTH_SHORT).show()
-                    }, 
+                    onClick = { },
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Export Revision History")
+                    Text("Export Revision History (Coming soon)")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
-                    onClick = { 
-                        Toast.makeText(context, "Import Revision Pattern successful.", Toast.LENGTH_SHORT).show()
-                    }, 
+                    onClick = { },
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Import Revision Pattern")
+                    Text("Import Revision Pattern (Coming soon)")
                 }
             }
             

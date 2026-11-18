@@ -77,22 +77,11 @@ class AnalyticsService {
             )
         }.sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
 
-        println("DEBUG LOGGING:")
-        println("Current Date: ${java.util.Date(startOfTodayMs)}")
-        for (rev in filteredRevisions) {
-            println("Topic Name: ${rev.topicName}, nextRevisionDate: ${java.util.Date(rev.nextRevisionDateMs)}, Calculated Status: ${rev.status}")
-        }
-        println("Added to Overdue: ${pendingAllTopics.size}")
-        println("Added to Today: ${todayDueTopics.size}")
-        println("Added to Upcoming: ${upcomingTopics.size}")
-        println("Added to Calendar (Total Active): ${filteredRevisions.size}")
-        println("Added to To-Do List (Today + Overdue): ${todayDueTopics.size + pendingAllTopics.size}")
-        
         return DashboardMetrics(
             todayDue = todayDueTopics,
             pendingRevisions = pendingAllTopics,
             upcomingRevisions = upcomingTopics,
-            completedTotal = topics.filter { it.status != "Pending" },
+            completedTotal = topics.filter { it.status == "Completed" || it.status == "Complete" },
             studyTimeTodayStr = formatTime(todayStudyTimeMs),
             weakTopics = weakTopics,
             todayRevisedCount = todayRevisedCount,
@@ -187,7 +176,7 @@ class AnalyticsService {
         val revisionDueTopics = filteredRevisions.count { it.status == "Overdue" || it.status == "Today" }
         
         val totalTopicsCount = topics.size
-        val completedTopicsCount = topics.count { it.status != "Pending" && it.status.isNotEmpty() }
+        val completedTopicsCount = topics.count { it.status == "Completed" || it.status == "Complete" }
         
         val baseSubjects = if (allSubjects.isNotEmpty()) {
             allSubjects
@@ -210,7 +199,7 @@ class AnalyticsService {
         val subjectProgressList = filteredSubjects.map { subject ->
             val subjectChapters = allChapters.filter { it.subjectId == subject.id && !it.isArchived }
             val subjectTopics = topics.filter { it.subjectId == subject.id }
-            val completedTopics = subjectTopics.count { it.status != "Pending" && it.status.isNotEmpty() }
+            val completedTopics = subjectTopics.count { it.status == "Completed" || it.status == "Complete" }
             val totalTopics = if (subject.totalTopicsExpected > 0) {
                 subject.totalTopicsExpected
             } else {
@@ -274,7 +263,7 @@ class AnalyticsService {
             }
         } else {
             val totalTopicsCount = topics.size
-            val completedTopicsCount = topics.count { it.status != "Pending" }
+            val completedTopicsCount = topics.count { it.status == "Completed" || it.status == "Complete" }
             if (totalTopicsCount > 0) (completedTopicsCount * 100) / totalTopicsCount else 0
         }
         
