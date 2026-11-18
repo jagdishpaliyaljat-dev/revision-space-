@@ -210,7 +210,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 subtitle = "Update your name, bio, and contact info",
                 testTag = "settings_edit_profile",
                 onClick = {
-                    Toast.makeText(context, "Edit Profile on the Profile Screen", Toast.LENGTH_SHORT).show()
+                    navController.navigate(ProfileRoute(openEditProfile = true))
                 }
             )
             SettingsItemRow(
@@ -221,7 +221,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 subtitle = "Set your target exam and date",
                 testTag = "settings_exam_goal",
                 onClick = {
-                    Toast.makeText(context, "Set Goal on the Profile Screen", Toast.LENGTH_SHORT).show()
+                    navController.navigate(ProfileRoute(openExamGoal = true))
                 }
             )
 
@@ -235,7 +235,8 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 subtitle = "Sync profile, revision goals, coins to cloud",
                 testTag = "settings_backup_item",
                 onClick = {
-                    Toast.makeText(context, "Cloud sync complete!", Toast.LENGTH_SHORT).show()
+                    viewModel.retrySync()
+                    Toast.makeText(context, "Sync requested", Toast.LENGTH_SHORT).show()
                 }
             )
 
@@ -333,7 +334,6 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 onClick = {
                     Toast.makeText(context, "Deleting all data...", Toast.LENGTH_SHORT).show()
                     viewModel.clearLocalData()
-                    Toast.makeText(context, "All data deleted!", Toast.LENGTH_SHORT).show()
                 }
             )
 

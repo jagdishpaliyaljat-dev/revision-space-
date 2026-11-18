@@ -81,7 +81,11 @@ import androidx.compose.ui.text.style.TextAlign
 @Serializable data class TodayRevisionRoute(val initialView: String = "dashboard")
 @Serializable object SyllabusRoute
 @Serializable object AnalyticsRoute
-@Serializable data class ProfileRoute(val openAchievements: Boolean = false)
+@Serializable data class ProfileRoute(
+    val openAchievements: Boolean = false,
+    val openEditProfile: Boolean = false,
+    val openExamGoal: Boolean = false
+)
 @Serializable object AdminDashboardRoute
 @Serializable data class AdminUserDetailRoute(val userId: String, val email: String)
 @Serializable object CoinHistoryRoute
@@ -439,7 +443,13 @@ fun AppNavigation(
         }
         composable<ProfileRoute> { backStackEntry ->
             val route = backStackEntry.toRoute<ProfileRoute>()
-            ProfileScreen(viewModel, navController, openAchievements = route.openAchievements)
+            ProfileScreen(
+                viewModel,
+                navController,
+                openAchievements = route.openAchievements,
+                openEditProfile = route.openEditProfile,
+                openExamGoal = route.openExamGoal
+            )
         }
         composable<AdminDashboardRoute> {
             AdminDashboardScreen(viewModel, navController)

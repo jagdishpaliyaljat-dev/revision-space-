@@ -3276,13 +3276,13 @@ open class RevisionRepository {
             if (userId != null) {
                 val userDoc = db.collection("users").document(userId).get().await()
                 if (!userDoc.exists()) {
-                    val userEmail = result.user?.email ?: ""
-                    val userName = result.user?.displayName ?: userEmail.substringBefore("@")
+                    val userEmail = result?.user?.email ?: ""
+                    val userName = result?.user?.displayName ?: userEmail.substringBefore("@")
                     val profile = UserProfile(
                         id = userId,
                         name = userName,
                         email = userEmail,
-                        profilePictureUrl = result.user?.photoUrl?.toString(),
+                        profilePictureUrl = result?.user?.photoUrl?.toString(),
                         referralCode = generateReferralCodeForEmail(userEmail),
                         createdAtMs = System.currentTimeMillis()
                     )

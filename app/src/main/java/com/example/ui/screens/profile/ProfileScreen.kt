@@ -12,6 +12,7 @@ import com.example.ui.screens.settings.*
 import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
+import com.example.ui.theme.AppPalette
 
 
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -98,18 +99,19 @@ val TrendOrange = Color(0xFFF59E0B)
 val TrendBlue = Color(0xFF3B82F6)
 
 @Composable
-fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, openAchievements: Boolean = false) {
+fun ProfileScreen(
+    viewModel: RevisionViewModel,
+    navController: NavController,
+    openAchievements: Boolean = false,
+    openEditProfile: Boolean = false,
+    openExamGoal: Boolean = false
+) {
     val context = LocalContext.current
     var showAchievementsDialog by remember { mutableStateOf(openAchievements) }
     val globalConfig by viewModel.globalConfig.collectAsStateWithLifecycle()
     val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
     val allTopics by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle()
-    val logs by viewModel.allStudyLogs.collectAsStateWithLifecycle()
-    val allChapters by viewModel.allChapters.collectAsStateWithLifecycle(emptyList())
-    val allSubjects by viewModel.allSubjects.collectAsStateWithLifecycle(emptyList())
-    val allRevisions by viewModel.allRevisions.collectAsStateWithLifecycle(emptyList())
     val profileStats by viewModel.profileStats.collectAsStateWithLifecycle()
-    val referralsList by viewModel.referrals.collectAsStateWithLifecycle()
 
     val safeProfile = userProfile
     if (safeProfile == null) {
@@ -154,17 +156,10 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
     }
 
     
-    val currentRankInt = safeProfile.rankPosition ?: 999
-    val myCoins = safeProfile.getOverallPerformanceScore() ?: 0
-    val targetCoins = myCoins + 100 // Example logic
-    val rankProgress = 0.5f
-    val displayNextRank = if (currentRankInt > 1) currentRankInt - 1 else 1
-
 
     // Dialog state controllers
-    var showEditProfileDialog by remember { mutableStateOf(false) }
-    var showExamGoalDialog by remember { mutableStateOf(false) }
-        var mockDarkModeEnabled by remember { mutableStateOf(false) }
+    var showEditProfileDialog by remember { mutableStateOf(openEditProfile) }
+    var showExamGoalDialog by remember { mutableStateOf(openExamGoal) }
     var isUploading by remember { mutableStateOf(false) }
     var showPhotoBottomSheet by remember { mutableStateOf(false) }
     var tempPhotoUri by remember { mutableStateOf<android.net.Uri?>(null) }
@@ -203,11 +198,6 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val cameraGranted = permissions[android.Manifest.permission.CAMERA] ?: false
-        val storageGranted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            permissions[android.Manifest.permission.READ_MEDIA_IMAGES] ?: false
-        } else {
-            permissions[android.Manifest.permission.READ_EXTERNAL_STORAGE] ?: false
-        }
 
         if (pendingAction == "camera") {
             if (cameraGranted) {
@@ -221,10 +211,6 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             } else {
                 Toast.makeText(context, "Camera permission denied. Cannot take photo.", Toast.LENGTH_SHORT).show()
             }
-        } else if (pendingAction == "gallery") {
-            galleryLauncher.launch(
-                androidx.activity.result.PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
         }
         pendingAction = null
     }
@@ -315,17 +301,23 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                         modifier = Modifier
                             .padding(start = 12.dp)
                             .size(42.dp)
-                            .background(Color.White, CircleShape)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(Icons.Default.Settings, "Settings", tint = ProfileTextDark, modifier = Modifier.size(20.dp))
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { showSavedTopicsDialog = true },
+                        modifier = Modifier.size(42.dp)
+                    ) {
+                        Icon(Icons.Default.BookmarkBorder, contentDescription = "Saved topics", tint = ProfileTextDark)
+                    }
                     // Coin pill
                     Surface(
                         shape = RoundedCornerShape(18.dp),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         modifier = Modifier
                             .padding(end = 16.dp)
@@ -352,16 +344,6 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                 fontWeight = FontWeight.Black,
                                 fontSize = 14.sp
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .clip(CircleShape)
-                                    .background(ProfilePurple),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
-                            }
                         }
                     }
                 },
@@ -382,7 +364,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(22.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
@@ -391,13 +373,13 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ProfileHeroStat(Icons.Default.LocalFireDepartment, Color(0xFFF97316), Color(0xFFFFEDD5), "Streak", "${displayStreak} days")
+                        ProfileHeroStat(Icons.Default.LocalFireDepartment, Color(0xFFF97316), Color(0xFFF97316).copy(alpha = 0.12f), "Streak", "${displayStreak} days")
                         Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        ProfileHeroStat(Icons.Default.Paid, Color(0xFFF59E0B), Color(0xFFFEF3C7), "Coins", String.format("%,d", displayCoins))
+                        ProfileHeroStat(Icons.Default.Paid, Color(0xFFF59E0B), Color(0xFFF59E0B).copy(alpha = 0.12f), "Coins", String.format("%,d", displayCoins))
                         Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        ProfileHeroStat(Icons.Default.Timer, Color(0xFF3B82F6), Color(0xFFEFF6FF), "Study Time", displayStudyTimeStr)
+                        ProfileHeroStat(Icons.Default.Timer, Color(0xFF3B82F6), Color(0xFF3B82F6).copy(alpha = 0.12f), "Study Time", displayStudyTimeStr)
                         Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        ProfileHeroStat(Icons.Default.FactCheck, Color(0xFF10B981), Color(0xFFECFDF5), "Revisions", "$displayRevisions")
+                        ProfileHeroStat(Icons.Default.FactCheck, Color(0xFF10B981), Color(0xFF10B981).copy(alpha = 0.12f), "Revisions", "$displayRevisions")
                     }
                 }
             }
@@ -407,7 +389,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                 Card(
                     modifier = Modifier.fillMaxWidth().shadow(0.dp, RoundedCornerShape(24.dp)),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(24.dp)
                 ) {
                     if (userProfile == null && nearestExam == null) {
@@ -441,7 +423,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                 modifier = Modifier
                                     .size(96.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White)
+                                    .background(MaterialTheme.colorScheme.surface)
                                     .clickable { showPhotoBottomSheet = true },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -461,7 +443,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                                 val androidBitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                                                 androidBitmap?.asImageBitmap()
                                             } catch (e: Exception) {
-                                                e.printStackTrace()
+                                                android.util.Log.e("ProfileScreen", "Unable to decode saved profile image", e)
                                                 null
                                             }
                                         }
@@ -469,12 +451,12 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                             androidx.compose.foundation.Image(
                                                 bitmap = bitmap,
                                                 contentDescription = "Profile Photo",
-                                                modifier = Modifier.size(100.dp).clip(CircleShape),
+                                                modifier = Modifier.size(96.dp).clip(CircleShape),
                                                 contentScale = androidx.compose.ui.layout.ContentScale.Crop
                                             )
                                         } else {
                                             Box(
-                                                modifier = Modifier.size(100.dp).clip(CircleShape).background(ProfilePurpleLight),
+                                                modifier = Modifier.size(96.dp).clip(CircleShape).background(ProfilePurpleLight),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Icon(Icons.Default.Person, contentDescription = "Profile App Icon", tint = ProfilePurple, modifier = Modifier.size(50.dp))
@@ -484,13 +466,13 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                         coil.compose.AsyncImage(
                                             model = url,
                                             contentDescription = "Profile Photo",
-                                            modifier = Modifier.size(100.dp).clip(CircleShape),
+                                            modifier = Modifier.size(96.dp).clip(CircleShape),
                                             contentScale = androidx.compose.ui.layout.ContentScale.Crop
                                         )
                                     }
                                 } else {
                                     Box(
-                                        modifier = Modifier.size(100.dp).clip(CircleShape).background(ProfilePurpleLight),
+                                        modifier = Modifier.size(96.dp).clip(CircleShape).background(ProfilePurpleLight),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(Icons.Default.Person, contentDescription = "Profile App Icon", tint = ProfilePurple, modifier = Modifier.size(50.dp))
@@ -550,20 +532,22 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                     modifier = Modifier.weight(1f, fill = false)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Box(contentAlignment = Alignment.Center) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(16.dp)
-                                            .scale(glowScale)
-                                            .clip(CircleShape)
-                                            .background(ProfilePurple.copy(alpha = glowAlpha))
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Default.Verified,
-                                        contentDescription = "Verified",
-                                        tint = ProfilePurple,
-                                        modifier = Modifier.size(16.dp)
-                                    )
+                                if (safeProfile.isEmailVerified || safeProfile.isMobileVerified) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .scale(glowScale)
+                                                .clip(CircleShape)
+                                                .background(ProfilePurple.copy(alpha = glowAlpha))
+                                        )
+                                        Icon(
+                                            imageVector = Icons.Default.Verified,
+                                            contentDescription = "Verified",
+                                            tint = ProfilePurple,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 IconButton(onClick = { showEditProfileDialog = true }, modifier = Modifier.size(20.dp)) {
@@ -630,7 +614,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                             style = Stroke(width = 8.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
                                         )
                                         drawArc(
-                                            brush = Brush.horizontalGradient(listOf(ProfilePurple, Color(0xFFE11D48))),
+                                            brush = Brush.horizontalGradient(listOf(ProfilePurple, AppPalette.BrandLight)),
                                             startAngle = -220f,
                                             sweepAngle = sweepAngle,
                                             useCenter = false,
@@ -659,7 +643,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = MaterialTheme.colorScheme.outlineVariant),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(
@@ -681,7 +665,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             )
                             ProfileStatItem(
                                 icon = Icons.Default.Refresh,
-                                iconBg = Color(0xFFECFDF5),
+                                iconBg = Color(0xFF10B981).copy(alpha = 0.12f),
                                 iconTint = TrendGreen,
                                 title = "Revisions\nDone",
                                 value = "$displayRevisions",
@@ -689,7 +673,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             )
                             ProfileStatItem(
                                 icon = Icons.Outlined.WatchLater,
-                                iconBg = Color(0xFFEFF6FF),
+                                iconBg = Color(0xFF3B82F6).copy(alpha = 0.12f),
                                 iconTint = TrendBlue,
                                 title = "Study\nTime",
                                 value = displayStudyTimeStr,
@@ -720,7 +704,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.MenuBook, iconTint = ProfilePurple, iconBg = ProfilePurpleSuperLight, label = "Syllabus", onClick = { navController.navigate(SyllabusRoute) })
-                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.EventAvailable, iconTint = TrendGreen, iconBg = Color(0xFFECFDF5), label = "Revision\nPlanner", onClick = { navController.navigate(CalendarRoute) })
+                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.EventAvailable, iconTint = TrendGreen, iconBg = Color(0xFF10B981).copy(alpha = 0.12f), label = "Revision\nPlanner", onClick = { navController.navigate(CalendarRoute) })
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -729,7 +713,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             ProfileQuickAction(Modifier.weight(1f).testTag("my_test_scores_button"), icon = Icons.Default.Leaderboard, iconTint = TrendOrange, iconBg = Color(0xFFFFFBEB), label = "My Test\nScores", onClick = {
                                 navController.navigate(MyTestScoresRoute)
                             })
-                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.BarChart, iconTint = TrendBlue, iconBg = Color(0xFFEFF6FF), label = "Analytics", onClick = { navController.navigate(AnalyticsRoute) })
+                            ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.BarChart, iconTint = TrendBlue, iconBg = Color(0xFF3B82F6).copy(alpha = 0.12f), label = "Analytics", onClick = { navController.navigate(AnalyticsRoute) })
                         }
                     }
                 }
@@ -813,23 +797,13 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             onDismiss = { showPhotoBottomSheet = false },
             onTakePhotoClick = {
                 pendingAction = "camera"
-                val permissions = mutableListOf(android.Manifest.permission.CAMERA)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                    permissions.add(android.Manifest.permission.READ_MEDIA_IMAGES)
-                } else {
-                    permissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-                permissionLauncher.launch(permissions.toTypedArray())
+                permissionLauncher.launch(arrayOf(android.Manifest.permission.CAMERA))
             },
             onChooseGalleryClick = {
-                pendingAction = "gallery"
-                val permissions = mutableListOf<String>()
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                    permissions.add(android.Manifest.permission.READ_MEDIA_IMAGES)
-                } else {
-                    permissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-                permissionLauncher.launch(permissions.toTypedArray())
+                // Android Photo Picker needs no storage permission.
+                galleryLauncher.launch(
+                    androidx.activity.result.PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             },
             onRemovePhotoClick = {
                 isUploading = true
@@ -908,10 +882,27 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             confirmButton = {
                 Button(
                     onClick = {
-                        examGoalNameField = tempExamName
-                        examGoalDateField = tempExamDate
-                        showExamGoalDialog = false
-                        Toast.makeText(context, "Goal updated to $tempExamName", Toast.LENGTH_SHORT).show()
+                        val trimmedName = tempExamName.trim()
+                        val parsedDate = try {
+                            SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).parse(tempExamDate.trim())?.time
+                        } catch (e: Exception) {
+                            null
+                        }
+                        if (trimmedName.isEmpty()) {
+                            Toast.makeText(context, "Enter a target exam name", Toast.LENGTH_SHORT).show()
+                        } else if (parsedDate == null) {
+                            Toast.makeText(context, "Use date format: 15 Dec 2026", Toast.LENGTH_SHORT).show()
+                        } else {
+                            if (nearestExam != null) {
+                                viewModel.updateExam(nearestExam.copy(name = trimmedName, examDateMs = parsedDate))
+                            } else {
+                                viewModel.insertExam(trimmedName, parsedDate, null)
+                            }
+                            examGoalNameField = trimmedName
+                            examGoalDateField = tempExamDate.trim()
+                            showExamGoalDialog = false
+                            Toast.makeText(context, "Goal saved: $trimmedName", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ProfilePurple)
                 ) {
@@ -1168,7 +1159,7 @@ fun StatisticSparklineCard(
     Card(
         modifier = modifier
             .shadow(1.dp, RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
@@ -1549,7 +1540,7 @@ fun loadBitmapFromUri(context: android.content.Context, uri: android.net.Uri): a
             loaded
         }
     } catch (e: Exception) {
-        e.printStackTrace()
+        android.util.Log.e("ProfileScreen", "Unable to decode selected image", e)
         null
     }
 }
@@ -1662,14 +1653,24 @@ fun PreviewAndCropDialog(
 ) {
     val context = LocalContext.current
     var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
-    
+    var loadFailed by remember { mutableStateOf(false) }
+
     LaunchedEffect(imageUri) {
+        loadFailed = false
         if (imageUri != null) {
             bitmap = loadBitmapFromUri(context, imageUri)
+            loadFailed = bitmap == null
         }
     }
-    
-    if (bitmap != null) {
+
+    if (loadFailed) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Could not open photo", fontWeight = FontWeight.Bold) },
+            text = { Text("We couldn't read that image. Please choose another photo.") },
+            confirmButton = { TextButton(onClick = onDismiss) { Text("OK") } }
+        )
+    } else if (bitmap != null) {
         AlertDialog(
             onDismissRequest = onDismiss,
             title = {
@@ -1751,7 +1752,7 @@ fun ReferralSection(
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(0.dp),
         modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp))
     ) {

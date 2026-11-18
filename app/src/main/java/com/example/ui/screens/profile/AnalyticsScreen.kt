@@ -71,7 +71,15 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
     val analyticsMetrics by viewModel.analyticsMetrics.collectAsStateWithLifecycle()
     val timeFilter by viewModel.analyticsTimeFilter.collectAsStateWithLifecycle()
     val profile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
+    val globalConfig by viewModel.globalConfig.collectAsStateWithLifecycle()
+    val allExams by viewModel.allExams.collectAsStateWithLifecycle(initialValue = emptyList())
     val context = LocalContext.current
+    val nearestExam = remember(allExams) {
+        val now = System.currentTimeMillis()
+        allExams.filter { (it.examDateMs ?: Long.MAX_VALUE) >= now }
+            .minByOrNull { it.examDateMs ?: Long.MAX_VALUE }
+    }
+    val readinessMetrics = analyticsMetrics.copy(targetExamName = nearestExam?.name ?: "No exam set")
     var showDownloadMenu by remember { mutableStateOf(false) }
     var previewPdfFile by remember { mutableStateOf<File?>(null) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
@@ -197,20 +205,20 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
 
             item {
                 if (!hasAnalyticsData) {
-                    EmptyAnalyticsState()
+                    EmptyAnalyticsState(onStartStudying = { navController.navigate(TimerRoute("", false)) })
                 } else {
                     StudyRecommendationsCard(analyticsMetrics)
                 }
             }
 
             if (hasAnalyticsData) {
-                item { KeyStatsRow(analyticsMetrics, context) }
+                item { KeyStatsRow(analyticsMetrics) }
                 item { FocusInsightsCard(analyticsMetrics) }
                 item { DailyStudyHoursChart(analyticsMetrics) }
                 item { SubjectTimeDonutChart(analyticsMetrics) }
-                item { StreaksCard(metrics = analyticsMetrics, isStreakSystemEnabled = true) }
+                item { StreaksCard(metrics = analyticsMetrics, isStreakSystemEnabled = globalConfig.isStreakSystemEnabled) }
                 item { RevisionStats(metrics = analyticsMetrics) }
-                item { ExamReadinessCard(metrics = analyticsMetrics) }
+                item { ExamReadinessCard(metrics = readinessMetrics) }
                 
                 if (analyticsMetrics.subjectProgress.isNotEmpty()) {
                     item {
@@ -225,7 +233,7 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
                     
                     items(analyticsMetrics.subjectProgress) { prog ->
                         PremiumSubjectCard(prog = prog) {
-                            Toast.makeText(context, "Subject Details: ${prog.name}", Toast.LENGTH_SHORT).show()
+                            navController.navigate(SubjectDetailsRoute(prog.id))
                         }
                     }
                 }
@@ -290,7 +298,7 @@ fun SegmentedTimeFilters(selectedFilter: String, onFilterSelected: (String) -> U
 }
 
 @Composable
-fun EmptyAnalyticsState() {
+fun EmptyAnalyticsState(onStartStudying: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -314,7 +322,7 @@ fun EmptyAnalyticsState() {
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(
-            onClick = { /* Could navigate to dashboard or timer */ },
+            onClick = onStartStudying,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.height(48.dp)
@@ -375,9 +383,9 @@ fun StudyRecommendationsCard(metrics: AnalyticsMetrics) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("AI Insights", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF3730A3))
+                Text("AI Insights", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(recommendations.first(), fontSize = 13.sp, color = Color(0xFF312E81), lineHeight = 18.sp)
+                Text(recommendations.first(), fontSize = 13.sp, color = MaterialTheme.colorScheme.onPrimaryContainer, lineHeight = 18.sp)
             }
         }
     }
@@ -385,7 +393,7 @@ fun StudyRecommendationsCard(metrics: AnalyticsMetrics) {
 }
 
 @Composable
-fun KeyStatsRow(metrics: AnalyticsMetrics, context: Context) {
+fun KeyStatsRow(metrics: AnalyticsMetrics) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
@@ -397,7 +405,6 @@ fun KeyStatsRow(metrics: AnalyticsMetrics, context: Context) {
                 iconColor = Color.White,
                 iconBg = Color(0xFF1976D2),
                 bgColor = Color(0xFFE3F2FD),
-                onClick = { }
             )
             StatCard(
                 modifier = Modifier.weight(1f),
@@ -408,7 +415,6 @@ fun KeyStatsRow(metrics: AnalyticsMetrics, context: Context) {
                 iconColor = Color.White,
                 iconBg = Color(0xFF388E3C),
                 bgColor = Color(0xFFE8F5E9),
-                onClick = { }
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
@@ -422,7 +428,6 @@ fun KeyStatsRow(metrics: AnalyticsMetrics, context: Context) {
                 iconColor = Color(0xFFE65100),
                 iconBg = Color.White,
                 bgColor = Color(0xFFFFF3E0),
-                onClick = { }
             )
             StatCard(
                 modifier = Modifier.weight(1f),
@@ -433,7 +438,6 @@ fun KeyStatsRow(metrics: AnalyticsMetrics, context: Context) {
                 iconColor = Color(0xFF512DA8),
                 iconBg = Color.White,
                 bgColor = Color(0xFFEDE7F6),
-                onClick = { }
             )
         }
     }
@@ -448,11 +452,10 @@ fun StatCard(
     icon: ImageVector,
     iconColor: Color,
     iconBg: Color,
-    bgColor: Color,
-    onClick: () -> Unit
+    bgColor: Color
 ) {
     Card(
-        modifier = modifier.height(90.dp).clickable { onClick() },
+        modifier = modifier.height(90.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(0.dp)
