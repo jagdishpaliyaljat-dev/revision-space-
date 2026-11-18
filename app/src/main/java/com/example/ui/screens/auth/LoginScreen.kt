@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ApiException
 fun LoginScreen(
     onSignedIn: (String) -> Unit,
     onGuestContinue: () -> Unit,
+    onSignInFailed: (String) -> Unit = {},
     isLoading: Boolean = false,
     errorMessage: String? = null
 ) {
@@ -44,13 +45,19 @@ fun LoginScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             val account = task.getResult(ApiException::class.java)
             val idToken = account.idToken
-            if (idToken != null) onSignedIn(idToken)
+            if (idToken != null) {
+                onSignedIn(idToken)
+            } else {
+                onSignInFailed("Google didn't return a sign-in token. Please try again, or continue as guest.")
+            }
+        } catch (e: ApiException) {
+            onSignInFailed("Google sign-in failed (code ${e.statusCode}). You can still continue as guest.")
         } catch (e: Exception) {
-            e.printStackTrace()
+            onSignInFailed("Sign-in failed: ${e.localizedMessage ?: "unknown error"}. You can still continue as guest.")
         }
     }
 
@@ -104,7 +111,13 @@ fun LoginScreen(
             }
 
             Button(
-                onClick = { launcher.launch(googleSignInClient.signInIntent) },
+                onClick = {
+                    try {
+                        launcher.launch(googleSignInClient.signInIntent)
+                    } catch (e: Exception) {
+                        onSignInFailed("Could not start Google sign-in. Please continue as guest.")
+                    }
+                },
                 enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()

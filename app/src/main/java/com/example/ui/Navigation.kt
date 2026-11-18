@@ -315,6 +315,7 @@ fun AppNavigation(
                 onGuestContinue = {
                     navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
                 },
+                onSignInFailed = { message -> error = message },
                 isLoading = isLoading,
                 errorMessage = error
             )
