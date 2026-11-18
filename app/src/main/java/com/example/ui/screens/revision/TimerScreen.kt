@@ -598,16 +598,16 @@ fun TimerScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(modifier = Modifier.size(58.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                         MiniGoalRing(progress = progressPercent / 100f, modifier = Modifier.fillMaxSize())
                         Icon(
                             Icons.Default.LocalFireDepartment,
                             contentDescription = null,
                             tint = FocusPurple,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(14.dp))
@@ -732,7 +732,7 @@ fun TimerScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(1f)
+                            .size(260.dp)
                             .scale(pulseScale)
                             .clip(CircleShape)
                             .background((if (isBreakSession) Color(0xFF0EA5A4) else FocusPurple).copy(alpha = pulseAlpha))
@@ -740,7 +740,7 @@ fun TimerScreen(
                 }
 
                 Box(
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                    modifier = Modifier.size(260.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     PremiumTimerRing(
@@ -820,97 +820,6 @@ fun TimerScreen(
             }
 
             Spacer(modifier = Modifier.height(18.dp))
-
-            // ---------- 6. QUICK DURATION PRESETS (new premium feature) ----------
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-                SectionKicker("QUICK SESSION LENGTH")
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    listOf(15, 25, 45, 60, 90).forEach { mins ->
-                        val isSelected = mins == focusDurationMins
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) Color(0xFFF1EEFF) else Color.White)
-                                .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
-                                .clickable(enabled = !isRunning && !isPaused && !isBreakSession) { updateActiveDuration(mins) }
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                "${mins}m",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) FocusPurple else FocusTextDark
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ---------- 7. PREMIUM CONTROLS (logic & testTags unchanged) ----------
-            if (showStopDialog) {
-                AlertDialog(
-                    onDismissRequest = { showStopDialog = false },
-                    title = { Text("End Study Session?") },
-                    text = { Text("Would you like to save and complete this revision session, or discard it without changing your revision count?") },
-                    confirmButton = {
-                        TextButton(
-                            enabled = !isSavingCompletion,
-                            onClick = {
-                                if (isSavingCompletion) return@TextButton
-                                isSavingCompletion = true
-                                showStopDialog = false
-                                viewModel.pauseTimer()
-                                val actualElapsedMs = if (elapsedMs > focusMs && focusMs > 0) focusMs else elapsedMs.coerceAtLeast(60000L)
-                                val mins = kotlin.math.ceil(actualElapsedMs / 60000.0).toInt().coerceAtLeast(1)
-                                coroutineScope.launch {
-                                    try {
-                                        if (effectiveTopicId.isNotEmpty()) {
-                                            viewModel.completeTopicTimerSessionSuspend(effectiveTopicId, actualElapsedMs)
-                                        } else {
-                                            viewModel.savePomodoroSession("Completed", actualElapsedMs, true, "Focus")
-                                            viewModel.resetTimer()
-                                        }
-                                        val earnedBaseCoins = (mins * globalConfig.coinsPerBaselineTime) / maxOf(1, globalConfig.activeTimeBaselineMinutes)
-                                        if (earnedBaseCoins > 0) {
-                                            val sessionId = java.util.UUID.randomUUID().toString()
-                                            viewModel.awardCoins(earnedBaseCoins, "Study Session (${mins} mins)", sessionId)
-                                        }
-                                        onSessionComplete(mins, 1, earnedBaseCoins)
-                                    } finally {
-                                        isSavingCompletion = false
-                                    }
-                                }
-                            },
-                            modifier = Modifier.testTag("confirm_complete_session_button")
-                        ) {
-                            Text("Complete & Save", color = FocusPurple, fontWeight = FontWeight.Bold)
-                        }
-                    },
-                    dismissButton = {
-                        Row {
-                            TextButton(
-                                onClick = {
-                                    showStopDialog = false
-                                    viewModel.resetTimer()
-                                    navController.popBackStack()
-                                },
-                                modifier = Modifier.testTag("discard_session_button")
-                            ) {
-                                Text("Discard", color = Color.Red)
-                            }
-                            TextButton(onClick = { showStopDialog = false }) {
-                                Text("Cancel", color = FocusTextGray)
-                            }
-                        }
-                    }
-                )
-            }
 
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -1027,6 +936,99 @@ fun TimerScreen(
                     Text("Skip", fontSize = 13.sp, color = if (skipClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
                 }
             }
+
+            // ---------- 6. QUICK DURATION PRESETS (new premium feature) ----------
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                SectionKicker("QUICK SESSION LENGTH")
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(15, 25, 45, 60, 90).forEach { mins ->
+                        val isSelected = mins == focusDurationMins
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) Color(0xFFF1EEFF) else Color.White)
+                                .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                                .clickable(enabled = !isRunning && !isPaused && !isBreakSession) { updateActiveDuration(mins) }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                "${mins}m",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) FocusPurple else FocusTextDark
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ---------- 7. PREMIUM CONTROLS (logic & testTags unchanged) ----------
+            if (showStopDialog) {
+                AlertDialog(
+                    onDismissRequest = { showStopDialog = false },
+                    title = { Text("End Study Session?") },
+                    text = { Text("Would you like to save and complete this revision session, or discard it without changing your revision count?") },
+                    confirmButton = {
+                        TextButton(
+                            enabled = !isSavingCompletion,
+                            onClick = {
+                                if (isSavingCompletion) return@TextButton
+                                isSavingCompletion = true
+                                showStopDialog = false
+                                viewModel.pauseTimer()
+                                val actualElapsedMs = if (elapsedMs > focusMs && focusMs > 0) focusMs else elapsedMs.coerceAtLeast(60000L)
+                                val mins = kotlin.math.ceil(actualElapsedMs / 60000.0).toInt().coerceAtLeast(1)
+                                coroutineScope.launch {
+                                    try {
+                                        if (effectiveTopicId.isNotEmpty()) {
+                                            viewModel.completeTopicTimerSessionSuspend(effectiveTopicId, actualElapsedMs)
+                                        } else {
+                                            viewModel.savePomodoroSession("Completed", actualElapsedMs, true, "Focus")
+                                            viewModel.resetTimer()
+                                        }
+                                        val earnedBaseCoins = (mins * globalConfig.coinsPerBaselineTime) / maxOf(1, globalConfig.activeTimeBaselineMinutes)
+                                        if (earnedBaseCoins > 0) {
+                                            val sessionId = java.util.UUID.randomUUID().toString()
+                                            viewModel.awardCoins(earnedBaseCoins, "Study Session (${mins} mins)", sessionId)
+                                        }
+                                        onSessionComplete(mins, 1, earnedBaseCoins)
+                                    } finally {
+                                        isSavingCompletion = false
+                                    }
+                                }
+                            },
+                            modifier = Modifier.testTag("confirm_complete_session_button")
+                        ) {
+                            Text("Complete & Save", color = FocusPurple, fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        Row {
+                            TextButton(
+                                onClick = {
+                                    showStopDialog = false
+                                    viewModel.resetTimer()
+                                    navController.popBackStack()
+                                },
+                                modifier = Modifier.testTag("discard_session_button")
+                            ) {
+                                Text("Discard", color = Color.Red)
+                            }
+                            TextButton(onClick = { showStopDialog = false }) {
+                                Text("Cancel", color = FocusTextGray)
+                            }
+                        }
+                    }
+                )
+            }
+
+
 
             Spacer(modifier = Modifier.height(20.dp))
 
