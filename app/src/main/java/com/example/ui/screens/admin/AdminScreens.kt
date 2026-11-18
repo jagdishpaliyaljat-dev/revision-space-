@@ -1659,7 +1659,7 @@ fun AdminChartCard(title: String, pointsSource: List<Float>, isGradient: Boolean
                     
                     points.forEach {
                         drawCircle(
-                            color = SurfaceAdmin,
+                            color = Color(0xFFFFFFFF),
                             radius = 6.dp.toPx(),
                             center = it
                         )

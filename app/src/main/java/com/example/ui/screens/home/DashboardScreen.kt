@@ -1685,7 +1685,7 @@ fun DashboardDrawerContent(
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                    color = Color(0xFFF3E8FF).copy(alpha = 0.6f),
                     radius = 300.dp.toPx(),
                     center = Offset(0f, 0f)
                 )
@@ -1829,13 +1829,13 @@ fun DashboardDrawerContent(
                 Box(modifier = Modifier.fillMaxWidth().height(140.dp), contentAlignment = Alignment.BottomCenter) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawRoundRect(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                            color = Color(0xFFE5E0FF).copy(alpha = 0.5f),
                             topLeft = Offset(20.dp.toPx(), size.height - 50.dp.toPx()),
                             size = Size(size.width - 40.dp.toPx(), 40.dp.toPx()),
                             cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx())
                         )
                         drawRoundRect(
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                            color = Color(0xFFE5E0FF).copy(alpha = 0.3f),
                             topLeft = Offset(10.dp.toPx(), size.height - 25.dp.toPx()),
                             size = Size(size.width - 20.dp.toPx(), 20.dp.toPx()),
                             cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx())

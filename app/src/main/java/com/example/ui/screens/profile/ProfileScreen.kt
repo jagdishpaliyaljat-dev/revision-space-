@@ -1389,7 +1389,7 @@ fun AchievementsTimeline(
             
             // Draw background track
             drawLine(
-                color = MaterialTheme.colorScheme.outlineVariant,
+                color = Color(0xFFE7EAF3),
                 start = androidx.compose.ui.geometry.Offset(0f, height / 2),
                 end = androidx.compose.ui.geometry.Offset(width, height / 2),
                 strokeWidth = 3.dp.toPx()

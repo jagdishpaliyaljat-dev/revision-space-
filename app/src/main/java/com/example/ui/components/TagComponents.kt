@@ -53,6 +53,7 @@ data class TagVisuals(
  * Resolves a tag string to a beautiful, modern pastel color scheme.
  * Includes explicit mappings for popular study tags to maximize visual polish.
  */
+@Composable
 fun getTagVisuals(tagName: String): TagVisuals {
     val lower = tagName.lowercase(Locale.getDefault()).trim()
     return when {

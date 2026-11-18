@@ -1775,7 +1775,7 @@ fun TimelineLine(isDashed: Boolean, modifier: Modifier = Modifier) {
             
             // Draw connector line
             drawLine(
-                color = TdSurfaceGray,
+                color = Color(0xFFE7EAF3),
                 start = Offset(0f, size.height / 2),
                 end = Offset(size.width, size.height / 2),
                 strokeWidth = 2f,
@@ -1784,7 +1784,7 @@ fun TimelineLine(isDashed: Boolean, modifier: Modifier = Modifier) {
             
             // Central dot
             drawCircle(
-                color = TdSurfaceGray,
+                color = Color(0xFFE7EAF3),
                 radius = 3f,
                 center = Offset(size.width / 2, size.height / 2)
             )

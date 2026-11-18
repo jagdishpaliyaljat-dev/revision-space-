@@ -627,6 +627,7 @@ fun SubjectItemCard(
         }
     }
 
+@Composable
 fun formatLastRevision(lastRevisionDateMs: Long): Pair<String, Color> {
     if (lastRevisionDateMs == 0L) return Pair("Not started", TextSecondary)
     
