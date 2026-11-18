@@ -15,6 +15,7 @@ import com.example.ui.utils.*
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -70,31 +71,53 @@ fun MyTestScoresScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "My Test Scores",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = ProfileTextDark
-                    )
+                    Column {
+                        Text(
+                            text = "Test Scores",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            letterSpacing = (-0.4).sp,
+                            color = ProfileTextDark
+                        )
+                        Text(
+                            text = "Track your mock progress",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = ProfileTextGray
+                        )
+                    }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = ProfileTextDark
+                            tint = ProfileTextDark,
+                            modifier = Modifier.size(19.dp)
                         )
                     }
                 },
                 actions = {
                     IconButton(
                         onClick = { showAddDialog = true },
-                        modifier = Modifier.testTag("add_test_score_button")
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(40.dp)
+                            .background(ProfilePurple, CircleShape)
+                            .testTag("add_test_score_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add Score",
-                            tint = ProfilePurple
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 },

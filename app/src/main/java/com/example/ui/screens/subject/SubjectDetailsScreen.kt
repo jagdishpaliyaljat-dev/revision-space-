@@ -12,6 +12,7 @@ import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -138,12 +139,35 @@ fun SubjectDetailsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { 
-                    Text(subject.name, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = SubTextPrimary, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                title = {
+                    Column {
+                        Text(
+                            subject.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 21.sp,
+                            letterSpacing = (-0.4).sp,
+                            color = SubTextPrimary,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                        Text(
+                            "Chapters and topics",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = SubTextSecondary
+                        )
+                    }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = SubTextPrimary)
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = SubTextPrimary, modifier = Modifier.size(19.dp))
                     }
                 },
                 actions = {
