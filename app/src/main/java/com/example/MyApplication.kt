@@ -46,21 +46,12 @@ class MyApplication : Application() {
             android.util.Log.e("MyApplication", "Firebase initialization failed", e)
         }
 
-        try {
-            // Enable Firestore offline persistence so reads/writes survive losing
-            // connectivity and cached documents are used when the client is offline
-            // instead of throwing "failed to get document because the client is offline".
-            val settings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
-                .setLocalCacheSettings(
-                    com.google.firebase.firestore.PersistentLocalCacheSettings.newBuilder()
-                        .build()
-                )
-                .build()
-            com.google.firebase.firestore.FirebaseFirestore.getInstance().firestoreSettings = settings
-            android.util.Log.i("MyApplication", "Firestore offline persistence enabled")
-        } catch (e: Exception) {
-            android.util.Log.w("MyApplication", "Firestore offline cache setup skipped", e)
-        }
+        // NOTE: Firestore offline persistence is enabled by default on Android.
+        // We intentionally do not override firestoreSettings here: the legacy
+        // PersistentLocalCacheSettings API is not available in this Firebase BOM,
+        // and overriding it caused a compile error. Offline reads are instead made
+        // best-effort in RevisionRepository (sign-in does not fail when a cached
+        // document is missing) and Navigation treats offline errors as success.
 
         try {
             com.example.services.SrsNotificationManager.scheduleDailyMission(this)
