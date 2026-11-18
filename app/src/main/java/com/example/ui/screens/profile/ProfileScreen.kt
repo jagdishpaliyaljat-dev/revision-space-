@@ -305,18 +305,26 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             CenterAlignedTopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate(com.example.ui.SettingsRoute) }) {
-                        Icon(Icons.Default.Settings, "Settings", tint = ProfileTextDark, modifier = Modifier.size(28.dp))
+                    IconButton(
+                        onClick = { navController.navigate(com.example.ui.SettingsRoute) },
+                        modifier = Modifier
+                            .padding(start = 12.dp)
+                            .size(42.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Settings, "Settings", tint = ProfileTextDark, modifier = Modifier.size(20.dp))
                     }
                 },
                 actions = {
                     // Coin pill
                     Surface(
-                        shape = RoundedCornerShape(20.dp),
-                        color = Color(0xFFFFFBEB),
+                        shape = RoundedCornerShape(18.dp),
+                        color = Color.White,
+                        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
                         modifier = Modifier
                             .padding(end = 16.dp)
-                            .height(36.dp)
+                            .height(38.dp)
                             .clickable { navController.navigate(CoinHistoryRoute) }
                     ) {
                         Row(

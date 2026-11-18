@@ -141,7 +141,7 @@ fun SplashScreen(isSetupComplete: Boolean, onTransitionComplete: () -> Unit) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF2196F3))
+                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF4B2BD6), Color(0xFF251A66))
                 )
             )
             .blur(bgBlur.dp),
@@ -166,7 +166,7 @@ fun SplashScreen(isSetupComplete: Boolean, onTransitionComplete: () -> Unit) {
                     modifier = Modifier
                         .size(140.dp)
                         .blur(30.dp)
-                        .background(Color(0xFF6C4DFF).copy(alpha = 0.6f), RoundedCornerShape(100.dp))
+                        .background(Color(0xFF9B8CFF).copy(alpha = 0.55f), RoundedCornerShape(100.dp))
                 )
                 
                 // Thin glowing ring
@@ -233,9 +233,9 @@ fun SplashScreen(isSetupComplete: Boolean, onTransitionComplete: () -> Unit) {
                 Text(
                     text = "REVISION SPACE",
                     fontWeight = FontWeight.Black,
-                    fontSize = 32.sp,
+                    fontSize = 30.sp,
                     color = Color.White,
-                    letterSpacing = 4.sp
+                    letterSpacing = 2.5.sp
                 )
                 
                 Spacer(modifier = Modifier.height(12.dp))
