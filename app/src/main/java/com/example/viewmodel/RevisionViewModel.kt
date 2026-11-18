@@ -2007,6 +2007,10 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
         repository.signInWithEmail(email, password)
     }
 
+    suspend fun signInWithGoogle(idToken: String) {
+        repository.signInWithGoogle(idToken)
+    }
+
     suspend fun signInAnonymously() {
         repository.signInAnonymously()
     }

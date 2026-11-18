@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 // Routes
 @Serializable object OfflineNotesRoute
 @Serializable object SplashRoute
+@Serializable object SignInRoute
 //@Serializable object SignInRoute
 @Serializable object DashboardRoute
 @Serializable object CalendarRoute
@@ -284,8 +285,36 @@ fun AppNavigation(
             SplashScreen(
                 isSetupComplete = true,
                 onTransitionComplete = {
-                    navController.navigate(DashboardRoute) { popUpTo(SplashRoute) { inclusive = true } }
+                    val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                    if (currentUser != null) {
+                        navController.navigate(DashboardRoute) { popUpTo(SplashRoute) { inclusive = true } }
+                    } else {
+                        navController.navigate(SignInRoute) { popUpTo(SplashRoute) { inclusive = true } }
+                    }
                 }
+            )
+        }
+        composable<SignInRoute> {
+            val scope = androidx.compose.runtime.rememberCoroutineScope()
+            var isLoading by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+            var error by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+            LoginScreen(
+                onSignedIn = { idToken ->
+                    isLoading = true
+                    error = null
+                    scope.launch {
+                        try {
+                            viewModel.signInWithGoogle(idToken)
+                            isLoading = false
+                            navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
+                        } catch (e: Exception) {
+                            isLoading = false
+                            error = e.message ?: "Sign in failed"
+                        }
+                    }
+                },
+                isLoading = isLoading,
+                errorMessage = error
             )
         }
         composable<DashboardRoute> {

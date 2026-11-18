@@ -18,6 +18,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -3264,6 +3265,39 @@ open class RevisionRepository {
                     throw Exception("Your account has been suspended by administrator.\nContact support for assistance.")
                 }
             }
+        }
+    }
+
+    open suspend fun signInWithGoogle(idToken: String) {
+        try {
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            val result = auth?.signInWithCredential(credential)?.await()
+            val userId = result?.user?.uid
+            if (userId != null) {
+                val userDoc = db.collection("users").document(userId).get().await()
+                if (!userDoc.exists()) {
+                    val userEmail = result.user?.email ?: ""
+                    val userName = result.user?.displayName ?: userEmail.substringBefore("@")
+                    val profile = UserProfile(
+                        id = userId,
+                        name = userName,
+                        email = userEmail,
+                        profilePictureUrl = result.user?.photoUrl?.toString(),
+                        referralCode = generateReferralCodeForEmail(userEmail),
+                        createdAtMs = System.currentTimeMillis()
+                    )
+                    db.collection("users").document(userId).set(profile).await()
+                } else {
+                    val isBanned = userDoc.getBoolean("isBanned") ?: false
+                    if (isBanned) {
+                        auth?.signOut()
+                        throw Exception("Your account has been suspended by administrator.\nContact support for assistance.")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
     }
 
