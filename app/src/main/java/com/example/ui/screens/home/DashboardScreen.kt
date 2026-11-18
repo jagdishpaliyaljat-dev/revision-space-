@@ -1615,12 +1615,12 @@ fun DashboardDrawerContent(
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    color = Color(0xFFF3E8FF).copy(alpha = 0.5f),
                     radius = 300.dp.toPx(),
                     center = Offset(0f, 0f)
                 )
                 drawCircle(
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f),
+                    color = Color(0xFFE4DBFF).copy(alpha = 0.25f),
                     radius = 200.dp.toPx(),
                     center = Offset(size.width, 200.dp.toPx())
                 )
