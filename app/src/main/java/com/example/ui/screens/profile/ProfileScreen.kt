@@ -85,7 +85,7 @@ val ProfilePurple = Color(0xFF6C4DFF)
 val ProfilePurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val ProfilePurpleSuperLight: Color
-    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+    @Composable get() = AppPalette.BrandSoft
 val ProfileBgLight: Color
     @Composable get() = MaterialTheme.colorScheme.background
 val ProfileTextDark: Color
@@ -774,7 +774,7 @@ fun ProfileScreen(
                             )
                         }
                         showEditProfileDialog = false
-                        Toast.makeText(context, "Profile saved successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Saving profile...", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ProfilePurple)
                 ) {
@@ -960,20 +960,20 @@ fun ProfileScreen(
                             Icon(
                                 imageVector = Icons.Default.BookmarkBorder,
                                 contentDescription = null,
-                                tint = Color.LightGray,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(48.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 "No saved topics found",
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 15.sp
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 "Bookmark topics to find them here.",
-                                color = Color.LightGray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                 fontSize = 12.sp
                             )
                         }
@@ -1579,7 +1579,7 @@ fun PhotoOptionsBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -1734,7 +1734,7 @@ fun PreviewAndCropDialog(
                     Text("Cancel", color = ProfileTextGray)
                 }
             },
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(24.dp)
         )
     }
