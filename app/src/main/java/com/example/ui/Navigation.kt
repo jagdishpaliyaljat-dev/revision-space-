@@ -319,7 +319,15 @@ fun AppNavigation(
                             navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
                         } catch (e: Exception) {
                             isLoading = false
-                            error = e.message ?: "Sign in failed"
+                            val msg = e.message.orEmpty()
+                            if (msg.contains("offline", ignoreCase = true) ||
+                                msg.contains("unavailable", ignoreCase = true)
+                            ) {
+                                // Auth already succeeded; Firestore will sync when back online.
+                                navController.navigate(DashboardRoute) { popUpTo(SignInRoute) { inclusive = true } }
+                            } else {
+                                error = msg.ifBlank { "Sign in failed" }
+                            }
                         }
                     }
                 },

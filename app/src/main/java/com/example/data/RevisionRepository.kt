@@ -3232,8 +3232,13 @@ open class RevisionRepository {
         auth?.signInWithEmailAndPassword(email, password)?.await()
         val userId = auth?.currentUser?.uid
         if (userId != null) {
-            val userDoc = db.collection("users").document(userId).get().await()
-            if (!userDoc.exists()) {
+            val userDoc = try {
+                db.collection("users").document(userId).get().await()
+            } catch (e: Exception) {
+                android.util.Log.w("RevisionRepository", "Firestore user lookup skipped (offline): ${e.message}")
+                null
+            }
+            if (userDoc == null || !userDoc.exists()) {
                 // Self-healing: if auth is successful but user profile in Firestore doesn't exist, create it on-demand
                 val userEmail = auth?.currentUser?.email ?: email
                 val userName = userEmail.substringBefore("@")
@@ -3244,8 +3249,12 @@ open class RevisionRepository {
                     referralCode = generateReferralCodeForEmail(userEmail),
                     createdAtMs = System.currentTimeMillis()
                 )
-                db.collection("users").document(userId).set(profile).await()
-                
+                try {
+                    db.collection("users").document(userId).set(profile).await()
+                } catch (e: Exception) {
+                    android.util.Log.w("RevisionRepository", "Firestore profile write skipped (offline): ${e.message}")
+                }
+
                 try {
                     db.collection("users").document(userId).collection("data").document("settings").set(
                         mapOf(
@@ -3274,8 +3283,15 @@ open class RevisionRepository {
             val result = auth?.signInWithCredential(credential)?.await()
             val userId = result?.user?.uid
             if (userId != null) {
-                val userDoc = db.collection("users").document(userId).get().await()
-                if (!userDoc.exists()) {
+                // Firestore work is best-effort: a successful Firebase Auth sign-in must
+                // never be undone by "client is offline". The ban check still runs when online.
+                val userDoc = try {
+                    db.collection("users").document(userId).get().await()
+                } catch (e: Exception) {
+                    android.util.Log.w("RevisionRepository", "Firestore user lookup skipped (offline): ${e.message}")
+                    null
+                }
+                if (userDoc == null || !userDoc.exists()) {
                     val userEmail = result?.user?.email ?: ""
                     val userName = result?.user?.displayName ?: userEmail.substringBefore("@")
                     val profile = UserProfile(
@@ -3286,7 +3302,11 @@ open class RevisionRepository {
                         referralCode = generateReferralCodeForEmail(userEmail),
                         createdAtMs = System.currentTimeMillis()
                     )
-                    db.collection("users").document(userId).set(profile).await()
+                    try {
+                        db.collection("users").document(userId).set(profile).await()
+                    } catch (e: Exception) {
+                        android.util.Log.w("RevisionRepository", "Firestore profile write skipped (offline): ${e.message}")
+                    }
                 } else {
                     val isBanned = userDoc.getBoolean("isBanned") ?: false
                     if (isBanned) {
@@ -3306,8 +3326,13 @@ open class RevisionRepository {
             val result = auth?.signInAnonymously()?.await()
             val userId = result?.user?.uid
             if (userId != null) {
-                val userDoc = db.collection("users").document(userId).get().await()
-                if (!userDoc.exists()) {
+                val userDoc = try {
+                    db.collection("users").document(userId).get().await()
+                } catch (e: Exception) {
+                    android.util.Log.w("RevisionRepository", "Firestore user lookup skipped (offline): ${e.message}")
+                    null
+                }
+                if (userDoc == null || !userDoc.exists()) {
                     val guestEmail = "guest_${userId.take(6)}@revisionspace.app"
                     val profile = UserProfile(
                         id = userId,
@@ -3370,8 +3395,13 @@ open class RevisionRepository {
 
 
     suspend fun checkUserExistsAndNotBanned(userId: String): Boolean? {
-        val doc = kotlinx.coroutines.withTimeoutOrNull(4000L) {
-            db.collection("users").document(userId).get().await()
+        val doc = try {
+            kotlinx.coroutines.withTimeoutOrNull(4000L) {
+                db.collection("users").document(userId).get().await()
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("RevisionRepository", "Firestore user lookup skipped (offline): ${e.message}")
+            null
         } ?: return null
         
         if (!doc.exists()) {
