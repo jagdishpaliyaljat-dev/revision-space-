@@ -94,7 +94,7 @@ fun MyTestScoresScreen(
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -371,7 +371,7 @@ fun TestPerformanceSummaryCard(tests: List<SubjectTest>) {
                     modifier = Modifier
                         .width(1.dp)
                         .height(40.dp)
-                        .background(Color(0xFFE7EAF3))
+                        .background(MaterialTheme.colorScheme.outlineVariant)
                         .align(Alignment.CenterVertically)
                 )
 
@@ -400,7 +400,7 @@ fun TestPerformanceSummaryCard(tests: List<SubjectTest>) {
                     modifier = Modifier
                         .width(1.dp)
                         .height(40.dp)
-                        .background(Color(0xFFE7EAF3))
+                        .background(MaterialTheme.colorScheme.outlineVariant)
                         .align(Alignment.CenterVertically)
                 )
 
@@ -519,7 +519,7 @@ fun SubjectWisePerformanceCard(tests: List<SubjectTest>, subjects: List<Subject>
                                 .fillMaxWidth()
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFF1F3F9))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -688,7 +688,7 @@ fun TestHistoryItem(
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = Color(0xFFF1F3F9))
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(

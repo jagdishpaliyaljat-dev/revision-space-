@@ -58,9 +58,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private val CalPurple = Color(0xFF6C4DFF)
-private val CalBg = Color(0xFFF6F7FB)
-private val CalTextDark = Color(0xFF0F172A)
-private val CalTextGray = Color(0xFF5B6478)
+private val CalBg = MaterialTheme.colorScheme.background
+private val CalTextDark = MaterialTheme.colorScheme.onSurface
+private val CalTextGray = MaterialTheme.colorScheme.onSurfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -187,7 +187,7 @@ fun CalendarScreen(
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(
                             Icons.Default.ArrowBack,
@@ -670,7 +670,7 @@ fun CalendarScreen(
                     )
                     
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -688,7 +688,7 @@ fun CalendarScreen(
                                 color = CalTextGray
                             )
                             
-                            HorizontalDivider(color = Color(0xFFE7EAF3))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             
                             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                                 Text("Recall Calibration", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = CalTextDark)

@@ -93,7 +93,7 @@ fun SubjectsScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFFF6F7FB),
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
@@ -110,7 +110,7 @@ fun SubjectsScreen(
                                 focusedContainerColor = Color.White,
                                 unfocusedContainerColor = Color.White,
                                 focusedBorderColor = Color(0xFF6C4DFF),
-                                unfocusedBorderColor = Color(0xFFE7EAF3)
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -123,7 +123,7 @@ fun SubjectsScreen(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 24.sp,
                                 letterSpacing = (-0.5).sp,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 "${activeSubjects.size} subjects \u2022 $totalTopicsCount topics",
@@ -144,17 +144,17 @@ fun SubjectsScreen(
                             .padding(end = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(
                             if (isSearchExpanded) Icons.Default.Close else Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = Color(0xFF0F172A),
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(20.dp)
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF6F7FB))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         floatingActionButton = {
@@ -218,7 +218,7 @@ fun SubjectsScreen(
                                 color = Color(0xFF6C4DFF),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(50))
-                                    .background(Color(0xFFF1EEFF))
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
                                     .padding(horizontal = 9.dp, vertical = 3.dp)
                             )
                         }
@@ -317,7 +317,7 @@ private fun SubjectsLibrarySummary(subjects: Int, topics: Int, completed: Int) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -331,14 +331,14 @@ private fun SubjectsLibrarySummary(subjects: Int, topics: Int, completed: Int) {
                 modifier = Modifier
                     .width(1.dp)
                     .height(30.dp)
-                    .background(Color(0xFFE7EAF3))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
             SummaryStat(value = topics.toString(), label = "Topics", modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
                     .width(1.dp)
                     .height(30.dp)
-                    .background(Color(0xFFE7EAF3))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
             SummaryStat(
                 value = completed.toString(),
@@ -355,7 +355,7 @@ private fun SummaryStat(
     value: String,
     label: String,
     modifier: Modifier = Modifier,
-    valueColor: Color = Color(0xFF0F172A)
+    valueColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = valueColor)
@@ -377,7 +377,7 @@ private fun SubjectsEmptyState(isSearching: Boolean, onAdd: () -> Unit) {
             modifier = Modifier
                 .size(112.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFF1EEFF)),
+                .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -390,7 +390,7 @@ private fun SubjectsEmptyState(isSearching: Boolean, onAdd: () -> Unit) {
         Spacer(modifier = Modifier.height(22.dp))
         Text(
             text = if (isSearching) "No subjects found" else "No subjects yet",
-            color = Color(0xFF0F172A),
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 19.sp,
             fontWeight = FontWeight.Bold,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -488,7 +488,7 @@ fun ExpandableSubjectCard(
                     ),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(22.dp),
-                border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -531,7 +531,7 @@ fun ExpandableSubjectCard(
                                 text = subject.name,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF0F172A),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )

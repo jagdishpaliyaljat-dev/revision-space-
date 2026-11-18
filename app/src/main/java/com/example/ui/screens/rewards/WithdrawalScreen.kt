@@ -80,7 +80,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             fontWeight = FontWeight.Bold,
                             fontSize = 22.sp,
                             letterSpacing = (-0.4).sp,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             "Turn coins into real rewards",
@@ -97,15 +97,15 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color(0xFF0F172A), modifier = Modifier.size(19.dp))
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(19.dp))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF6F7FB))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
-        containerColor = Color(0xFFF6F7FB)
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -178,10 +178,10 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("Payout Setup", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
+                        Text("Payout Setup", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                         Spacer(modifier = Modifier.height(14.dp))
 
                         // Method Tabs
@@ -190,7 +190,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 .fillMaxWidth()
                                 .height(44.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFFF1F3F9)),
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -204,7 +204,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             ) {
                                 Text(
                                     "UPI (GPay/PhonePe)",
-                                    color = if (selectedMethod == "UPI") Color.White else Color(0xFF5B6478),
+                                    color = if (selectedMethod == "UPI") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
@@ -219,7 +219,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             ) {
                                 Text(
                                     "Bank Transfer",
-                                    color = if (selectedMethod == "BANK") Color.White else Color(0xFF5B6478),
+                                    color = if (selectedMethod == "BANK") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
@@ -230,7 +230,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
 
                         // Render Fields
                         if (selectedMethod == "UPI") {
-                            Text("UPI ID Address", fontSize = 12.sp, color = Color(0xFF5B6478), fontWeight = FontWeight.Bold)
+                            Text("UPI ID Address", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(6.dp))
                             OutlinedTextField(
                                 value = upiId,
@@ -241,12 +241,12 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = Color(0xFF6C4DFF),
-                                    unfocusedBorderColor = Color(0xFFE7EAF3)
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
                         } else {
-                            Text("Account Holder Name", fontSize = 12.sp, color = Color(0xFF5B6478), fontWeight = FontWeight.Bold)
+                            Text("Account Holder Name", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = bankAccountName,
@@ -256,14 +256,14 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = Color(0xFF6C4DFF),
-                                    unfocusedBorderColor = Color(0xFFE7EAF3)
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
 
-                            Text("Bank Account Number", fontSize = 12.sp, color = Color(0xFF5B6478), fontWeight = FontWeight.Bold)
+                            Text("Bank Account Number", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = bankAccountNumber,
@@ -274,14 +274,14 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = Color(0xFF6C4DFF),
-                                    unfocusedBorderColor = Color(0xFFE7EAF3)
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
 
-                            Text("IFSC Code", fontSize = 12.sp, color = Color(0xFF5B6478), fontWeight = FontWeight.Bold)
+                            Text("IFSC Code", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             OutlinedTextField(
                                 value = bankIfscCode,
@@ -291,7 +291,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = Color(0xFF6C4DFF),
-                                    unfocusedBorderColor = Color(0xFFE7EAF3)
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
@@ -300,7 +300,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // Amount to withdraw conversion
-                        Text("Withdrawal Coins Amount", fontSize = 12.sp, color = Color(0xFF5B6478), fontWeight = FontWeight.Bold)
+                        Text("Withdrawal Coins Amount", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -315,7 +315,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = Color(0xFF6C4DFF),
-                                    unfocusedBorderColor = Color(0xFFE7EAF3)
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
@@ -390,7 +390,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             enabled = !submitLoading,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF6C4DFF),
-                                disabledContainerColor = Color(0xFFE7EAF3)
+                                disabledContainerColor = MaterialTheme.colorScheme.outlineVariant
                             ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -406,7 +406,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                         Text(
                             text = "Note: Min 100,000 Coins (₹1,000). Manual payout audits require up to 48 hours for processing.",
                             fontSize = 11.sp,
-                            color = Color(0xFF5B6478),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -421,7 +421,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                     modifier = Modifier.padding(top = 10.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -431,7 +431,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
-                        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                     ) {
                         Column(
                             modifier = Modifier
@@ -441,7 +441,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                         ) {
                             Icon(Icons.Outlined.ReceiptLong, contentDescription = null, tint = Color(0xFF8A94A6), modifier = Modifier.size(44.dp))
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("No withdrawals requested yet", fontWeight = FontWeight.SemiBold, color = Color(0xFF5B6478), fontSize = 14.sp)
+                            Text("No withdrawals requested yet", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("Earn coins by studying and refer friends to cash out!", color = Color(0xFF8A94A6), textAlign = TextAlign.Center, fontSize = 12.sp)
                         }
@@ -463,7 +463,7 @@ fun WithdrawalRequestRow(req: WithdrawalRequest) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -472,8 +472,8 @@ fun WithdrawalRequestRow(req: WithdrawalRequest) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Requested Amount", color = Color(0xFF5B6478), fontSize = 11.sp)
-                    Text("₹${String.format("%,d", req.amountInInr)} INR", fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF0F172A))
+                    Text("Requested Amount", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
+                    Text("₹${String.format("%,d", req.amountInInr)} INR", fontWeight = FontWeight.Black, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
 
                 val (badgeBg, badgeText, statusLabel) = when (req.status) {
@@ -492,7 +492,7 @@ fun WithdrawalRequestRow(req: WithdrawalRequest) {
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = Color(0xFFF1F3F9))
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             Spacer(modifier = Modifier.height(10.dp))
 
             Row(
@@ -505,7 +505,7 @@ fun WithdrawalRequestRow(req: WithdrawalRequest) {
                         text = "Transfer Method: ${req.method}",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF5B6478)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = if (req.method == "UPI") "UPI ID: ${req.upiId}" else "Acc: ${req.bankAccountNumber}",

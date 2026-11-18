@@ -33,7 +33,7 @@ import androidx.compose.material.icons.filled.School
 
 @Composable
 fun MaintenanceScreen(message: String = "App is currently under maintenance. Please try again later.") {
-    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF6F7FB)) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
             verticalArrangement = Arrangement.Center,
@@ -41,16 +41,16 @@ fun MaintenanceScreen(message: String = "App is currently under maintenance. Ple
         ) {
             Icon(Icons.Default.Build, contentDescription = null, modifier = Modifier.size(80.dp), tint = Color(0xFF3B82F6))
             Spacer(modifier = Modifier.height(24.dp))
-            Text("We'll be right back!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+            Text("We'll be right back!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(message, color = Color(0xFF5B6478), textAlign = TextAlign.Center)
+            Text(message, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }
     }
 }
 
 @Composable
 fun ForceUpdateScreen() {
-    Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFF6F7FB)) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
             verticalArrangement = Arrangement.Center,
@@ -58,9 +58,9 @@ fun ForceUpdateScreen() {
         ) {
             Icon(Icons.Default.Update, contentDescription = null, modifier = Modifier.size(80.dp), tint = Color(0xFF10B981))
             Spacer(modifier = Modifier.height(24.dp))
-            Text("Update Required", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+            Text("Update Required", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Your app version is no longer supported. Please update to the latest version to continue using Revision Space.", color = Color(0xFF5B6478), textAlign = TextAlign.Center)
+            Text("Your app version is no longer supported. Please update to the latest version to continue using Revision Space.", color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }
     }
 }

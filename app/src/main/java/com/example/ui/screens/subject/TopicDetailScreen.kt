@@ -64,12 +64,13 @@ import kotlinx.coroutines.launch
 
 // Colors
 val TdPurplePrimary = Color(0xFF6C4DFF)
-val TdPurpleLight = Color(0xFFF1EEFF)
-val TdBackgroundWhite = Color(0xFFF6F7FB)
-val TdCardWhite = Color(0xFFFFFFFF)
-val TdSurfaceGray = Color(0xFFE7EAF3)
-val TdTextPrimary = Color(0xFF0F172A)
-val TdTextSecondary = Color(0xFF5B6478)
+val TdPurpleLight = MaterialTheme.colorScheme.primaryContainer
+val TdBackgroundWhite = MaterialTheme.colorScheme.background
+val TdCardWhite: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+val TdSurfaceGray = MaterialTheme.colorScheme.outlineVariant
+val TdTextPrimary = MaterialTheme.colorScheme.onSurface
+val TdTextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
 val TdGreen = Color(0xFF10B981)
 val TdGreenLight = Color(0xFFECFDF5)
 
@@ -335,7 +336,7 @@ fun TopicDetailScreen(
                             .padding(start = 16.dp)
                             .size(44.dp)
                             .background(TdCardWhite, RoundedCornerShape(14.dp))
-                            .border(BorderStroke(1.dp, Color(0xFFE7EAF3)), RoundedCornerShape(14.dp))
+                            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), RoundedCornerShape(14.dp))
                             .clip(RoundedCornerShape(14.dp))
                             .clickable { navController.popBackStack() },
                         contentAlignment = Alignment.Center
@@ -356,7 +357,7 @@ fun TopicDetailScreen(
                                 .padding(end = 16.dp)
                                 .size(44.dp)
                                 .background(TdCardWhite, RoundedCornerShape(14.dp))
-                                .border(BorderStroke(1.dp, Color(0xFFE7EAF3)), RoundedCornerShape(14.dp))
+                                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), RoundedCornerShape(14.dp))
                                 .clip(RoundedCornerShape(14.dp))
                                 .clickable { menuExpanded = true },
                             contentAlignment = Alignment.Center
@@ -639,7 +640,7 @@ fun TopicDetailScreen(
                                     if (topic.tags.isEmpty()) {
                                         Box(
                                             modifier = Modifier
-                                                .background(Color(0xFFF1F3F9), RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
                                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                                         ) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -669,12 +670,12 @@ fun TopicDetailScreen(
                                             if (topic.tags.size > 3) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(Color(0xFFE7EAF3), RoundedCornerShape(8.dp))
+                                                        .background(MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
                                                         .padding(horizontal = 6.dp, vertical = 4.dp)
                                                 ) {
                                                     Text(
                                                         text = "+${topic.tags.size - 3}",
-                                                        color = Color(0xFF5B6478),
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                         fontSize = 10.sp,
                                                         fontWeight = FontWeight.Bold
                                                     )
@@ -850,7 +851,7 @@ fun TopicDetailScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(if (isSelected) selectedBg else Color(0xFFF1F3F9))
+                                        .background(if (isSelected) selectedBg else MaterialTheme.colorScheme.surfaceVariant)
                                         .clickable { 
                                             selectedDifficulty = diff
                                             currentIntervals = getSpacedRepetitionIntervals(diff)
@@ -895,8 +896,8 @@ fun TopicDetailScreen(
                                 Card(
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
-                                    border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                 ) {
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -919,7 +920,7 @@ fun TopicDetailScreen(
                                                     .size(20.dp)
                                                     .clip(CircleShape)
                                                     .background(Color.White)
-                                                    .border(BorderStroke(0.5.dp, Color(0xFFCBD5E1)), CircleShape)
+                                                    .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline), CircleShape)
                                                     .clickable {
                                                         val newList = currentIntervals.toMutableList()
                                                         val newVal = (interval - 1).coerceAtLeast(1)
@@ -937,7 +938,7 @@ fun TopicDetailScreen(
                                                     .size(20.dp)
                                                     .clip(CircleShape)
                                                     .background(Color.White)
-                                                    .border(BorderStroke(0.5.dp, Color(0xFFCBD5E1)), CircleShape)
+                                                    .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline), CircleShape)
                                                     .clickable {
                                                         val newList = currentIntervals.toMutableList()
                                                         val newVal = interval + 1
@@ -1123,7 +1124,7 @@ fun TopicDetailScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text("Status", color = TdTextSecondary, fontSize = 14.sp)
                             }
-                            Box(modifier = Modifier.background(Color(0xFFF1EEFF), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 4.dp)) {
+                            Box(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 4.dp)) {
                                 Text(topic.status, color = TdPurplePrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                             }
                         }
@@ -1174,8 +1175,8 @@ fun TopicDetailScreen(
                                 revisionHistoryList.forEachIndexed { index, record ->
                                     Card(
                                         modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE7EAF3))
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                                     ) {
                                         Column(modifier = Modifier.padding(12.dp)) {
                                             Row(
@@ -1703,14 +1704,14 @@ fun StatVerticalDivider() {
 fun ScheduleItem(day: String, date: String, status: String) {
     val bgColor = when (status) {
         "done" -> TdGreenLight
-        "next" -> Color(0xFFF1EEFF)
+        "next" -> MaterialTheme.colorScheme.primaryContainer
         else -> Color.White
     }
     
     val borderColor = when (status) {
         "done" -> Color.Transparent
         "next" -> TdPurplePrimary
-        else -> Color(0xFFE7EAF3)
+        else -> MaterialTheme.colorScheme.outlineVariant
     }
     
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(38.dp)) {

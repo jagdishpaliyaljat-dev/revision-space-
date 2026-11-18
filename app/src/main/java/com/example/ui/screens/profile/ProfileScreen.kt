@@ -81,11 +81,11 @@ import java.util.*
 
 // Styling Color Constants
 val ProfilePurple = Color(0xFF6C4DFF)
-val ProfilePurpleLight = Color(0xFFE0D8FE)
-val ProfilePurpleSuperLight = Color(0xFFF1EEFF)
-val ProfileBgLight = Color(0xFFF6F7FB)
-val ProfileTextDark = Color(0xFF0F172A)
-val ProfileTextGray = Color(0xFF5B6478)
+val ProfilePurpleLight = MaterialTheme.colorScheme.primaryContainer
+val ProfilePurpleSuperLight = MaterialTheme.colorScheme.primaryContainer
+val ProfileBgLight = MaterialTheme.colorScheme.background
+val ProfileTextDark = MaterialTheme.colorScheme.onSurface
+val ProfileTextGray = MaterialTheme.colorScheme.onSurfaceVariant
 
 // Sparkline trends colors
 val TrendGreen = Color(0xFF10B981)
@@ -311,7 +311,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                             .padding(start = 12.dp)
                             .size(42.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(Icons.Default.Settings, "Settings", tint = ProfileTextDark, modifier = Modifier.size(20.dp))
                     }
@@ -321,7 +321,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                     Surface(
                         shape = RoundedCornerShape(18.dp),
                         color = Color.White,
-                        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .height(38.dp)
@@ -376,7 +376,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().shadow(0.dp, RoundedCornerShape(24.dp)),
-                    border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(24.dp)
                 ) {
@@ -693,7 +693,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
 
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE7EAF3)),
+                    modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = MaterialTheme.colorScheme.outlineVariant),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -747,7 +747,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
             if (userProfile != null) {
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = Color(0xFFE7EAF3)).clickable { 
+                        modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = MaterialTheme.colorScheme.outlineVariant).clickable { 
                             navController.navigate(com.example.ui.LeaderboardRoute)
                         },
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBEB)),
@@ -1023,7 +1023,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                         text = "Saved Topics (${bookmarkedIdsSet.size})",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(onClick = { showSavedTopicsDialog = false }) {
                         Icon(Icons.Default.Close, contentDescription = "Close")
@@ -1088,9 +1088,9 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                         showSavedTopicsDialog = false
                                         navController.navigate(TopicDetailRoute(topic.topicId, topic.subjectId, topic.chapterId))
                                     },
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -1119,12 +1119,12 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                                             text = topic.topicName,
                                             fontWeight = FontWeight.SemiBold,
                                             fontSize = 13.sp,
-                                            color = Color(0xFF0F172A)
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
                                             text = "${topic.subjectName} • ${topic.chapterName}",
                                             fontSize = 11.sp,
-                                            color = Color(0xFF5B6478)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                     IconButton(
@@ -1192,7 +1192,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                         )
                     }
                     
-                    HorizontalDivider(color = Color(0xFFF1F3F9))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     
                     // Revisions Achievement
                     Column {
@@ -1207,7 +1207,7 @@ fun ProfileScreen(viewModel: RevisionViewModel, navController: NavController, op
                         )
                     }
 
-                    HorizontalDivider(color = Color(0xFFF1F3F9))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
 
                     // Coins Milestone
                     Column {
@@ -1249,7 +1249,7 @@ fun StatisticSparklineCard(
             .shadow(1.dp, RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -1384,7 +1384,7 @@ fun AchievementsTimeline(
             
             // Draw background track
             drawLine(
-                color = Color(0xFFE7EAF3),
+                color = MaterialTheme.colorScheme.outlineVariant,
                 start = androidx.compose.ui.geometry.Offset(0f, height / 2),
                 end = androidx.compose.ui.geometry.Offset(width, height / 2),
                 strokeWidth = 3.dp.toPx()
@@ -1428,7 +1428,7 @@ fun AchievementsTimeline(
                         .size(16.dp)
                         .clip(CircleShape)
                         .background(if (isUnlocked) completedColor else Color.White)
-                        .border(1.5.dp, if (isUnlocked) Color.Transparent else Color(0xFFCBD5E1), CircleShape),
+                        .border(1.5.dp, if (isUnlocked) Color.Transparent else MaterialTheme.colorScheme.outline, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isUnlocked) {
@@ -1664,11 +1664,11 @@ fun PhotoOptionsBottomSheet(
                 color = ProfileTextDark,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
             )
-            HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
 
             ProfileSettingRow(
                 icon = Icons.Default.CameraAlt,
-                iconBg = Color(0xFFE7EAF3),
+                iconBg = MaterialTheme.colorScheme.outlineVariant,
                 iconTint = ProfilePurple,
                 title = "Take Photo",
                 onClick = {
@@ -1676,11 +1676,11 @@ fun PhotoOptionsBottomSheet(
                     onTakePhotoClick()
                 }
             )
-            HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
 
             ProfileSettingRow(
                 icon = Icons.Default.Image,
-                iconBg = Color(0xFFE7EAF3),
+                iconBg = MaterialTheme.colorScheme.outlineVariant,
                 iconTint = ProfilePurple,
                 title = "Choose from Gallery",
                 onClick = {
@@ -1690,7 +1690,7 @@ fun PhotoOptionsBottomSheet(
             )
             
             if (showRemoveOption) {
-                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
                 ProfileSettingRow(
                     icon = Icons.Default.Delete,
                     iconBg = Color(0xFFFFE4E6),
@@ -1703,10 +1703,10 @@ fun PhotoOptionsBottomSheet(
                 )
             }
             
-            HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 1.dp)
             ProfileSettingRow(
                 icon = Icons.Default.Close,
-                iconBg = Color(0xFFE7EAF3),
+                iconBg = MaterialTheme.colorScheme.outlineVariant,
                 iconTint = ProfileTextGray,
                 title = "Cancel",
                 onClick = onDismiss
@@ -1814,37 +1814,37 @@ fun ReferralSection(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(0.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFF1F3F9), RoundedCornerShape(16.dp))
+        modifier = Modifier.fillMaxWidth().border(1.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Refer & Earn", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
+            Text("Refer & Earn", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text("Total Referrals", color = Color(0xFF5B6478), fontSize = 12.sp)
-                    Text("$totalReferrals", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF0F172A))
+                    Text("Total Referrals", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                    Text("$totalReferrals", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                 }
                 Column {
-                    Text("Successful", color = Color(0xFF5B6478), fontSize = 12.sp)
+                    Text("Successful", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     Text("$successfulReferrals", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF10B981))
                 }
                 Column {
-                    Text("Coins Earned", color = Color(0xFF5B6478), fontSize = 12.sp)
+                    Text("Coins Earned", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     Text("$totalEarnings", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFFF59E0B))
                 }
             }
             
             Spacer(modifier = Modifier.height(20.dp))
             
-            Text("My Referral Code", color = Color(0xFF5B6478), fontSize = 12.sp)
+            Text("My Referral Code", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(8.dp))
             
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF1F3F9))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween

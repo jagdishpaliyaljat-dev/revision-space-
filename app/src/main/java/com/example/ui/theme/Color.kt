@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.Color
 // ----------------------------- LIGHT -----------------------------
 val md_theme_light_primary = AppPalette.Brand
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_primaryContainer = Color(0xFFEFEBFF)
+val md_theme_light_primaryContainer = MaterialTheme.colorScheme.primaryContainer
 val md_theme_light_onPrimaryContainer = Color(0xFF241A5C)
-val md_theme_light_secondary = Color(0xFF5B6478)
+val md_theme_light_secondary = MaterialTheme.colorScheme.onSurfaceVariant
 val md_theme_light_onSecondary = Color(0xFFFFFFFF)
 val md_theme_light_secondaryContainer = Color(0xFFEEF1F8)
 val md_theme_light_onSecondaryContainer = Color(0xFF1B2233)
@@ -31,7 +31,7 @@ val md_theme_light_surface = AppPalette.Surface
 val md_theme_light_onSurface = AppPalette.Ink
 val md_theme_light_surfaceVariant = AppPalette.SurfaceAlt
 val md_theme_light_onSurfaceVariant = Color(0xFF5A6473)
-val md_theme_light_outline = Color(0xFFD9DEEA)
+val md_theme_light_outline = MaterialTheme.colorScheme.outline
 val md_theme_light_outlineVariant = AppPalette.Border
 val md_theme_light_inverseOnSurface = Color(0xFFF5F7FB)
 val md_theme_light_inverseSurface = Color(0xFF1A1F2E)

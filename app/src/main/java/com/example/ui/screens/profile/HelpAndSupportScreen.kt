@@ -106,7 +106,7 @@ fun HelpAndSupportScreen(navController: NavController) {
         LazyColumn(contentPadding = padding, modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Frequently Asked Questions", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                Text("Frequently Asked Questions", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(16.dp))
             }
             items(faqs) { faq ->

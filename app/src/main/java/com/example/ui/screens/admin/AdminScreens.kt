@@ -58,10 +58,11 @@ import java.util.Date
 import java.util.Locale
 
 val PrimaryAdmin = Color(0xFF6C4DFF)
-val BackgroundAdmin = Color(0xFFF6F7FB)
-val SurfaceAdmin = Color(0xFFFFFFFF)
-val TextPrimaryAdmin = Color(0xFF0F172A)
-val TextSecondaryAdmin = Color(0xFF5B6478)
+val BackgroundAdmin = MaterialTheme.colorScheme.background
+val SurfaceAdmin: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+val TextPrimaryAdmin = MaterialTheme.colorScheme.onSurface
+val TextSecondaryAdmin = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun DashboardErrorBoundary(
@@ -185,7 +186,7 @@ fun AdminDashboardScreen(viewModel: RevisionViewModel, navController: NavControl
                                 .padding(start = 8.dp)
                                 .size(40.dp)
                                 .background(Color.White, CircleShape)
-                                .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                         ) {
                             Icon(Icons.Default.Menu, "Menu", tint = TextPrimaryAdmin, modifier = Modifier.size(19.dp))
                         }
@@ -199,7 +200,7 @@ fun AdminDashboardScreen(viewModel: RevisionViewModel, navController: NavControl
                         }, modifier = Modifier
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)) {
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)) {
                             BadgedBox(
                                 badge = {
                                     if (unreadNotificationsCount > 0) {
@@ -225,7 +226,7 @@ fun AdminDashboardScreen(viewModel: RevisionViewModel, navController: NavControl
                             .padding(end = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)) {
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)) {
                             Icon(Icons.Default.ExitToApp, "Sign Out", tint = Color(0xFFEF4444))
                         }
                     },
@@ -541,7 +542,7 @@ fun CoinsAndRewardsTab(viewModel: RevisionViewModel) {
                 .padding(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Coin Economy & Admin Panel", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimaryAdmin)
@@ -1390,7 +1391,7 @@ fun NotificationsTab(viewModel: RevisionViewModel) {
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF), disabledContainerColor = Color(0xFFFFFFFF).copy(alpha = 0.5f)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, disabledContainerColor = Color(0xFFFFFFFF).copy(alpha = 0.5f)),
                         shape = RoundedCornerShape(12.dp),
                         enabled = !isSending
                     ) {
@@ -1895,7 +1896,7 @@ fun AdminUserDetailScreen(viewModel: RevisionViewModel, navController: NavContro
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextPrimaryAdmin, modifier = Modifier.size(19.dp))
                     }
@@ -1907,7 +1908,7 @@ fun AdminUserDetailScreen(viewModel: RevisionViewModel, navController: NavContro
                             .padding(end = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit User", tint = TextPrimaryAdmin, modifier = Modifier.size(19.dp))
                     }

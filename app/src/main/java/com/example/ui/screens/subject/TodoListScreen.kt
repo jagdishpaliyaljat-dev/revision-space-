@@ -51,9 +51,9 @@ import java.util.*
 import androidx.compose.ui.draw.alpha
 
 val TodoPurple = Color(0xFF6C4DFF)
-val TodoBgLight = Color(0xFFF6F7FB)
-val TodoTextDark = Color(0xFF0F172A)
-val TodoTextGray = Color(0xFF5B6478)
+val TodoBgLight = MaterialTheme.colorScheme.background
+val TodoTextDark = MaterialTheme.colorScheme.onSurface
+val TodoTextGray = MaterialTheme.colorScheme.onSurfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -197,7 +197,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {

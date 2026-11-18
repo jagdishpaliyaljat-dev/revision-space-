@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 val DashPurplePrimaryShared = Color(0xFF6C4DFF)
-val DashTextGrayShared = Color(0xFF5B6478)
+val DashTextGrayShared = MaterialTheme.colorScheme.onSurfaceVariant
 
 /**
  * Floating, pill-shaped bottom navigation.

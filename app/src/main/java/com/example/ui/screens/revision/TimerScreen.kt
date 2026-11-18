@@ -17,9 +17,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -47,10 +49,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,11 +70,11 @@ import com.example.viewmodel.RevisionViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-val FocusBgLight = Color(0xFFF6F7FB)
+val FocusBgLight = MaterialTheme.colorScheme.background
 val FocusPurple = Color(0xFF6C4DFF)
-val FocusPurpleLight = Color(0xFFE0D8FE)
-val FocusTextDark = Color(0xFF0F172A)
-val FocusTextGray = Color(0xFF5B6478)
+val FocusPurpleLight = MaterialTheme.colorScheme.primaryContainer
+val FocusTextDark = MaterialTheme.colorScheme.onSurface
+val FocusTextGray = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun TimerScreenWrapper(viewModel: RevisionViewModel, navController: NavController, backStackEntry: NavBackStackEntry) {
@@ -151,31 +158,15 @@ fun TimerScreen(
         }
     }
 
-    LaunchedEffect(isRunning, settings.ambientSound) {
+    LaunchedEffect(isRunning, settings.ambientSound, settings.soundEnabled) {
         AmbientSoundPlayer.setSound(settings.ambientSound)
-        if (isRunning) {
+        if (isRunning && settings.soundEnabled && settings.ambientSound != "None") {
             AmbientSoundPlayer.play()
         } else {
             AmbientSoundPlayer.stop()
         }
     }
-    
-    DisposableEffect(Unit) {
-        onDispose {
-            AmbientSoundPlayer.stop()
-        }
-    }
 
-
-    LaunchedEffect(isRunning, settings.ambientSound) {
-        AmbientSoundPlayer.setSound(settings.ambientSound)
-        if (isRunning) {
-            AmbientSoundPlayer.play()
-        } else {
-            AmbientSoundPlayer.stop()
-        }
-    }
-    
     DisposableEffect(Unit) {
         onDispose {
             AmbientSoundPlayer.stop()
@@ -215,7 +206,37 @@ fun TimerScreen(
     
     val focusMs = focusDurationMins * 60 * 1000L
     val progress = if (focusMs > 0) (elapsedMs.toFloat() / focusMs).coerceIn(0f, 1f) else 0f
-    
+
+    // ----- Today's focus stats (shared by goal card + summary card) -----
+    val logs by viewModel.allStudyLogs.collectAsStateWithLifecycle()
+    val chaptersList by viewModel.allChapters.collectAsStateWithLifecycle(emptyList())
+    val testsList by viewModel.allSubjectTests.collectAsStateWithLifecycle(emptyList())
+
+    val startOfToday = java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.HOUR_OF_DAY, 0)
+        set(java.util.Calendar.MINUTE, 0)
+        set(java.util.Calendar.SECOND, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    val todayStr = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+    val todayLog = logs.find { it.dateString == todayStr }
+    val todayStudyTimeMs = (todayLog?.studyTimeMs ?: 0L) + (todayLog?.revisionTimeMs ?: 0L)
+
+    val totalTodayMins = kotlin.math.ceil(todayStudyTimeMs / 60000.0).toInt()
+    val hToday = totalTodayMins / 60
+    val mToday = totalTodayMins % 60
+    val todayStudyTimeStr = if (hToday > 0) "${hToday}h ${mToday}m" else "${mToday}m"
+
+    val focusSessionsToday = todayLog?.focusSessions ?: 0
+    val chaptersCompletedToday = chaptersList.count { (it.firstStudyDateMs ?: 0L) >= startOfToday }
+
+    val totalObtained = testsList.sumOf { it.marksObtained.toDouble() }
+    val totalMax = testsList.sumOf { it.totalMarks.toDouble() }
+    val accuracyValue = if (totalMax > 0.0) "${(totalObtained / totalMax * 100).toInt()}%" else "--"
+
+    val goalMins = settings.dailyFocusGoalMins.coerceAtLeast(1)
+    val progressPercent = ((totalTodayMins.toFloat() / goalMins.toFloat()) * 100).toInt().coerceIn(0, 100)
+
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showAmbientSoundSheet by remember { mutableStateOf(false) }
 
@@ -253,6 +274,21 @@ fun TimerScreen(
                     errorMessage = ""
                 }
             }
+        }
+    }
+
+    // NEW: quick duration presets use the exact same profile-update path as settings.
+    val updateActiveDuration: (Int) -> Unit = { mins ->
+        userProfile?.let { profile ->
+            val updated = settings.copy(
+                focusDuration = mins,
+                studyModeDurationMins = if (activeMode == "Study Mode") mins else settings.studyModeDurationMins,
+                revisionModeDurationMins = if (activeMode == "Revision Mode") mins else settings.revisionModeDurationMins,
+                practiceModeDurationMins = if (activeMode == "Practice Mode") mins else settings.practiceModeDurationMins,
+                mockTestModeDurationMins = if (activeMode == "Mock Test Mode") mins else settings.mockTestModeDurationMins,
+                writingPracticeModeDurationMins = if (activeMode == "Writing Practice Mode") mins else settings.writingPracticeModeDurationMins
+            )
+            viewModel.updateUserProfile(profile.copy(focusSettings = updated))
         }
     }
 
@@ -354,7 +390,7 @@ fun TimerScreen(
                             viewModel.cancelCompletionNotification()
                             viewModel.resetTimer()
                         },
-                        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = FocusTextDark)
@@ -409,25 +445,49 @@ fun TimerScreen(
         )
     }
 
+    var showStopDialog by remember { mutableStateOf(false) }
+
+    val statusLabel = when (activeMode) {
+        "Study Mode" -> "STUDYING"
+        "Revision Mode" -> "REVISING"
+        "Practice Mode" -> "PRACTICING"
+        "Mock Test Mode" -> "TESTING"
+        "Writing Practice Mode" -> "WRITING"
+        else -> "FOCUSING"
+    }
+    val isBreakSession = currentSessionTypeState == "Break"
+
     Scaffold(
         containerColor = FocusBgLight,
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            "Focus",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            letterSpacing = (-0.3).sp,
-                            color = FocusTextDark
-                        )
-                        Text(
-                            "Stay in the zone",
-                            fontSize = 10.5.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = FocusTextGray
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(Brush.linearGradient(listOf(FocusPurple, Color(0xFFA78BFA)))),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Timer, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                "Focus",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                letterSpacing = (-0.5).sp,
+                                color = FocusTextDark
+                            )
+                            Text(
+                                "Stay in the zone",
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = FocusTextGray
+                            )
+                        }
                     }
                 },
                 navigationIcon = {
@@ -444,17 +504,21 @@ fun TimerScreen(
                 },
                 actions = {
                     Row(modifier = Modifier.padding(end = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        val context = androidx.compose.ui.platform.LocalContext.current
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color.White)
+                                .background(if (settings.soundEnabled && settings.ambientSound != "None") Color(0xFFF1EEFF) else Color.White)
                                 .border(1.dp, Color(0xFFE7EAF3), CircleShape)
                                 .clickable { showAmbientSoundSheet = true },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.MusicNote, contentDescription = "Music", tint = FocusTextDark, modifier = Modifier.size(19.dp))
+                            Icon(
+                                Icons.Default.MusicNote,
+                                contentDescription = "Music",
+                                tint = if (settings.soundEnabled && settings.ambientSound != "None") FocusPurple else FocusTextDark,
+                                modifier = Modifier.size(19.dp)
+                            )
                         }
                         Box(
                             modifier = Modifier
@@ -469,7 +533,7 @@ fun TimerScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = FocusBgLight)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FocusBgLight)
             )
         }
     ) { padding ->
@@ -480,190 +544,311 @@ fun TimerScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Row: Choose Topic Button
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                horizontalArrangement = Arrangement.Center
+
+            // ---------- 1. QUICK MODE SELECTOR (new premium feature) ----------
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SectionKicker("CHOOSE YOUR MODE")
+                    if (isSavingMode) {
+                        Text("Saving...", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = FocusTextGray)
+                    } else if (saveSuccess) {
+                        Text("✓ Synced", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val modeOptions = listOf(
+                        "Study Mode" to Icons.Default.School,
+                        "Revision Mode" to Icons.Default.History,
+                        "Practice Mode" to Icons.Default.FitnessCenter,
+                        "Mock Test Mode" to Icons.Default.Assignment,
+                        "Writing Practice Mode" to Icons.Default.Edit
+                    )
+                    modeOptions.forEach { (mode, icon) ->
+                        ModePill(
+                            label = mode.replace(" Mode", ""),
+                            icon = icon,
+                            selected = mode == activeMode,
+                            enabled = !isSavingMode && !isRunning && !isPaused,
+                            onClick = { changeMode(mode) }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ---------- 2. DAILY GOAL CARD (new premium feature) ----------
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.size(58.dp), contentAlignment = Alignment.Center) {
+                        MiniGoalRing(progress = progressPercent / 100f, modifier = Modifier.fillMaxSize())
+                        Icon(
+                            Icons.Default.LocalFireDepartment,
+                            contentDescription = null,
+                            tint = FocusPurple,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        SectionKicker("DAILY FOCUS GOAL")
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "$totalTodayMins / $goalMins min",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = FocusTextDark
+                        )
+                        Spacer(modifier = Modifier.height(7.dp))
+                        LinearProgressIndicator(
+                            progress = { progressPercent / 100f },
+                            modifier = Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(4.dp)),
+                            color = FocusPurple,
+                            trackColor = Color(0xFFF1EEFF)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "$progressPercent%",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = FocusPurple
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ---------- 3. CHAPTER SELECTOR ----------
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                 Box(
                     modifier = Modifier
-                        .shadow(8.dp, RoundedCornerShape(24.dp), spotColor = FocusPurple)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(androidx.compose.ui.graphics.Brush.horizontalGradient(listOf(FocusPurple, Color(0xFF8B5CF6))))
-                        .clickable(enabled = !isRunning) { 
-                            showTopicSelectionSheet = true 
-                        }
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Brush.horizontalGradient(listOf(FocusPurple, Color(0xFF8B5CF6))))
+                        .clickable(enabled = !isRunning) { showTopicSelectionSheet = true }
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(Icons.Default.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        
+                        Spacer(modifier = Modifier.width(10.dp))
                         val buttonText = if (currentChapterName.isNotEmpty()) {
                             "📚 ${currentChapterName.uppercase()}"
                         } else {
                             "Choose Chapter"
                         }
-                        
                         Text(
                             text = buttonText,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.widthIn(max = 240.dp)
+                            modifier = Modifier.weight(1f)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Study Session Section
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+            // ---------- 4. SESSION CYCLE TRACKER ----------
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "Study Session",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = FocusTextDark
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val currentSession = sessionCount.coerceIn(1, 4)
-                    for (i in 1..4) {
-                        val isActive = i <= currentSession
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .clip(CircleShape)
-                                .background(if (isActive) FocusPurple else Color(0xFFCBD5E1))
-                        )
-                    }
+                val currentSession = sessionCount.coerceIn(1, 4)
+                for (i in 1..4) {
+                    Box(
+                        modifier = Modifier
+                            .width(34.dp)
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(if (i <= currentSession) FocusPurple else Color(0xFFE1DDF0))
+                    )
+                    if (i < 4) Spacer(modifier = Modifier.width(6.dp))
                 }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "SESSION $currentSession / 4",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = FocusTextGray
+                )
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Timer Circle Room
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // ---------- 5. GRADIENT TIMER RING ----------
             Box(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Background Pulse Animation
                 if (isRunning) {
                     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                     val pulseScale by infiniteTransition.animateFloat(
                         initialValue = 1f,
-                        targetValue = 1.15f,
+                        targetValue = 1.07f,
                         animationSpec = infiniteRepeatable(
-                            animation = tween(1500, easing = FastOutSlowInEasing),
+                            animation = tween(1600, easing = FastOutSlowInEasing),
                             repeatMode = RepeatMode.Reverse
                         ),
                         label = "scale"
                     )
                     val pulseAlpha by infiniteTransition.animateFloat(
-                        initialValue = 0.3f,
+                        initialValue = 0.16f,
                         targetValue = 0f,
                         animationSpec = infiniteRepeatable(
-                            animation = tween(1500, easing = FastOutSlowInEasing),
+                            animation = tween(1600, easing = FastOutSlowInEasing),
                             repeatMode = RepeatMode.Reverse
                         ),
                         label = "alpha"
                     )
                     Box(
                         modifier = Modifier
-                            .size(300.dp)
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
                             .scale(pulseScale)
                             .clip(CircleShape)
-                            .background(FocusPurple.copy(alpha = pulseAlpha))
+                            .background((if (isBreakSession) Color(0xFF0EA5A4) else FocusPurple).copy(alpha = pulseAlpha))
                     )
                 }
-                
-                // The circular progress
-                Box(modifier = Modifier.size(300.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        progress = { 1f },
-                        modifier = Modifier.fillMaxSize(),
-                        color = Color(0xFFF1F3F9),
-                        strokeWidth = 10.dp,
-                    )
-                    AnimatedCircularProgress(
+
+                Box(
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    PremiumTimerRing(
                         progress = progress,
-                        modifier = Modifier.fillMaxSize(),
-                        color = FocusPurple,
-                        strokeWidth = 10.dp,
-                        strokeCap = StrokeCap.Round
+                        isBreak = isBreakSession,
+                        modifier = Modifier.fillMaxSize()
                     )
-                    
+
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(modifier = Modifier.size(48.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFFF1EEFF)), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.TurnedInNot, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(24.dp))
+                        Surface(shape = RoundedCornerShape(50), color = if (isBreakSession) Color(0xFFECFDF5) else Color(0xFFF1EEFF)) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isBreakSession) Color(0xFF10B981) else FocusPurple)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (isBreakSession) "BREAK TIME" else statusLabel,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp,
+                                    color = if (isBreakSession) Color(0xFF0EA5A4) else FocusPurple
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        val statusLabel = when (activeMode) {
-                            "Study Mode" -> "STUDYING"
-                            "Revision Mode" -> "REVISING"
-                            "Practice Mode" -> "PRACTICING"
-                            "Mock Test Mode" -> "TESTING"
-                            "Writing Practice Mode" -> "WRITING"
-                            else -> "PRACTICING"
-                        }
-                        
-                        // Subject & Chapter Display
-                        if (currentSessionTypeState == "Break") {
-                            Text("Relaxation\nShort Break", color = FocusPurple, fontWeight = FontWeight.Black, fontSize = 14.sp, letterSpacing = 2.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        } else if (currentSubjectName.isNotEmpty() && currentChapterName.isNotEmpty()) {
-                            Text("$currentSubjectName\n$currentChapterName", color = FocusPurple, fontWeight = FontWeight.Black, fontSize = 14.sp, letterSpacing = 2.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        } else {
-                            Text("Please select a chapter to start studying.", color = FocusPurple, fontWeight = FontWeight.Black, fontSize = 14.sp, letterSpacing = 2.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        }
-                        
+                        Spacer(modifier = Modifier.height(10.dp))
+
                         val remainingMs = (focusMs - elapsedMs).coerceAtLeast(0L)
-                        val m = (remainingMs / 1000) / 60
-                        val s = (remainingMs / 1000) % 60
-                        Text(String.format("%02d:%02d", m, s), fontSize = 72.sp, fontWeight = FontWeight.Bold, color = FocusTextDark, letterSpacing = (-2).sp)
-                        
+                        val minsLeft = (remainingMs / 1000) / 60
+                        val secsLeft = (remainingMs / 1000) % 60
+                        Text(
+                            String.format("%02d:%02d", minsLeft, secsLeft),
+                            fontSize = 62.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = FocusTextDark,
+                            letterSpacing = (-2).sp
+                        )
+
                         val elapsedM = (elapsedMs / 1000) / 60
                         val elapsedS = (elapsedMs / 1000) % 60
                         Text(
                             text = String.format("Elapsed: %02d:%02d", elapsedM, elapsedS),
-                            fontSize = 13.sp,
+                            fontSize = 12.5.sp,
                             color = FocusTextGray,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.testTag("timer_elapsed_text")
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
 
-                        Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF1EEFF)) {
-                            Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Outlined.Timer, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(String.format("%02d:00", focusDurationMins), fontSize = 14.sp, color = FocusPurple, fontWeight = FontWeight.Bold)
-                            }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val focusContext = when {
+                            isBreakSession -> "Relax • Recharge • Return"
+                            currentSubjectName.isNotEmpty() && currentChapterName.isNotEmpty() -> "$currentSubjectName • $currentChapterName"
+                            else -> "Select a chapter to begin"
                         }
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            focusContext,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = FocusTextGray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 28.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "of $focusDurationMins min session",
+                            fontSize = 11.sp,
+                            color = Color(0xFF8A94A6)
+                        )
                     }
                 }
-            }    
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            // Controls
-            var showStopDialog by remember { mutableStateOf(false) }
+            }
 
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // ---------- 6. QUICK DURATION PRESETS (new premium feature) ----------
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                SectionKicker("QUICK SESSION LENGTH")
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(15, 25, 45, 60, 90).forEach { mins ->
+                        val isSelected = mins == focusDurationMins
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) Color(0xFFF1EEFF) else Color.White)
+                                .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                                .clickable(enabled = !isRunning && !isPaused && !isBreakSession) { updateActiveDuration(mins) }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                "${mins}m",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) FocusPurple else FocusTextDark
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ---------- 7. PREMIUM CONTROLS (logic & testTags unchanged) ----------
             if (showStopDialog) {
                 AlertDialog(
                     onDismissRequest = { showStopDialog = false },
@@ -723,42 +908,52 @@ fun TimerScreen(
                 )
             }
 
-            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 val controlsEnabled = (currentChapterId.isNotEmpty() || effectiveTopicId.isNotEmpty()) && !isSavingCompletion
-                
+
+                // Stop
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val stopClickable = controlsEnabled
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(62.dp)
                             .clip(CircleShape)
-                            .background(if (stopClickable) Color(0xFFF1EEFF) else Color(0xFFE7EAF3))
-                            .clickable(enabled = stopClickable) { 
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .clickable(enabled = stopClickable) {
                                 if (elapsedMs > 0 || isRunning || isPaused) showStopDialog = true else navController.popBackStack()
                             }
                             .testTag("timer_stop_button"),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.Stop, 
-                            contentDescription = "Stop", 
-                            tint = if (stopClickable) FocusPurple else Color(0xFF8A94A6), 
-                            modifier = Modifier.size(28.dp)
+                            Icons.Default.Stop,
+                            contentDescription = "Stop",
+                            tint = if (stopClickable) FocusTextDark else Color(0xFF8A94A6),
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Stop", fontSize = 14.sp, color = if (stopClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
+                    Text("Stop", fontSize = 13.sp, color = if (stopClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
                 }
-                
-                Spacer(modifier = Modifier.width(32.dp))
-                
+
+                Spacer(modifier = Modifier.width(28.dp))
+
+                // Play / Pause — gradient hero button
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val startEnabled = controlsEnabled
                     Box(
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(84.dp)
                             .clip(CircleShape)
-                            .background(if (startEnabled) Color(0xFF6C4DFF) else Color(0xFF8A94A6))
+                            .background(
+                                if (startEnabled) Brush.linearGradient(listOf(FocusPurple, Color(0xFF8B5CF6)))
+                                else Brush.linearGradient(listOf(Color(0xFFB8BECB), Color(0xFFB8BECB)))
+                            )
                             .clickable(enabled = startEnabled) {
                                 if (isRunning && !isPaused) {
                                     viewModel.pauseTimer()
@@ -774,36 +969,37 @@ fun TimerScreen(
                                     )
                                 }
                             }
-                            .then(if (startEnabled) Modifier.shadow(4.dp, CircleShape, spotColor = Color(0xFF6C4DFF)) else Modifier)
                             .testTag("timer_play_pause_button"),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            if (isRunning && !isPaused) Icons.Default.Pause else Icons.Default.PlayArrow, 
-                            contentDescription = if (isRunning && !isPaused) "Pause" else "Start or Resume", 
-                            tint = Color.White, 
+                            if (isRunning && !isPaused) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isRunning && !isPaused) "Pause" else "Start or Resume",
+                            tint = Color.White,
                             modifier = Modifier.size(40.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        if (isRunning && !isPaused) "Pause" else if (isPaused || elapsedMs > 0) "Resume" else "Start", 
-                        fontSize = 14.sp, 
-                        color = if (startEnabled) FocusTextDark else Color.Gray, 
+                        if (isRunning && !isPaused) "Pause" else if (isPaused || elapsedMs > 0) "Resume" else "Start",
+                        fontSize = 13.sp,
+                        color = if (startEnabled) FocusTextDark else Color.Gray,
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(32.dp))
-                
+
+                Spacer(modifier = Modifier.width(28.dp))
+
+                // Skip
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val skipClickable = controlsEnabled
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(62.dp)
                             .clip(CircleShape)
-                            .background(if (skipClickable) Color(0xFFF1EEFF) else Color(0xFFE7EAF3))
-                            .clickable(enabled = skipClickable) { 
+                            .background(Color.White)
+                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .clickable(enabled = skipClickable) {
                                 viewModel.skipSession(
                                     chapterId = currentChapterId,
                                     elapsedMs = elapsedMs,
@@ -817,17 +1013,60 @@ fun TimerScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.SkipNext, 
-                            contentDescription = "Skip", 
-                            tint = if (skipClickable) FocusPurple else Color(0xFF8A94A6), 
-                            modifier = Modifier.size(28.dp)
+                            Icons.Default.SkipNext,
+                            contentDescription = "Skip",
+                            tint = if (skipClickable) FocusTextDark else Color(0xFF8A94A6),
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Skip", fontSize = 14.sp, color = if (skipClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
+                    Text("Skip", fontSize = 13.sp, color = if (skipClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
                 }
             }
 
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ---------- 8. AMBIENT SOUND QUICK PILL (new premium feature) ----------
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFE7EAF3), RoundedCornerShape(16.dp))
+                    .clickable { showAmbientSoundSheet = true }
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFF1EEFF)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(17.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Ambient Sound", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = FocusTextDark)
+                    Text(
+                        if (settings.ambientSound == "None" || !settings.soundEnabled) "Off — tap to choose a sound" else settings.ambientSound,
+                        fontSize = 11.sp,
+                        color = FocusTextGray
+                    )
+                }
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF8A94A6), modifier = Modifier.size(18.dp))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ---------- 9. ROTATING FOCUS TIP (new premium feature) ----------
+            Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                FocusTipCard()
+            }
+
+            // ---------- 10. COMPLETE & SAVE (unchanged logic) ----------
             if (effectiveTopicId.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Button(
@@ -856,7 +1095,7 @@ fun TimerScreen(
                     enabled = !isSavingCompletion,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp)
+                        .padding(horizontal = 20.dp)
                         .height(52.dp)
                         .testTag("complete_session_button"),
                     shape = RoundedCornerShape(16.dp),
@@ -872,91 +1111,62 @@ fun TimerScreen(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
 
-            // Today's Focus Summary
-            val logs by viewModel.allStudyLogs.collectAsStateWithLifecycle()
-            val chaptersList by viewModel.allChapters.collectAsStateWithLifecycle(emptyList())
-            val testsList by viewModel.allSubjectTests.collectAsStateWithLifecycle(emptyList())
-            
-            // basic calculation for today
-            val todayMs = System.currentTimeMillis()
-            val calendar = java.util.Calendar.getInstance().apply {
-                set(java.util.Calendar.HOUR_OF_DAY, 0)
-                set(java.util.Calendar.MINUTE, 0)
-                set(java.util.Calendar.SECOND, 0)
-                set(java.util.Calendar.MILLISECOND, 0)
-            }
-            val startOfToday = calendar.timeInMillis
-            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-            val todayStr = dateFormat.format(java.util.Date(todayMs))
-            val todayLog = logs.find { it.dateString == todayStr }
-            val todayStudyTimeMs = (todayLog?.studyTimeMs ?: 0L) + (todayLog?.revisionTimeMs ?: 0L)
-            
-            val totalTodayMins = kotlin.math.ceil(todayStudyTimeMs / 60000.0).toInt()
-            val h = totalTodayMins / 60
-            val m = totalTodayMins % 60
-            val todayStudyTimeStr = if (h > 0) "${h}h ${m}m" else "${m}m"
-            
-            val focusSessionsToday = todayLog?.focusSessions ?: 0
-            val chaptersCompletedToday = chaptersList.count { 
-                val fDate = it.firstStudyDateMs ?: 0L
-                fDate >= startOfToday
-            }
-            
-            val totalObtained = testsList.sumOf { it.marksObtained.toDouble() }
-            val totalMax = testsList.sumOf { it.totalMarks.toDouble() }
-            val accuracyValue = if (totalMax > 0.0) {
-                "${(totalObtained / totalMax * 100).toInt()}%"
-            } else {
-                "--"
-            }
-            
-            val goalMins = settings.dailyFocusGoalMins.coerceAtLeast(1)
-            val progressPercent = ((totalTodayMins.toFloat() / goalMins.toFloat()) * 100).toInt().coerceIn(0, 100)
-            
+            // ---------- 11. GOAL-REACHED BADGE ----------
             if (progressPercent >= 100) {
+                Spacer(modifier = Modifier.height(16.dp))
                 CongratsBadgeCard(
                     goalTarget = goalMins,
                     unitName = "minutes of focus",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
             }
-            
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FocusTextDark)
-                    Row(modifier = Modifier.clickable { navController.navigate(AnalyticsRoute) { popUpTo(DashboardRoute) } }, verticalAlignment = Alignment.CenterVertically) {
+
+            // ---------- 12. TODAY'S SUMMARY ----------
+            Spacer(modifier = Modifier.height(24.dp))
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FocusTextDark)
+                        Text("Your progress at a glance", fontSize = 11.sp, color = FocusTextGray)
+                    }
+                    Row(
+                        modifier = Modifier.clickable { navController.navigate(AnalyticsRoute) { popUpTo(DashboardRoute) } },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text("View All", color = FocusPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(16.dp))
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Card(
-                    modifier = Modifier.fillMaxWidth().shadow(1.dp, RoundedCornerShape(16.dp)),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                        SummaryColumnItem(Icons.Default.Timer, Color(0xFF8B5CF6), Color(0xFFF1EEFF), "Study Time", todayStudyTimeStr)
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F3F9)))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 18.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SummaryColumnItem(Icons.Default.Timer, Color(0xFF6C4DFF), Color(0xFFF1EEFF), "Study Time", todayStudyTimeStr)
+                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(Color(0xFFE7EAF3)))
                         SummaryColumnItem(Icons.Default.MenuBook, Color(0xFF3B82F6), Color(0xFFEFF6FF), "Sessions", "$focusSessionsToday")
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F3F9)))
+                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(Color(0xFFE7EAF3)))
                         SummaryColumnItem(Icons.Default.FactCheck, Color(0xFF22C55E), Color(0xFFECFDF5), "Chapters Done", "$chaptersCompletedToday")
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color(0xFFF1F3F9)))
+                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(Color(0xFFE7EAF3)))
                         SummaryColumnItem(Icons.Default.Adjust, Color(0xFFF43F5E), Color(0xFFFFF1F2), "Accuracy", accuracyValue)
                     }
                 }
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
+
             Spacer(modifier = Modifier.height(40.dp))
         }
     }
@@ -1054,7 +1264,7 @@ fun FocusSettingsBottomSheet(
                 onSelect = { draftSettings = draftSettings.copy(longBreakDuration = it) }
             )
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFF1F3F9))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
 
             // Toggles
             SettingSectionTitle("🔄 Automation")
@@ -1062,7 +1272,7 @@ fun FocusSettingsBottomSheet(
                 draftSettings = draftSettings.copy(autoStartFocus = it)
             }
             
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFF1F3F9))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = MaterialTheme.colorScheme.surfaceVariant)
 
             SettingSectionTitle("📳 Feedback")
             SwitchSettingItem("Enable Vibration", draftSettings.vibrationEnabled) {
@@ -1097,7 +1307,7 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) FocusPurple else Color.White)
-                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
@@ -1132,7 +1342,7 @@ fun DurationSelectorStr(options: List<String>, selected: String, onSelect: (Stri
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) FocusPurple else Color.White)
-                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
@@ -1202,6 +1412,205 @@ fun AmbientSoundBottomSheet(
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+/* ============================================================================
+   PREMIUM TIMER UI COMPONENTS
+   Pure UI building blocks — no new data sources, no changes to timer logic.
+   ============================================================================ */
+
+/** Gradient arc timer ring with subtle tick marks around it. */
+@Composable
+private fun PremiumTimerRing(
+    progress: Float,
+    isBreak: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val accentA = if (isBreak) Color(0xFF0EA5A4) else Color(0xFF6C4DFF)
+    val accentB = if (isBreak) Color(0xFF34D399) else Color(0xFFA78BFA)
+    Canvas(modifier = modifier) {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val stroke = 13.dp.toPx()
+        val radius = (size.minDimension - stroke - 12.dp.toPx()) / 2f
+        val arcTopLeft = Offset(cx - radius, cy - radius)
+        val arcSize = Size(radius * 2f, radius * 2f)
+
+        // Decorative minute ticks
+        for (i in 0 until 48) {
+            val angle = (i * 7.5f - 90f) * (kotlin.math.PI.toFloat() / 180f)
+            val cos = kotlin.math.cos(angle)
+            val sin = kotlin.math.sin(angle)
+            val inner = radius + stroke / 2f + 4.dp.toPx()
+            val outer = inner + if (i % 4 == 0) 7.dp.toPx() else 3.dp.toPx()
+            drawLine(
+                color = Color(0xFFD9D2EE).copy(alpha = if (i % 4 == 0) 0.9f else 0.45f),
+                start = Offset(cx + inner * cos, cy + inner * sin),
+                end = Offset(cx + outer * cos, cy + outer * sin),
+                strokeWidth = if (i % 4 == 0) 1.8.dp.toPx() else 1.dp.toPx()
+            )
+        }
+
+        // Track
+        drawArc(
+            color = Color(0xFFEBE7F6),
+            startAngle = 0f,
+            sweepAngle = 360f,
+            useCenter = false,
+            topLeft = arcTopLeft,
+            size = arcSize,
+            style = Stroke(width = stroke)
+        )
+
+        // Animated progress arc
+        val sweep = 360f * progress.coerceIn(0f, 1f)
+        if (sweep > 0.5f) {
+            drawArc(
+                brush = Brush.sweepGradient(
+                    colors = listOf(accentA, accentB, accentA),
+                    center = Offset(cx, cy)
+                ),
+                startAngle = -90f,
+                sweepAngle = sweep,
+                useCenter = false,
+                topLeft = arcTopLeft,
+                size = arcSize,
+                style = Stroke(width = stroke, cap = StrokeCap.Round)
+            )
+        }
+    }
+}
+
+/** Small circular ring used by the daily goal card. */
+@Composable
+private fun MiniGoalRing(progress: Float, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val stroke = 7.dp.toPx()
+        val radius = (size.minDimension - stroke) / 2f
+        val topLeft = Offset(cx - radius, cy - radius)
+        val arcSize = Size(radius * 2f, radius * 2f)
+        drawArc(Color(0xFFEBE7F6), 0f, 360f, false, topLeft, arcSize, style = Stroke(width = stroke))
+        val sweep = 360f * progress.coerceIn(0f, 1f)
+        if (sweep > 0.5f) {
+            drawArc(
+                brush = Brush.sweepGradient(
+                    colors = listOf(Color(0xFF6C4DFF), Color(0xFFA78BFA), Color(0xFF6C4DFF)),
+                    center = Offset(cx, cy)
+                ),
+                startAngle = -90f,
+                sweepAngle = sweep,
+                useCenter = false,
+                topLeft = topLeft,
+                size = arcSize,
+                style = Stroke(width = stroke, cap = StrokeCap.Round)
+            )
+        }
+    }
+}
+
+/** Premium pill used in the quick study-mode selector. */
+@Composable
+private fun ModePill(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(if (selected) FocusPurple else Color.White)
+            .border(1.dp, if (selected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
+            .clickable(enabled = enabled) { onClick() }
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = if (selected) Color.White else FocusPurple,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                label,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (selected) Color.White else FocusTextDark
+            )
+        }
+    }
+}
+
+/** Small uppercase section label used across the new timer screen. */
+@Composable
+private fun SectionKicker(text: String) {
+    Text(
+        text = text,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.2.sp,
+        color = Color(0xFF8A94A6)
+    )
+}
+
+/** Rotating motivation card — purely visual, auto-advances every 7 seconds. */
+@Composable
+private fun FocusTipCard() {
+    val tips = listOf(
+        "Small steps every day add up to big results.",
+        "You don't have to see the whole staircase — just take the first step.",
+        "Deep work beats long hours. Stay in the zone.",
+        "Consistency is the secret weapon of top performers.",
+        "Every focused minute is an investment in your future self."
+    )
+    var index by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(7000L)
+            index = (index + 1) % tips.size
+        }
+    }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        border = BorderStroke(1.dp, Color(0xFFE4DBFF)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Info, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(18.dp))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            AnimatedContent(
+                targetState = index,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "focus_tip"
+            ) { idx ->
+                Text(
+                    text = tips[idx],
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = FocusTextDark,
+                    lineHeight = 18.sp
+                )
+            }
         }
     }
 }

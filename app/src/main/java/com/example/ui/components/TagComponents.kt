@@ -86,7 +86,7 @@ fun getTagVisuals(tagName: String): TagVisuals {
         // Purple / Theory (Notes, Read, Literature, History, Theory)
         lower.contains("theory") || lower.contains("notes") || lower.contains("read") || lower.contains("book") -> {
             TagVisuals(
-                backgroundColor = Color(0xFFF1EEFF),
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 textColor = Color(0xFF6C4DFF),
                 borderColor = Color(0xFFDCD6FF),
                 description = "Theoretical Concepts"
@@ -104,7 +104,7 @@ fun getTagVisuals(tagName: String): TagVisuals {
         // Indigo / Exam (Exam, Test, Mock, PYQ)
         lower.contains("exam") || lower.contains("test") || lower.contains("mock") || lower.contains("pyq") || lower.contains("board") -> {
             TagVisuals(
-                backgroundColor = Color(0xFFF1EEFF),
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 textColor = Color(0xFF4F46E5),
                 borderColor = Color(0xFFC7D2FE),
                 description = "Exam Target"
@@ -123,8 +123,8 @@ fun getTagVisuals(tagName: String): TagVisuals {
             // Safe, deterministic hash-based theme assignment
             val index = Math.abs(tagName.hashCode()) % 7
             val bgs = listOf(
-                Color(0xFFF1EEFF), Color(0xFFECFDF5), Color(0xFFEFF6FF),
-                Color(0xFFFFF1F2), Color(0xFFFFFBEB), Color(0xFFF1EEFF), Color(0xFFFDF2F8)
+                MaterialTheme.colorScheme.primaryContainer, Color(0xFFECFDF5), Color(0xFFEFF6FF),
+                Color(0xFFFFF1F2), Color(0xFFFFFBEB), MaterialTheme.colorScheme.primaryContainer, Color(0xFFFDF2F8)
             )
             val txts = listOf(
                 Color(0xFF6C4DFF), Color(0xFF059669), Color(0xFF2563EB),
@@ -232,7 +232,7 @@ fun TagEditDialog(
                     text = "Organize Tags",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
@@ -246,7 +246,7 @@ fun TagEditDialog(
                     text = "Current Tags",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF5B6478)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -256,8 +256,8 @@ fun TagEditDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(60.dp)
-                            .background(Color(0xFFF6F7FB), RoundedCornerShape(12.dp))
-                            .border(BorderStroke(1.dp, Color(0xFFE7EAF3)), RoundedCornerShape(12.dp)),
+                            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp))
+                            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -293,7 +293,7 @@ fun TagEditDialog(
                     text = "Add Custom Tag",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF5B6478)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -311,7 +311,7 @@ fun TagEditDialog(
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF6C4DFF),
-                            unfocusedBorderColor = Color(0xFFCBD5E1),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White
                         )
@@ -326,7 +326,7 @@ fun TagEditDialog(
                             }
                         },
                         colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color(0xFFF1EEFF),
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = Color(0xFF6C4DFF)
                         ),
                         modifier = Modifier
@@ -343,7 +343,7 @@ fun TagEditDialog(
                     text = "Quick Presets (Tap to Add)",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF5B6478)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -361,12 +361,12 @@ fun TagEditDialog(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
-                                    if (isAlreadyAdded) visuals.backgroundColor else Color(0xFFF6F7FB)
+                                    if (isAlreadyAdded) visuals.backgroundColor else MaterialTheme.colorScheme.background
                                 )
                                 .border(
                                     BorderStroke(
                                         width = 1.dp,
-                                        color = if (isAlreadyAdded) visuals.borderColor else Color(0xFFE7EAF3)
+                                        color = if (isAlreadyAdded) visuals.borderColor else MaterialTheme.colorScheme.outlineVariant
                                     ),
                                     RoundedCornerShape(8.dp)
                                 )
@@ -418,7 +418,7 @@ fun TagEditDialog(
                 onClick = onDismiss,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Cancel", color = Color(0xFF5B6478))
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     )

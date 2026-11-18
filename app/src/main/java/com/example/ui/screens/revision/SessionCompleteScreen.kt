@@ -55,14 +55,16 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 // Redesigned premium colors to match prompt spec
-private val ScreenBackground = Color(0xFFFFFFFF)
-private val CardBackground = Color(0xFFFFFFFF)
-private val TextDark = Color(0xFF0F172A)
-private val TextGray = Color(0xFF5B6478)
+private val ScreenBackground: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+private val CardBackground: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+private val TextDark = MaterialTheme.colorScheme.onSurface
+private val TextGray = MaterialTheme.colorScheme.onSurfaceVariant
 
 private val PurplePrimary = Color(0xFF7C4DFF)
 private val PurpleGlow = Color(0xFF7C4DFF).copy(alpha = 0.15f)
-private val PurpleLight = Color(0xFFF3E8FF)
+private val PurpleLight = MaterialTheme.colorScheme.primaryContainer
 
 private val TrophyBadgeGreen = Color(0xFF10B981)
 
@@ -384,7 +386,7 @@ fun SessionCompleteScreen(
                                 modifier = Modifier
                                     .width(1.dp)
                                     .height(48.dp)
-                                    .background(Color(0xFFE7EAF3))
+                                    .background(MaterialTheme.colorScheme.outlineVariant)
                             )
 
                             Column(

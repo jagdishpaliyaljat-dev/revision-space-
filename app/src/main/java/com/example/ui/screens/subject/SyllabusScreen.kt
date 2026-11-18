@@ -44,12 +44,13 @@ import java.util.concurrent.TimeUnit
 
 val BluePrimary = Color(0xFF3B82F6)
 val SyllabusPurplePrimary = Color(0xFF6C4DFF)
-val SyllabusPurpleLight = Color(0xFFF1EEFF)
-val BackgroundWhite = Color(0xFFF6F7FB) // Image shows a very light off-white background
-val CardWhite = Color(0xFFFFFFFF)
-val SurfaceGray = Color(0xFFE7EAF3)
-val TextPrimary = Color(0xFF0F172A)
-val TextSecondary = Color(0xFF5B6478)
+val SyllabusPurpleLight = MaterialTheme.colorScheme.primaryContainer
+val BackgroundWhite = MaterialTheme.colorScheme.background // Image shows a very light off-white background
+val CardWhite: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+val SurfaceGray = MaterialTheme.colorScheme.outlineVariant
+val TextPrimary = MaterialTheme.colorScheme.onSurface
+val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

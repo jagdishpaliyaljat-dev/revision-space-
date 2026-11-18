@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -71,10 +72,14 @@ import java.util.*
 import com.airbnb.lottie.compose.*
 
 val DashPurplePrimary = Color(0xFF6C4DFF)
-val DashPurpleLight = Color(0xFFF1EEFF)
-val DashBackground = Color(0xFFF6F7FB) // Sleek white-gray background
-val DashTextDark = Color(0xFF0F172A)
-val DashTextGray = Color(0xFF5B6478)
+val DashPurpleLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+val DashBackground: Color
+    @Composable get() = MaterialTheme.colorScheme.background
+val DashTextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val DashTextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -279,8 +284,8 @@ fun DashboardScreen(
                             modifier = Modifier
                                 .padding(start = 12.dp)
                                 .size(42.dp)
-                                .background(Color.White, RoundedCornerShape(14.dp))
-                                .border(1.dp, Color(0xFFE7EAF3), RoundedCornerShape(14.dp))
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
                         ) {
                             Icon(Icons.Default.Menu, contentDescription = "Menu", tint = DashTextDark, modifier = Modifier.size(20.dp))
                         }
@@ -290,8 +295,8 @@ fun DashboardScreen(
                         Box(
                             modifier = Modifier
                                 .size(42.dp)
-                                .background(Color.White, RoundedCornerShape(14.dp))
-                                .border(1.dp, Color(0xFFE7EAF3), RoundedCornerShape(14.dp))
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
                                 .clickable {
                                     onNavigateToNotifications()
                                 },
@@ -323,7 +328,7 @@ fun DashboardScreen(
                             modifier = Modifier
                                 .padding(end = 16.dp)
                                 .size(46.dp)
-                                .background(Color(0xFFEDE9FF), CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
                                 .padding(2.dp)
                                 .clip(CircleShape)
                                 .background(DashPurplePrimary)
@@ -427,9 +432,9 @@ fun DashboardScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 20.dp, vertical = 12.dp)
                                 .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                             shape = RoundedCornerShape(24.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(24.dp),
@@ -685,9 +690,9 @@ fun DashboardScreen(
                         if (combinedDue.isEmpty()) {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F7FB)),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                                 shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                             ) {
                                 Box(
                                     modifier = Modifier.fillMaxWidth().padding(24.dp),
@@ -713,9 +718,9 @@ fun DashboardScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 20.dp, vertical = 6.dp)
                                 .clickable { onNavigateToTopic(topic.topicId) },
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                             shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
                             Column(
@@ -790,6 +795,97 @@ fun DashboardScreen(
 
                 // 4. STUDY TOOLS SECTION
                 item {
+                    Column(modifier = Modifier.padding(top = 12.dp, bottom = 20.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(RoundedCornerShape(11.dp))
+                                    .background(DashPurplePrimary.copy(alpha = 0.10f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.GridView,
+                                    contentDescription = null,
+                                    tint = DashPurplePrimary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Study Tools",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 18.sp,
+                                    color = DashTextDark,
+                                    letterSpacing = (-0.2).sp
+                                )
+                                Text(
+                                    text = "Everything you need to revise smarter",
+                                    fontSize = 12.sp,
+                                    color = DashTextGray,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                            Text(
+                                text = "3 tools",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = DashPurplePrimary,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(999.dp))
+                                    .background(DashPurplePrimary.copy(alpha = 0.10f))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp)
+                            )
+                        }
+
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            item {
+                                StudyToolCard(
+                                    icon = Icons.Default.MenuBook,
+                                    title = "Syllabus",
+                                    subtitle = "Track Progress",
+                                    accent = Color(0xFF6C4DFF),
+                                    softBg = MaterialTheme.colorScheme.primaryContainer,
+                                    onClick = onNavigateToSyllabus
+                                )
+                            }
+                            item {
+                                StudyToolCard(
+                                    icon = Icons.Default.CalendarToday,
+                                    title = "Calendar",
+                                    subtitle = "Exam Schedule",
+                                    accent = Color(0xFF3B82F6),
+                                    softBg = Color(0xFFEAF2FF),
+                                    onClick = onNavigateToCalendar
+                                )
+                            }
+                            item {
+                                StudyToolCard(
+                                    icon = Icons.Default.BarChart,
+                                    title = "Analytics",
+                                    subtitle = "Study Reports",
+                                    accent = Color(0xFFD97706),
+                                    softBg = Color(0xFFFFF6E5),
+                                    onClick = onNavigateToAnalytics
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // 5. WEEKLY VISUALIZATION
+"""oldString">
+                // 4. STUDY TOOLS SECTION
+                item {
                     Column(modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)) {
                         Row(
                             modifier = Modifier
@@ -856,6 +952,7 @@ fun DashboardScreen(
                 }
 
                 // 5. WEEKLY VISUALIZATION
+"""
                 item {
                     WeeklyVisualizationSection(analyticsMetrics)
                 }
@@ -918,7 +1015,7 @@ fun DividerDivider(modifier: Modifier = Modifier) {
         modifier = modifier
             .width(1.dp)
             .height(36.dp)
-            .background(Color(0xFFE7EAF3))
+            .background(MaterialTheme.colorScheme.outlineVariant)
     )
 }
 
@@ -949,98 +1046,120 @@ fun StudyToolCard(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    iconBgColor: Color,
-    iconColor: Color,
+    accent: Color,
+    softBg: Color,
     pendingCount: Int = 0,
     progress: Float = 0f,
     onClick: () -> Unit
 ) {
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val tileBg = if (isDark) accent.copy(alpha = 0.22f) else softBg
+    val cardBg = MaterialTheme.colorScheme.surface
+
     Card(
         modifier = Modifier
-            .width(135.dp)
-            .shadow(2.dp, RoundedCornerShape(24.dp), spotColor = Color.Black.copy(alpha = 0.05f))
+            .width(160.dp)
+            .height(174.dp)
+            .shadow(6.dp, RoundedCornerShape(22.dp), spotColor = accent.copy(alpha = 0.16f))
             .bounceClick { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+        colors = CardDefaults.cardColors(containerColor = cardBg),
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, accent.copy(alpha = if (isDark) 0.25f else 0.12f))
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(54.dp)
-                    .clip(CircleShape) // Maintain circle shape matching iOS/Android design standards
-                    .background(iconBgColor),
-                contentAlignment = Alignment.Center
-            ) {
-                if (progress > 0f) {
-                    androidx.compose.material3.CircularProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxSize().padding(2.dp),
-                        color = iconColor,
-                        trackColor = Color.Transparent,
-                        strokeWidth = 3.dp
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(accent.copy(alpha = if (isDark) 0.10f else 0.05f), Color.Transparent)
                     )
-                }
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(24.dp)
                 )
-                if (pendingCount > 0) {
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
                     Box(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .offset(x = (-2).dp, y = 2.dp)
-                            .size(16.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFEF4444)),
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(tileBg),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = pendingCount.toString(),
-                            color = Color.White,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold
+                        if (progress > 0f) {
+                            CircularProgressIndicator(
+                                progress = { progress },
+                                modifier = Modifier.fillMaxSize().padding(2.dp),
+                                color = accent,
+                                trackColor = Color.Transparent,
+                                strokeWidth = 3.dp
+                            )
+                        }
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = accent,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        if (pendingCount > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = 4.dp, y = (-4).dp)
+                                    .size(18.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFEF4444)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = pendingCount.toString(),
+                                    color = Color.White,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(accent.copy(alpha = 0.08f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowOutward,
+                            contentDescription = null,
+                            tint = accent,
+                            modifier = Modifier.size(15.dp)
                         )
                     }
                 }
+
+                Column {
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 15.sp,
+                        color = DashTextDark,
+                        letterSpacing = (-0.2).sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = subtitle,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = DashTextGray
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            Text(
-                text = title,
-                fontWeight = FontWeight.Black,
-                fontSize = 14.sp,
-                color = DashTextDark,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = subtitle,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Medium,
-                color = DashTextGray,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = DashTextGray,
-                modifier = Modifier.size(16.dp)
-            )
         }
     }
 }
@@ -1177,9 +1296,9 @@ fun PremiumNearestExamCard(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -1191,7 +1310,7 @@ fun PremiumNearestExamCard(
                             .clip(CircleShape)
                             .background(
                                 brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFFEDE9FF), Color(0xFFF6F4FF))
+                                    colors = listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primaryContainer)
                                 )
                             ),
                         contentAlignment = Alignment.Center
@@ -1230,7 +1349,7 @@ fun PremiumNearestExamCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF6F4FF))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Row(
@@ -1261,7 +1380,7 @@ fun PremiumNearestExamCard(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
                                 .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(12.dp))
-                                .background(Color.White)
+                                .background(MaterialTheme.colorScheme.surface)
                                 .padding(horizontal = 8.dp, vertical = 4.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -1287,7 +1406,7 @@ fun PremiumNearestExamCard(
                         Text("${exam.progress.toInt()}%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = DashPurplePrimary)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE7EAF3))) {
+                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(MaterialTheme.colorScheme.outlineVariant)) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(animatedExamProgress)
@@ -1308,7 +1427,7 @@ fun PremiumNearestExamCard(
                 IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(24.dp)) {
                     Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = DashTextGray)
                 }
-                DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, modifier = Modifier.background(Color.White)) {
+                DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
                     DropdownMenuItem(
                         text = { Text("Edit") },
                         onClick = { menuExpanded = false; onEdit() },
@@ -1480,7 +1599,7 @@ fun AddExamDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showDatePicker = true }
-                        .border(1.dp, Color(0xFFCBD5E1), RoundedCornerShape(12.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                         .padding(horizontal = 14.dp, vertical = 14.dp)
                 ) {
                     Icon(Icons.Default.CalendarToday, contentDescription = "Select Date", tint = DashPurplePrimary)
@@ -1527,7 +1646,7 @@ fun AddExamDialog(
                 Text("Cancel", color = DashTextGray)
             }
         },
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }
 
@@ -1560,13 +1679,13 @@ fun DashboardDrawerContent(
     }
     
     ModalDrawerSheet(
-        drawerContainerColor = Color.White,
+        drawerContainerColor = MaterialTheme.colorScheme.surface,
         modifier = Modifier.width(340.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(
-                    color = Color(0xFFF3E8FF).copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
                     radius = 300.dp.toPx(),
                     center = Offset(0f, 0f)
                 )
@@ -1593,7 +1712,7 @@ fun DashboardDrawerContent(
                         modifier = Modifier
                             .size(36.dp)
                             .shadow(1.dp, CircleShape)
-                            .background(Color.White, CircleShape)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
                     ) {
                         Icon(Icons.Default.Close, contentDescription = "Close", tint = DashPurplePrimary, modifier = Modifier.size(20.dp))
                     }
@@ -1604,7 +1723,7 @@ fun DashboardDrawerContent(
                     modifier = Modifier.size(110.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(modifier = Modifier.size(110.dp).border(2.dp, Color(0xFFE5E0FF), CircleShape))
+                    Box(modifier = Modifier.size(110.dp).border(2.dp, MaterialTheme.colorScheme.primaryContainer, CircleShape))
                     Box(modifier = Modifier.size(90.dp).clip(CircleShape).background(DashPurpleLight), contentAlignment = Alignment.Center) {
                         DashboardProfileAvatar(imageUrl = userProfile?.profilePictureUrl, modifier = Modifier.fillMaxSize(), iconSize = 40.dp)
                     }
@@ -1627,7 +1746,7 @@ fun DashboardDrawerContent(
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                Surface(shape = RoundedCornerShape(16.dp), color = Color(0xFFF3E8FF)) {
+                Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                     Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
@@ -1642,7 +1761,7 @@ fun DashboardDrawerContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(20.dp),
                     elevation = CardDefaults.cardElevation(2.dp)
                 ) {
@@ -1662,7 +1781,7 @@ fun DashboardDrawerContent(
                             Text("Coins", fontSize = 13.sp, color = DashTextGray)
                         }
                         
-                        Box(modifier = Modifier.width(1.dp).height(60.dp).background(Color(0xFFF1F3F9)))
+                        Box(modifier = Modifier.width(1.dp).height(60.dp).background(MaterialTheme.colorScheme.surfaceVariant))
                         
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f).clickable { onNavigateToStreak(); closeDrawer() }) {
                             Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(Color(0xFFFFEDD5)), contentAlignment = Alignment.Center) {
@@ -1679,12 +1798,28 @@ fun DashboardDrawerContent(
                 
                 // Menu Items
                 Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    Text(
+                        "ACCOUNT",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = DashTextGray,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                    )
                     DrawerMenuItem2(icon = Icons.Default.SignalWifiOff, iconTint = Color(0xFF10B981), iconBg = Color(0xFFD1FAE5), title = "Offline Notes", subtitle = "Access notes locally", onClick = { onNavigateToOfflineNotes(); closeDrawer() })
-                    DrawerMenuItem2(icon = Icons.Default.Language, iconTint = DashPurplePrimary, iconBg = Color(0xFFF3E8FF), title = "Language", subtitle = "English", onClick = { onNavigateToLanguage(); closeDrawer() })
+                    DrawerMenuItem2(icon = Icons.Default.Language, iconTint = DashPurplePrimary, iconBg = MaterialTheme.colorScheme.primaryContainer, title = "Language", subtitle = "English", onClick = { onNavigateToLanguage(); closeDrawer() })
                     DrawerMenuItem2(icon = Icons.Default.HeadsetMic, iconTint = Color(0xFF3B82F6), iconBg = Color(0xFFEFF6FF), title = "Help & Support", subtitle = "Get help and support", onClick = { onNavigateToHelpAndSupport(); closeDrawer() })
-                    
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color(0xFFE7EAF3), thickness = 0.5.dp)
-                    
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+
+                    Text(
+                        "ACCOUNT ACTIONS",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = DashTextGray,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                    )
                     DrawerMenuItem2(icon = Icons.Default.Logout, iconTint = Color(0xFFEF4444), iconBg = Color(0xFFFFE4E6), title = "Logout", subtitle = "Sign out from your account", onClick = { onLogoutClick(); closeDrawer() })
                 }
                 
@@ -1694,13 +1829,13 @@ fun DashboardDrawerContent(
                 Box(modifier = Modifier.fillMaxWidth().height(140.dp), contentAlignment = Alignment.BottomCenter) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawRoundRect(
-                            color = Color(0xFFE5E0FF).copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
                             topLeft = Offset(20.dp.toPx(), size.height - 50.dp.toPx()),
                             size = Size(size.width - 40.dp.toPx(), 40.dp.toPx()),
                             cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx())
                         )
                         drawRoundRect(
-                            color = Color(0xFFE5E0FF).copy(alpha = 0.3f),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
                             topLeft = Offset(10.dp.toPx(), size.height - 25.dp.toPx()),
                             size = Size(size.width - 20.dp.toPx(), 20.dp.toPx()),
                             cornerRadius = CornerRadius(20.dp.toPx(), 20.dp.toPx())
@@ -1828,51 +1963,127 @@ fun DashboardProfileAvatar(
 
 @Composable
 fun WeeklyVisualizationSection(metrics: com.example.data.AnalyticsMetrics) {
+    val weeklyData = metrics.weeklyActivity
+    val totalSessions = weeklyData.sumOf { it.sessions }
+    val activeDays = weeklyData.count { it.sessions > 0 }
+    val maxSessions = (weeklyData.maxOfOrNull { it.sessions } ?: 0).coerceAtLeast(1)
+
     Column(modifier = Modifier.padding(vertical = 12.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 6.dp),
+                .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.InsertChart, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("SESSIONS COMPLETED OVER TIME", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DashTextDark)
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(DashPurplePrimary.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.InsertChart, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(18.dp))
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("This week", fontWeight = FontWeight.Black, fontSize = 18.sp, color = DashTextDark, letterSpacing = (-0.2).sp)
+                Text("Sessions completed over time", fontSize = 12.sp, color = DashTextGray, fontWeight = FontWeight.Medium)
+            }
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(DashPurplePrimary.copy(alpha = 0.10f))
+                    .padding(horizontal = 10.dp, vertical = 5.dp)
+            ) {
+                Text("$totalSessions sessions", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DashPurplePrimary)
+            }
         }
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(24.dp)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth().padding(20.dp)
-            ) {
-                val weeklyData = metrics.weeklyActivity.reversed()
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
                 if (weeklyData.isEmpty()) {
-                    Text("No study data for this period", modifier = Modifier.padding(20.dp), color = DashTextGray)
-                    return@Box
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
+                        Text("No study data for this period", color = DashTextGray, fontSize = 14.sp)
+                    }
+                    return@Column
                 }
-                
-                val entries = weeklyData.mapIndexed { index, data ->
-                    com.patrykandpatrick.vico.core.entry.FloatEntry(index.toFloat(), data.sessions.takeIf { it > 0 }?.toFloat() ?: 0f)
+
+                // Summary row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("Total", fontSize = 11.sp, color = DashTextGray, fontWeight = FontWeight.Medium)
+                        Text("$totalSessions", fontSize = 24.sp, fontWeight = FontWeight.Black, color = DashTextDark, letterSpacing = (-0.5).sp)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text("Active days", fontSize = 11.sp, color = DashTextGray, fontWeight = FontWeight.Medium)
+                        Text("$activeDays / ${weeklyData.size}", fontSize = 24.sp, fontWeight = FontWeight.Black, color = DashPurplePrimary, letterSpacing = (-0.5).sp)
+                    }
                 }
-                
-                val chartEntryModel = com.patrykandpatrick.vico.core.entry.entryModelOf(entries)
-                
-                com.patrykandpatrick.vico.compose.chart.Chart(
-                    chart = com.patrykandpatrick.vico.compose.chart.line.lineChart(),
-                    model = chartEntryModel,
-                    startAxis = com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis(),
-                    bottomAxis = com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis(
-                        valueFormatter = { value, _ -> 
-                            weeklyData.getOrNull(value.toInt())?.day ?: ""
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // Bar chart
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    weeklyData.forEach { day ->
+                        val fraction = (day.sessions.toFloat() / maxSessions).coerceIn(0f, 1f)
+                        val animated by animateFloatAsState(
+                            targetValue = fraction,
+                            animationSpec = tween(700, easing = FastOutSlowInEasing),
+                            label = "bar_${day.day}"
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            if (day.sessions > 0) {
+                                Text(
+                                    text = day.sessions.toString(),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = DashTextGray,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.72f)
+                                    .height((120.dp * animated).coerceAtLeast(if (day.sessions > 0) 6.dp else 3.dp))
+                                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 2.dp, bottomEnd = 2.dp))
+                                    .background(
+                                        if (day.sessions > 0)
+                                            Brush.verticalGradient(listOf(DashPurplePrimary, Color(0xFF9B6BFF)))
+                                        else
+                                            Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
+                                    )
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = day.day.take(3),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (day.sessions > 0) DashTextDark else DashTextGray
+                            )
                         }
-                    ),
-                    modifier = Modifier.fillMaxWidth().height(200.dp)
-                )
+                    }
+                }
             }
         }
     }
@@ -1898,7 +2109,7 @@ fun SubjectBreakdownVisualizationSection(metrics: com.example.data.AnalyticsMetr
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             shape = RoundedCornerShape(24.dp)
         ) {
             Column(
@@ -1931,7 +2142,7 @@ fun SubjectBreakdownVisualizationSection(metrics: com.example.data.AnalyticsMetr
                                 .fillMaxWidth()
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFF1F3F9))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -1961,9 +2172,9 @@ fun DashboardSubjectCard(
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = themeColor.copy(alpha = 0.15f))
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -2009,7 +2220,7 @@ fun DashboardSubjectCard(
             Box(contentAlignment = Alignment.Center) {
                 androidx.compose.material3.CircularProgressIndicator(
                     progress = { 1f },
-                    color = Color(0xFFF1F3F9),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier.size(36.dp),
                     strokeWidth = 4.dp
                 )
@@ -2040,9 +2251,9 @@ fun DashboardDeadlineCard(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 6.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp), spotColor = color.copy(alpha = 0.15f)),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -2115,7 +2326,7 @@ fun RecentSessionsListSection(metrics: com.example.data.AnalyticsMetrics) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             shape = RoundedCornerShape(24.dp)
         ) {
             Column(
@@ -2160,7 +2371,7 @@ fun RecentSessionsListSection(metrics: com.example.data.AnalyticsMetrics) {
                         }
                     }
                     if (index < minOf(metrics.recentSessions.size, 5) - 1) {
-                        HorizontalDivider(color = Color(0xFFF1F3F9))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     }
                 }
             }

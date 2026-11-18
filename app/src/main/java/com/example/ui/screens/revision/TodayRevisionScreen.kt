@@ -57,9 +57,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // Design Theme Colors matching Material 3 & Image Reference
-val RevBgLight = Color(0xFFF6F7FB)
-val RevTextDark = Color(0xFF111827)
-val RevTextGray = Color(0xFF6B7280)
+val RevBgLight = MaterialTheme.colorScheme.background
+val RevTextDark = MaterialTheme.colorScheme.onSurface
+val RevTextGray = MaterialTheme.colorScheme.onSurfaceVariant
 val RevPrimary = Color(0xFF6C4DFF)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -214,7 +214,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(10.dp))
-                                        .background(Color(0xFFF1EEFF))
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
                                         .border(1.dp, Color(0xFFE4DBFF), RoundedCornerShape(10.dp))
                                         .padding(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
@@ -235,7 +235,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     .padding(start = 8.dp)
                                     .size(40.dp)
                                     .background(Color.White, CircleShape)
-                                    .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                                     .testTag("drawer_menu_button")
                             ) {
                                 Icon(
@@ -284,7 +284,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     value = totalTopicsCount.toString(),
                                     icon = Icons.Default.MenuBook,
                                     accentColor = Color(0xFF6C4DFF),
-                                    bgColor = Color(0xFFF1EEFF),
+                                    bgColor = MaterialTheme.colorScheme.primaryContainer,
                                     tag = "overview_total_topics"
                                 )
                                 OverviewStatCard(
@@ -762,7 +762,7 @@ fun OverdueRevisionsView(
                             modifier = Modifier
                                 .size(96.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFF1EEFF)),
+                                .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -1003,21 +1003,21 @@ fun OverdueTopicCard(
                     label = "Last Revision Date",
                     value = formattedLastDate
                 )
-                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 0.5.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
 
                 OverdueInfoRow(
                     icon = Icons.Outlined.Timer,
                     label = "Last Revision Time",
                     value = "$lastRevMins min"
                 )
-                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 0.5.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
 
                 OverdueInfoRow(
                     icon = Icons.Outlined.History,
                     label = "Total Revisions",
                     value = topic.revisionCount.toString()
                 )
-                HorizontalDivider(color = Color(0xFFF1F3F9), thickness = 0.5.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
 
                 OverdueInfoRow(
                     icon = Icons.Outlined.HourglassEmpty,
@@ -1296,7 +1296,7 @@ fun UpcomingRevisionsView(
     val sheetState = rememberModalBottomSheetState()
 
     Scaffold(
-        containerColor = Color(0xFFF6F7FB),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -1305,7 +1305,7 @@ fun UpcomingRevisionsView(
                             text = "Upcoming Revisions",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "(${sortedTopics.size})",
@@ -1364,7 +1364,7 @@ fun UpcomingRevisionsView(
                         modifier = Modifier
                             .size(72.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFF1EEFF)),
+                            .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -1379,14 +1379,14 @@ fun UpcomingRevisionsView(
                         text = "No Upcoming Revisions",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A),
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "You're fully scheduled for now.",
                         fontSize = 14.sp,
-                        color = Color(0xFF5B6478),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -1403,7 +1403,7 @@ fun UpcomingRevisionsView(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFF1EEFF)
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             ),
                             shape = RoundedCornerShape(12.dp),
                             border = BorderStroke(1.dp, Color(0xFFE4DBFF))
@@ -1452,7 +1452,7 @@ fun UpcomingRevisionsView(
                                 containerColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -1479,7 +1479,7 @@ fun UpcomingRevisionsView(
                                         Text(
                                             text = "Upcoming Topics",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF5B6478),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
@@ -1488,7 +1488,7 @@ fun UpcomingRevisionsView(
                                         text = "${sortedTopics.size}",
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
@@ -1497,7 +1497,7 @@ fun UpcomingRevisionsView(
                                     modifier = Modifier
                                         .width(1.dp)
                                         .height(40.dp)
-                                        .background(Color(0xFFE7EAF3))
+                                        .background(MaterialTheme.colorScheme.outlineVariant)
                                 )
 
                                 // Right Section: Total Time
@@ -1519,7 +1519,7 @@ fun UpcomingRevisionsView(
                                         Text(
                                             text = "Total Time",
                                             fontSize = 12.sp,
-                                            color = Color(0xFF5B6478),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             fontWeight = FontWeight.Medium
                                         )
                                     }
@@ -1528,7 +1528,7 @@ fun UpcomingRevisionsView(
                                         text = formatTotalMins(totalTimeMins),
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }
@@ -1544,7 +1544,7 @@ fun UpcomingRevisionsView(
                             Text(
                                 text = "Sorted by $selectedSortOption ${if (selectedSortOrder == "Ascending") "↑" else "↓"}",
                                 fontSize = 12.sp,
-                                color = Color(0xFF5B6478),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -1577,7 +1577,7 @@ fun UpcomingRevisionsView(
                                 containerColor = Color.White
                             ),
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, Color(0xFFE7EAF3))
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp)
@@ -1599,7 +1599,7 @@ fun UpcomingRevisionsView(
                                             text = topic.topicName,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF0F172A),
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -1610,7 +1610,7 @@ fun UpcomingRevisionsView(
                                             Text(
                                                 text = "Chapter: ",
                                                 fontSize = 11.sp,
-                                                color = Color(0xFF5B6478)
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                             Text(
                                                 text = topic.chapterName,
@@ -1629,13 +1629,13 @@ fun UpcomingRevisionsView(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(
-                                                if (daysRemaining == 1) Color(0xFFF1EEFF)
-                                                else Color(0xFFF1F3F9)
+                                                if (daysRemaining == 1) MaterialTheme.colorScheme.primaryContainer
+                                                else MaterialTheme.colorScheme.surfaceVariant
                                             )
                                             .border(
                                                 1.dp,
                                                 if (daysRemaining == 1) Color(0xFFE4DBFF)
-                                                else Color(0xFFE7EAF3),
+                                                else MaterialTheme.colorScheme.outlineVariant,
                                                 RoundedCornerShape(8.dp)
                                             )
                                             .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -1650,7 +1650,7 @@ fun UpcomingRevisionsView(
                                 }
 
                                 Spacer(modifier = Modifier.height(14.dp))
-                                HorizontalDivider(color = Color(0xFFF1F3F9))
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 // Next Revision Date Info Row
@@ -1668,7 +1668,7 @@ fun UpcomingRevisionsView(
                                     Text(
                                         text = "Next Revision Date",
                                         fontSize = 13.sp,
-                                        color = Color(0xFF5B6478)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
@@ -1696,7 +1696,7 @@ fun UpcomingRevisionsView(
                                     Text(
                                         text = "Expected Time",
                                         fontSize = 13.sp,
-                                        color = Color(0xFF5B6478)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(
@@ -1708,7 +1708,7 @@ fun UpcomingRevisionsView(
                                 }
 
                                 Spacer(modifier = Modifier.height(12.dp))
-                                HorizontalDivider(color = Color(0xFFF1F3F9))
+                                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 // Countdown element at bottom right
@@ -1757,7 +1757,7 @@ fun UpcomingRevisionsView(
                     text = "Filter & Sort Options",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A),
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
@@ -1915,11 +1915,11 @@ fun CustomFilterChip(
     label: String
 ) {
     val bgColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFFF1EEFF) else Color(0xFFF1F3F9),
+        targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
         animationSpec = tween(durationMillis = 200)
     )
     val borderColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF6C4DFF) else Color(0xFFE7EAF3),
+        targetValue = if (selected) Color(0xFF6C4DFF) else MaterialTheme.colorScheme.outlineVariant,
         animationSpec = tween(durationMillis = 200)
     )
     val textColor by animateColorAsState(
@@ -2013,7 +2013,7 @@ fun TodayRevisionsView(
                         if (todayList.isNotEmpty()) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
-                                color = Color(0xFFF1EEFF), // Blue-50
+                                color = MaterialTheme.colorScheme.primaryContainer, // Blue-50
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(

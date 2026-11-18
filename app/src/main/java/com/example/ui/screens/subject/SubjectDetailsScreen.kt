@@ -55,12 +55,13 @@ import androidx.compose.animation.core.Spring
 
 // Shared Colors (Ideally from a central theme, defined here for self-containment matching the image)
 val SubPurplePrimary = Color(0xFF6C4DFF)
-val SubPurpleLight = Color(0xFFF1EEFF)
-val SubBackgroundWhite = Color(0xFFF6F7FB) // Very light off-white background
-val SubCardWhite = Color(0xFFFFFFFF)
-val SubSurfaceGray = Color(0xFFE7EAF3)
-val SubTextPrimary = Color(0xFF0F172A)
-val SubTextSecondary = Color(0xFF5B6478)
+val SubPurpleLight = MaterialTheme.colorScheme.primaryContainer
+val SubBackgroundWhite = MaterialTheme.colorScheme.background // Very light off-white background
+val SubCardWhite: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+val SubSurfaceGray = MaterialTheme.colorScheme.outlineVariant
+val SubTextPrimary = MaterialTheme.colorScheme.onSurface
+val SubTextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun SubjectDetailsScreenWrapper(
@@ -165,7 +166,7 @@ fun SubjectDetailsScreen(
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = SubTextPrimary, modifier = Modifier.size(19.dp))
                     }
@@ -544,7 +545,7 @@ fun ChapterItemCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE7EAF3)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -558,7 +559,7 @@ fun ChapterItemCard(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFF1EEFF)),
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -576,7 +577,7 @@ fun ChapterItemCard(
                 text = chapter.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF0F172A),
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)

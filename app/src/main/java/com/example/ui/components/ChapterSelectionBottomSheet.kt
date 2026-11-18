@@ -70,7 +70,7 @@ fun ChapterSelectionBottomSheet(
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = FocusPurple,
-                        unfocusedBorderColor = Color(0xFFE7EAF3)
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     ),
                     singleLine = true
                 )
@@ -96,7 +96,7 @@ fun ChapterSelectionBottomSheet(
                                 .padding(vertical = 16.dp, horizontal = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFF1EEFF)), contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
                                   Text(subject.name.take(1), fontWeight = FontWeight.Bold, color = FocusPurple)
                             }
                             Spacer(modifier = Modifier.width(16.dp))
@@ -126,7 +126,7 @@ fun ChapterSelectionBottomSheet(
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = FocusPurple,
-                        unfocusedBorderColor = Color(0xFFE7EAF3)
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                     ),
                     singleLine = true
                 )
@@ -154,7 +154,7 @@ fun ChapterSelectionBottomSheet(
                                 .padding(vertical = 16.dp, horizontal = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFF1EEFF)), contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
                                 Text(chapter.name.take(1), fontWeight = FontWeight.Bold, color = FocusPurple)
                             }
                             Spacer(modifier = Modifier.width(16.dp))

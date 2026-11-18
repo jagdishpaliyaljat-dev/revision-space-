@@ -204,7 +204,7 @@ fun DailyGoalCongratsDialog(
                         text = "Congrats! 🎉",
                         fontWeight = FontWeight.Black,
                         fontSize = 26.sp,
-                        color = Color(0xFF0F172A),
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
 
@@ -214,7 +214,7 @@ fun DailyGoalCongratsDialog(
                     Text(
                         text = "You've crushed your daily goal of $goalTarget $unitName today! Consistent effort builds extraordinary success.",
                         fontSize = 14.sp,
-                        color = Color(0xFF5B6478),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         lineHeight = 20.sp,
                         modifier = Modifier.padding(horizontal = 8.dp)
@@ -264,7 +264,7 @@ fun DailyGoalCongratsDialog(
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(14.dp),
-                            border = BorderStroke(1.dp, Color(0xFFCBD5E1))
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
                             Text(
                                 "Replay 🎉",
@@ -343,14 +343,14 @@ fun CongratsBadgeCard(
                         text = "Daily Goal Reached! 🎉",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "You completed $goalTarget $unitName today. Tap to view your congrats badge!",
                     fontSize = 12.sp,
-                    color = Color(0xFF5B6478),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 16.sp
                 )
             }

@@ -61,15 +61,15 @@ import java.util.*
 @Composable
 fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navController: NavController) {
     val isDark = false
-    val bgColor = Color(0xFFF6F7FB)
+    val bgColor = MaterialTheme.colorScheme.background
     val surfaceColor = Color.White
-    val textColor = Color(0xFF0F172A)
-    val textSecondary = Color(0xFF5B6478)
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val textSecondary = MaterialTheme.colorScheme.onSurfaceVariant
 
     // Colors
     val purplePrimary = Color(0xFF8B5CF6)
-    val purpleLight = Color(0xFFF1EEFF)
-    val readMarker = Color(0xFFE7EAF3)
+    val purpleLight = MaterialTheme.colorScheme.primaryContainer
+    val readMarker = MaterialTheme.colorScheme.outlineVariant
 
     
     val notifications by viewModel.allNotifications.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -160,7 +160,7 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
                             .background(if (isSelected) purplePrimary else Color.Transparent)
                             .border(
                                 1.dp,
-                                if (isSelected) Color.Transparent else (if (isDark) Color(0xFF333333) else Color(0xFFE7EAF3)),
+                                if (isSelected) Color.Transparent else (if (isDark) Color(0xFF333333) else MaterialTheme.colorScheme.outlineVariant),
                                 RoundedCornerShape(24.dp)
                             )
                             .clickable { selectedFilter = filter }
@@ -426,7 +426,7 @@ fun NotificationsScreen(viewModel: com.example.viewmodel.RevisionViewModel, navC
                         color = textSecondary
                     )
                     
-                    HorizontalDivider(color = Color(0xFFF1F3F9))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -499,9 +499,9 @@ fun NotificationStatItem(icon: ImageVector, value: String, label: String, color:
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(28.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+        Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(label, fontSize = 12.sp, color = Color(0xFF5B6478), textAlign = TextAlign.Center, lineHeight = 16.sp)
+        Text(label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, lineHeight = 16.sp)
     }
 }
 
@@ -642,12 +642,12 @@ fun SwipeableNotificationItem(
 fun getIconAndColorsForType(title: String): Triple<ImageVector, Color, Color> {
     val isDark = false
     return when {
-        title.contains("Study") -> Triple(Icons.Default.MenuBook, Color(0xFF8B5CF6), if (isDark) Color(0xFF2D1B4E) else Color(0xFFF1EEFF))
+        title.contains("Study") -> Triple(Icons.Default.MenuBook, Color(0xFF8B5CF6), if (isDark) Color(0xFF2D1B4E) else MaterialTheme.colorScheme.primaryContainer)
         title.contains("Revision") -> Triple(Icons.Default.Loop, Color(0xFF10B981), if (isDark) Color(0xFF064E3B) else Color(0xFFD1FAE5))
         title.contains("Coins") -> Triple(Icons.Default.MonetizationOn, Color(0xFFF59E0B), if (isDark) Color(0xFF451A03) else Color(0xFFFEF3C7))
         title.contains("Streak") -> Triple(Icons.Default.Whatshot, Color(0xFFEF4444), if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2))
         title.contains("Target") -> Triple(Icons.Default.GpsFixed, Color(0xFF3B82F6), if (isDark) Color(0xFF1E3A8A) else Color(0xFFDBEAFE))
         title.contains("Backup") -> Triple(Icons.Default.CloudUpload, Color(0xFF06B6D4), if (isDark) Color(0xFF083344) else Color(0xFFCFFAFE))
-        else -> Triple(Icons.Default.Notifications, Color(0xFF8B5CF6), if (isDark) Color(0xFF2D1B4E) else Color(0xFFF1EEFF))
+        else -> Triple(Icons.Default.Notifications, Color(0xFF8B5CF6), if (isDark) Color(0xFF2D1B4E) else MaterialTheme.colorScheme.primaryContainer)
     }
 }
