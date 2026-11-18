@@ -16,9 +16,11 @@ import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,7 +28,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -418,7 +419,7 @@ private fun SubjectsEmptyState(isSearching: Boolean, onAdd: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ExpandableSubjectCard(
     index: Int = 1,
@@ -517,7 +518,7 @@ fun ExpandableSubjectCard(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = subject.name.firstOrNull()?.uppercase() ?: "S",
+                                text = index.toString().padStart(2, '0'),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 19.sp,
                                 color = customThemeColor
@@ -533,7 +534,11 @@ fun ExpandableSubjectCard(
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier.combinedClickable(
+                                    onClick = { onTopicClick(subject.id) },
+                                    onLongClick = { showRenameDialog = true }
+                                )
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -560,60 +565,6 @@ fun ExpandableSubjectCard(
                                     )
                                 }
                             }
-                        }
-
-                        Spacer(modifier = Modifier.width(4.dp))
-
-                        var showCardMenu by remember { mutableStateOf(false) }
-                        Box {
-                            IconButton(
-                                onClick = { showCardMenu = true },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "Options", tint = Color(0xFF8A94A6), modifier = Modifier.size(18.dp))
-                            }
-                            DropdownMenu(
-                                expanded = showCardMenu,
-                                onDismissRequest = { showCardMenu = false },
-                                modifier = Modifier.background(Color.White)
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Rename") },
-                                    onClick = {
-                                        showCardMenu = false
-                                        showRenameDialog = true
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Edit") },
-                                    onClick = {
-                                        showCardMenu = false
-                                        showEditDialog = true
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Delete", color = Color.Red) },
-                                    onClick = {
-                                        showCardMenu = false
-                                        showDeleteConfirm = true
-                                    }
-                                )
-                            }
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(customThemeColor.copy(alpha = 0.10f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardArrowRight,
-                                contentDescription = "Open",
-                                tint = customThemeColor,
-                                modifier = Modifier.size(18.dp)
-                            )
                         }
                     }
 
