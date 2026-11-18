@@ -500,8 +500,8 @@ fun TimerScreen(
                         modifier = Modifier
                             .padding(start = 8.dp)
                             .size(40.dp)
-                            .background(Color.White, CircleShape)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
                         Icon(Icons.Default.Menu, "Menu", tint = FocusTextDark, modifier = Modifier.size(19.dp))
                     }
@@ -512,8 +512,8 @@ fun TimerScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (settings.soundEnabled && settings.ambientSound != "None") Color(0xFFF1EEFF) else Color.White)
-                                .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                .background(if (settings.soundEnabled && settings.ambientSound != "None") Color(0xFFF1EEFF) else MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                                 .clickable { showAmbientSoundSheet = true },
                             contentAlignment = Alignment.Center
                         ) {
@@ -528,8 +528,8 @@ fun TimerScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color.White)
-                                .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                                 .clickable { showSettingsSheet = true },
                             contentAlignment = Alignment.Center
                         ) {
@@ -793,8 +793,8 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(62.dp)
                             .clip(CircleShape)
-                            .background(Color.White)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                             .clickable(enabled = stopClickable) {
                                 if (elapsedMs > 0 || isRunning || isPaused) showStopDialog = true else navController.popBackStack()
                             }
@@ -868,8 +868,8 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(62.dp)
                             .clip(CircleShape)
-                            .background(Color.White)
-                            .border(1.dp, Color(0xFFE7EAF3), CircleShape)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                             .clickable(enabled = skipClickable) {
                                 viewModel.skipSession(
                                     chapterId = currentChapterId,
@@ -908,8 +908,8 @@ fun TimerScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) Color(0xFFF1EEFF) else Color.White)
-                                .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                                .background(if (isSelected) Color(0xFFF1EEFF) else MaterialTheme.colorScheme.surface)
+                                .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                                 .clickable(enabled = !isRunning && !isPaused && !isBreakSession) { updateActiveDuration(mins) }
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
@@ -996,8 +996,8 @@ fun TimerScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFE7EAF3), RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
                     .clickable { showAmbientSoundSheet = true }
                     .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -1076,16 +1076,6 @@ fun TimerScreen(
                 }
             }
 
-            // ---------- 11. GOAL-REACHED BADGE ----------
-            if (progressPercent >= 100) {
-                Spacer(modifier = Modifier.height(16.dp))
-                CongratsBadgeCard(
-                    goalTarget = goalMins,
-                    unitName = "minutes of focus",
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
-                )
-            }
-
             // ---------- 12. TODAY'S SUMMARY ----------
             Spacer(modifier = Modifier.height(24.dp))
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
@@ -1110,9 +1100,9 @@ fun TimerScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Row(
@@ -1121,11 +1111,11 @@ fun TimerScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         SummaryColumnItem(Icons.Default.Timer, Color(0xFF6C4DFF), Color(0xFFF1EEFF), "Study Time", todayStudyTimeStr)
-                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(Color(0xFFE7EAF3)))
+                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(MaterialTheme.colorScheme.outlineVariant))
                         SummaryColumnItem(Icons.Default.MenuBook, Color(0xFF3B82F6), Color(0xFFEFF6FF), "Sessions", "$focusSessionsToday")
-                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(Color(0xFFE7EAF3)))
+                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(MaterialTheme.colorScheme.outlineVariant))
                         SummaryColumnItem(Icons.Default.FactCheck, Color(0xFF22C55E), Color(0xFFECFDF5), "Chapters Done", "$chaptersCompletedToday")
-                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(Color(0xFFE7EAF3)))
+                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(MaterialTheme.colorScheme.outlineVariant))
                         SummaryColumnItem(Icons.Default.Adjust, Color(0xFFF43F5E), Color(0xFFFFF1F2), "Accuracy", accuracyValue)
                     }
                 }
@@ -1300,8 +1290,8 @@ private fun SettingsSectionCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -1333,7 +1323,7 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) FocusPurple else Color(0xFFF8F9FC))
-                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
@@ -1394,7 +1384,7 @@ fun DurationSelectorStr(options: List<String>, selected: String, onSelect: (Stri
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isSelected) FocusPurple else Color(0xFFF8F9FC))
-                    .border(1.dp, if (isSelected) FocusPurple else Color(0xFFE7EAF3), RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
@@ -1444,8 +1434,8 @@ fun AmbientSoundBottomSheet(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
@@ -1618,7 +1608,7 @@ private fun ModePill(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(if (selected) FocusPurple else Color.White)
+            .background(if (selected) FocusPurple else MaterialTheme.colorScheme.surface)
             .border(1.dp, if (selected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
             .clickable(enabled = enabled) { onClick() }
             .padding(horizontal = 14.dp, vertical = 10.dp),
