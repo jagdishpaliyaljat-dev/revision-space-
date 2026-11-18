@@ -70,11 +70,15 @@ import com.example.viewmodel.RevisionViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-val FocusBgLight = MaterialTheme.colorScheme.background
+val FocusBgLight: Color
+    @Composable get() = MaterialTheme.colorScheme.background
 val FocusPurple = Color(0xFF6C4DFF)
-val FocusPurpleLight = MaterialTheme.colorScheme.primaryContainer
-val FocusTextDark = MaterialTheme.colorScheme.onSurface
-val FocusTextGray = MaterialTheme.colorScheme.onSurfaceVariant
+val FocusPurpleLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+val FocusTextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val FocusTextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun TimerScreenWrapper(viewModel: RevisionViewModel, navController: NavController, backStackEntry: NavBackStackEntry) {

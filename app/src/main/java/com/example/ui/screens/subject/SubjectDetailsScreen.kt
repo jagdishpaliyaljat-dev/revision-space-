@@ -55,13 +55,18 @@ import androidx.compose.animation.core.Spring
 
 // Shared Colors (Ideally from a central theme, defined here for self-containment matching the image)
 val SubPurplePrimary = Color(0xFF6C4DFF)
-val SubPurpleLight = MaterialTheme.colorScheme.primaryContainer
-val SubBackgroundWhite = MaterialTheme.colorScheme.background // Very light off-white background
+val SubPurpleLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+val SubBackgroundWhite: Color
+    @Composable get() = MaterialTheme.colorScheme.background // Very light off-white background
 val SubCardWhite: Color
     @Composable get() = MaterialTheme.colorScheme.surface
-val SubSurfaceGray = MaterialTheme.colorScheme.outlineVariant
-val SubTextPrimary = MaterialTheme.colorScheme.onSurface
-val SubTextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+val SubSurfaceGray: Color
+    @Composable get() = MaterialTheme.colorScheme.outlineVariant
+val SubTextPrimary: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val SubTextSecondary: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun SubjectDetailsScreenWrapper(

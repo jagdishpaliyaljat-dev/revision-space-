@@ -127,7 +127,7 @@ class SrsAlarmReceiver : BroadcastReceiver() {
                 )
 
                 val builder = NotificationCompat.Builder(context, "srs_channel")
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setSmallIcon(R.drawable.ic_stat_revision)
                     .setContentTitle(title)
                     .setContentText("Subject: $subjectName - Chapter: $chapterName")
                     .setStyle(NotificationCompat.BigTextStyle().bigText(body))

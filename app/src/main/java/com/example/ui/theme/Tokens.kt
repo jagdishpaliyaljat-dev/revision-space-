@@ -16,17 +16,17 @@ object AppPalette {
     val Brand = Color(0xFF6C4DFF)
     val BrandDeep = Color(0xFF4B32D6)
     val BrandLight = Color(0xFF9B8CFF)
-    val BrandSoft = MaterialTheme.colorScheme.primaryContainer
+    val BrandSoft = Color(0xFFF1EEFF)
     val BrandSofter = Color(0xFFF8F6FF)
 
     // Neutrals (light theme)
-    val Ink = MaterialTheme.colorScheme.onSurface
+    val Ink = Color(0xFF0F172A)
     val InkSecondary = Color(0xFF475569)
     val InkMuted = Color(0xFF8A94A6)
-    val Background = MaterialTheme.colorScheme.background
+    val Background = Color(0xFFF6F7FB)
     val Surface = Color(0xFFFFFFFF)
-    val SurfaceAlt = MaterialTheme.colorScheme.surfaceVariant
-    val Border = MaterialTheme.colorScheme.outlineVariant
+    val SurfaceAlt = Color(0xFFF1F3F9)
+    val Border = Color(0xFFE7EAF3)
 
     // Semantic
     val Success = Color(0xFF10B981)

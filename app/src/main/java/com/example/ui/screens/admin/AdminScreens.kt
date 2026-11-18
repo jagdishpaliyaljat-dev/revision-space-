@@ -58,11 +58,14 @@ import java.util.Date
 import java.util.Locale
 
 val PrimaryAdmin = Color(0xFF6C4DFF)
-val BackgroundAdmin = MaterialTheme.colorScheme.background
+val BackgroundAdmin: Color
+    @Composable get() = MaterialTheme.colorScheme.background
 val SurfaceAdmin: Color
     @Composable get() = MaterialTheme.colorScheme.surface
-val TextPrimaryAdmin = MaterialTheme.colorScheme.onSurface
-val TextSecondaryAdmin = MaterialTheme.colorScheme.onSurfaceVariant
+val TextPrimaryAdmin: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val TextSecondaryAdmin: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun DashboardErrorBoundary(

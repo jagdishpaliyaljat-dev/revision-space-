@@ -45,7 +45,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_stat_revision)
             .setContentTitle("📚 Time for Today's Revision")
             .setContentText("Complete your planned 1, 3, 7, 14, 30-day revision session to keep your streak alive!")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -95,7 +95,7 @@ object NotificationHelper {
         }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_stat_revision)
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

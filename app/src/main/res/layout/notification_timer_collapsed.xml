@@ -13,7 +13,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
-        android:src="@drawable/ic_launcher_foreground"
+        android:src="@drawable/ic_stat_revision"
         android:background="@drawable/circle_bg"
         android:padding="8dp"/>
 

@@ -492,7 +492,7 @@ class FocusTimerService : Service() {
             .setContentTitle(titleText)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_stat_revision)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true)
@@ -591,7 +591,7 @@ class FocusTimerService : Service() {
 
         return try {
             NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_stat_revision)
                 .setCustomContentView(collapsedView)
                 .setCustomBigContentView(expandedView)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())

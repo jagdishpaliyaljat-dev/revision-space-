@@ -64,13 +64,18 @@ import kotlinx.coroutines.launch
 
 // Colors
 val TdPurplePrimary = Color(0xFF6C4DFF)
-val TdPurpleLight = MaterialTheme.colorScheme.primaryContainer
-val TdBackgroundWhite = MaterialTheme.colorScheme.background
+val TdPurpleLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+val TdBackgroundWhite: Color
+    @Composable get() = MaterialTheme.colorScheme.background
 val TdCardWhite: Color
     @Composable get() = MaterialTheme.colorScheme.surface
-val TdSurfaceGray = MaterialTheme.colorScheme.outlineVariant
-val TdTextPrimary = MaterialTheme.colorScheme.onSurface
-val TdTextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+val TdSurfaceGray: Color
+    @Composable get() = MaterialTheme.colorScheme.outlineVariant
+val TdTextPrimary: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val TdTextSecondary: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 val TdGreen = Color(0xFF10B981)
 val TdGreenLight = Color(0xFFECFDF5)
 

@@ -81,11 +81,16 @@ import java.util.*
 
 // Styling Color Constants
 val ProfilePurple = Color(0xFF6C4DFF)
-val ProfilePurpleLight = MaterialTheme.colorScheme.primaryContainer
-val ProfilePurpleSuperLight = MaterialTheme.colorScheme.primaryContainer
-val ProfileBgLight = MaterialTheme.colorScheme.background
-val ProfileTextDark = MaterialTheme.colorScheme.onSurface
-val ProfileTextGray = MaterialTheme.colorScheme.onSurfaceVariant
+val ProfilePurpleLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+val ProfilePurpleSuperLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
+val ProfileBgLight: Color
+    @Composable get() = MaterialTheme.colorScheme.background
+val ProfileTextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val ProfileTextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 // Sparkline trends colors
 val TrendGreen = Color(0xFF10B981)

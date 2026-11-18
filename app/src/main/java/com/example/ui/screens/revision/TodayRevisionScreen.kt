@@ -57,9 +57,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // Design Theme Colors matching Material 3 & Image Reference
-val RevBgLight = MaterialTheme.colorScheme.background
-val RevTextDark = MaterialTheme.colorScheme.onSurface
-val RevTextGray = MaterialTheme.colorScheme.onSurfaceVariant
+val RevBgLight: Color
+    @Composable get() = MaterialTheme.colorScheme.background
+val RevTextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val RevTextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 val RevPrimary = Color(0xFF6C4DFF)
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -62,7 +62,8 @@ import com.example.data.UserProfile
 import kotlin.math.cos
 import kotlin.math.sin
 
-val AnalyticsBg = MaterialTheme.colorScheme.background
+val AnalyticsBg: Color
+    @Composable get() = MaterialTheme.colorScheme.background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

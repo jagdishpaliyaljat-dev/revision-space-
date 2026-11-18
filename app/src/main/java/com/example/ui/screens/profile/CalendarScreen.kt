@@ -58,9 +58,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private val CalPurple = Color(0xFF6C4DFF)
-private val CalBg = MaterialTheme.colorScheme.background
-private val CalTextDark = MaterialTheme.colorScheme.onSurface
-private val CalTextGray = MaterialTheme.colorScheme.onSurfaceVariant
+private val CalBg: Color
+    @Composable get() = MaterialTheme.colorScheme.background
+private val CalTextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+private val CalTextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

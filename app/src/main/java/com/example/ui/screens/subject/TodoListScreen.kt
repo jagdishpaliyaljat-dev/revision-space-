@@ -51,9 +51,12 @@ import java.util.*
 import androidx.compose.ui.draw.alpha
 
 val TodoPurple = Color(0xFF6C4DFF)
-val TodoBgLight = MaterialTheme.colorScheme.background
-val TodoTextDark = MaterialTheme.colorScheme.onSurface
-val TodoTextGray = MaterialTheme.colorScheme.onSurfaceVariant
+val TodoBgLight: Color
+    @Composable get() = MaterialTheme.colorScheme.background
+val TodoTextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+val TodoTextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

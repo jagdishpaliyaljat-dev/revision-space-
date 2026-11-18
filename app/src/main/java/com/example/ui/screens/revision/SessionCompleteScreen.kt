@@ -56,15 +56,18 @@ import kotlin.random.Random
 
 // Redesigned premium colors to match prompt spec
 private val ScreenBackground: Color
-    @Composable get() = MaterialTheme.colorScheme.surface
+    @Composable get() = MaterialTheme.colorScheme.background
 private val CardBackground: Color
     @Composable get() = MaterialTheme.colorScheme.surface
-private val TextDark = MaterialTheme.colorScheme.onSurface
-private val TextGray = MaterialTheme.colorScheme.onSurfaceVariant
+private val TextDark: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+private val TextGray: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 private val PurplePrimary = Color(0xFF7C4DFF)
 private val PurpleGlow = Color(0xFF7C4DFF).copy(alpha = 0.15f)
-private val PurpleLight = MaterialTheme.colorScheme.primaryContainer
+private val PurpleLight: Color
+    @Composable get() = MaterialTheme.colorScheme.primaryContainer
 
 private val TrophyBadgeGreen = Color(0xFF10B981)
 

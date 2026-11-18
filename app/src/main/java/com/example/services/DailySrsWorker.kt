@@ -155,7 +155,7 @@ class DailySrsWorker(
         )
 
         val builder = NotificationCompat.Builder(context, "srs_channel")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_stat_revision)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
