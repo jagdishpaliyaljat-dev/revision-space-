@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -180,7 +181,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
             )
         }
         else -> {
-            // Screen 1: Revision Management Dashboard
+            // Screen 1: Revision Management Dashboard — premium redesign
             val totalTopicsCount = remember(allTopics) { allTopics.size }
             val completedCount = remember(allTopics) { allTopics.count { it.status == "Completed" || it.status == "Complete" } }
             val pendingCount = remember(allTopics) { allTopics.count { it.status != "Completed" && it.status != "Complete" } }
@@ -192,6 +193,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                     0
                 }
             }
+            val completionFraction = (completionPercentage / 100f).coerceIn(0f, 1f)
 
             val todayList = metrics.todayDue
             val overdueList = metrics.pendingRevisions
@@ -203,32 +205,21 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                 topBar = {
                     CenterAlignedTopAppBar(
                         title = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "REVISION SPACE",
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.5.sp,
+                                    color = RevPrimary.copy(alpha = 0.72f)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = "Revision Management",
-                                    fontSize = 20.sp,
+                                    fontSize = 19.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = RevTextDark
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(MaterialTheme.colorScheme.primaryContainer)
-                                        .border(1.dp, Color(0xFFE4DBFF), RoundedCornerShape(10.dp))
-                                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                                ) {
-                                    Text(
-                                        text = "$completionPercentage%",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF6C4DFF),
-                                        modifier = Modifier.testTag("header_completion_percentage")
-                                    )
-                                }
                             }
                         },
                         navigationIcon = {
@@ -236,16 +227,34 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                 onClick = { navController.popBackStack() },
                                 modifier = Modifier
                                     .padding(start = 8.dp)
-                                    .size(40.dp)
-                                    .background(Color.White, CircleShape)
-                                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                                    .size(42.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .border(1.dp, Color(0xFFE7EAF3), CircleShape)
                                     .testTag("drawer_menu_button")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
                                     contentDescription = "Menu Drawer",
-                                    tint = RevTextDark,
-                                    modifier = Modifier.size(19.dp)
+                                    tint = RevPrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        },
+                        actions = {
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = "$completionPercentage%",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.testTag("header_completion_percentage")
                                 )
                             }
                         },
@@ -260,26 +269,152 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                         .fillMaxSize()
                         .padding(paddingValues)
                         .testTag("revision_scrollable_layout"),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
-                    // Today's Overview Heading
+                    // Section kicker — Overview
                     item {
-                        Text(
-                            text = "Today's Overview",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = RevTextDark,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .width(4.dp)
+                                    .height(20.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(Brush.verticalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "OVERVIEW",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.4.sp,
+                                    color = RevPrimary
+                                )
+                                Text(
+                                    text = "Today's Progress",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = RevTextDark
+                                )
+                            }
+                        }
                     }
 
-                    // 2x2 Grid for Overview Cards
+                    // Premium gradient progress hero
                     item {
-                        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(26.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(26.dp))
+                                    .background(Brush.linearGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))))
+                                    .padding(20.dp)
+                            ) {
+                                // Soft decorative orbs
+                                Box(
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White.copy(alpha = 0.08f))
+                                        .offset(x = 150.dp, y = (-40).dp)
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White.copy(alpha = 0.06f))
+                                        .offset(x = 230.dp, y = 70.dp)
+                                )
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "KEEP IT UP",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.2.sp,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+                                        Spacer(modifier = Modifier.height(5.dp))
+                                        Text(
+                                            text = "You're making progress",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            text = "$completedCount of $totalTopicsCount topics completed",
+                                            fontSize = 12.sp,
+                                            color = Color.White.copy(alpha = 0.85f)
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        LinearProgressIndicator(
+                                            progress = { completionFraction },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(6.dp)
+                                                .clip(RoundedCornerShape(3.dp)),
+                                            color = Color.White,
+                                            trackColor = Color.White.copy(alpha = 0.25f)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                    Box(
+                                        modifier = Modifier.size(84.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            progress = { completionFraction },
+                                            modifier = Modifier.fillMaxSize(),
+                                            color = Color.White,
+                                            trackColor = Color.White.copy(alpha = 0.22f),
+                                            strokeWidth = 7.dp
+                                        )
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                text = "$completionPercentage%",
+                                                fontSize = 20.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White,
+                                                modifier = Modifier.testTag("overview_completion")
+                                            )
+                                            Text(
+                                                text = "DONE",
+                                                fontSize = 8.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                letterSpacing = 1.sp,
+                                                color = Color.White.copy(alpha = 0.75f)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Compact stat strip — Total / Pending / Streak
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 OverviewStatCard(
                                     modifier = Modifier.weight(1f),
@@ -287,7 +422,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     value = totalTopicsCount.toString(),
                                     icon = Icons.Default.MenuBook,
                                     accentColor = Color(0xFF6C4DFF),
-                                    bgColor = MaterialTheme.colorScheme.primaryContainer,
+                                    bgColor = Color(0xFFF1EEFF),
                                     tag = "overview_total_topics"
                                 )
                                 OverviewStatCard(
@@ -299,11 +434,6 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     bgColor = Color(0xFFFFFBEB),
                                     tag = "overview_pending"
                                 )
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
                                 OverviewStatCard(
                                     modifier = Modifier.weight(1f),
                                     title = "Streak",
@@ -313,20 +443,9 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     bgColor = Color(0xFFECFDF5),
                                     tag = "overview_streak"
                                 )
-                                OverviewStatCard(
-                                    modifier = Modifier.weight(1f),
-                                    title = "Completion",
-                                    value = "$completionPercentage%",
-                                    icon = Icons.Default.TrendingUp,
-                                    accentColor = Color(0xFF8B5CF6),
-                                    bgColor = Color(0xFFF5F3FF),
-                                    tag = "overview_completion"
-                                )
                             }
                         }
                     }
-
-
 
                     // Today's Plan Card
                     item {
@@ -334,159 +453,214 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("todays_plan_card"),
-                            shape = RoundedCornerShape(16.dp),
+                            shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
-                            border = BorderStroke(1.dp, Color(0xFFE5E7EB))
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.CalendarToday,
-                                        contentDescription = null,
-                                        tint = Color(0xFF6C4DFF),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Text(
-                                        text = "Today's Plan",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = RevTextDark
-                                    )
-                                }
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = todayList.size.toString(),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF6C4DFF)
-                                        )
-                                        Text(
-                                            text = "Due Today",
-                                            fontSize = 13.sp,
-                                            color = RevTextGray
-                                        )
-                                    }
-
-                                    Box(
-                                        modifier = Modifier
-                                            .width(1.dp)
-                                            .height(36.dp)
-                                            .background(Color(0xFFE5E7EB))
-                                    )
-
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = formatTotalMins(totalTimeMins.toLong()),
-                                            fontSize = 24.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF6C4DFF)
-                                        )
-                                        Text(
-                                            text = "Total Time",
-                                            fontSize = 13.sp,
-                                            color = RevTextGray
-                                        )
-                                    }
-                                }
-
-                                Button(
-                                    onClick = {
-                                        currentView = "today_revisions"
-                                    },
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(48.dp)
-                                        .testTag("start_todays_revisions_button"),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF6C4DFF)
-                                    )
-                                ) {
-                                    Text(
-                                        text = "Start Today's Revisions",
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
+                                        .height(4.dp)
+                                        .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                                )
+                                Column(modifier = Modifier.padding(18.dp)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(38.dp)
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(Color(0xFFF1EEFF)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.CalendarToday,
+                                                contentDescription = null,
+                                                tint = RevPrimary,
+                                                modifier = Modifier.size(19.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column {
+                                            Text(
+                                                text = "TODAY'S PLAN",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                letterSpacing = 1.2.sp,
+                                                color = RevPrimary
+                                            )
+                                            Text(
+                                                text = "Today's Plan",
+                                                fontSize = 17.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = RevTextDark
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(18.dp))
+                                            .background(Color(0xFFF8F9FC))
+                                            .padding(vertical = 16.dp)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = todayList.size.toString(),
+                                                fontSize = 26.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = RevPrimary
+                                            )
+                                            Text(
+                                                text = "Due Today",
+                                                fontSize = 12.sp,
+                                                color = RevTextGray
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .width(1.dp)
+                                                .height(40.dp)
+                                                .background(Color(0xFFE7EAF3))
+                                        )
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = formatTotalMins(totalTimeMins.toLong()),
+                                                fontSize = 22.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = RevPrimary
+                                            )
+                                            Text(
+                                                text = "Total Time",
+                                                fontSize = 12.sp,
+                                                color = RevTextGray
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Button(
+                                        onClick = {
+                                            currentView = "today_revisions"
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(52.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFF8B5CF6))))
+                                            .testTag("start_todays_revisions_button"),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                        shape = RoundedCornerShape(16.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PlayArrow,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Start Today's Revisions",
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
 
-                    // Revision Queue Heading
+                    // Section kicker — Revision Queue
                     item {
-                        Text(
-                            text = "Revision Queue",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = RevTextDark,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .width(4.dp)
+                                    .height(20.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(Brush.verticalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "STAY ON TRACK",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.4.sp,
+                                    color = RevPrimary
+                                )
+                                Text(
+                                    text = "Revision Queue",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = RevTextDark
+                                )
+                            }
+                        }
                     }
 
-                    // Overdue Capsule Row
+                    // Grouped Queue Card
                     item {
-                        QueueRowItem(
-                            title = "Overdue",
-                            count = overdueList.size,
-                            icon = Icons.Default.Circle,
-                            iconColor = Color(0xFFEF4444),
-                            borderColor = Color(0xFFEF4444),
-                            bgColor = Color(0xFFFEF2F2),
-                            onClick = {
-                                currentView = "overdue"
-                            },
-                            tag = "queue_overdue"
-                        )
-                    }
-
-                    // Today Capsule Row
-                    item {
-                        QueueRowItem(
-                            title = "Today",
-                            count = todayList.size,
-                            icon = Icons.Default.Assignment,
-                            iconColor = Color(0xFFF59E0B),
-                            borderColor = Color(0xFFE5E7EB),
-                            bgColor = Color.White,
-                            onClick = {
-                                currentView = "today_revisions"
-                            },
-                            tag = "queue_today"
-                        )
-                    }
-
-                    // Upcoming Capsule Row
-                    item {
-                        QueueRowItem(
-                            title = "Upcoming",
-                            count = upcomingList.size,
-                            icon = Icons.Default.CheckCircle,
-                            iconColor = Color(0xFF6C4DFF),
-                            borderColor = Color(0xFFE5E7EB),
-                            bgColor = Color.White,
-                            onClick = {
-                                currentView = "upcoming"
-                            },
-                            tag = "queue_upcoming"
-                        )
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(vertical = 6.dp)) {
+                                QueueRowItem(
+                                    title = "Overdue",
+                                    count = overdueList.size,
+                                    icon = Icons.Default.Circle,
+                                    iconColor = Color(0xFFEF4444),
+                                    borderColor = Color(0xFFEF4444),
+                                    bgColor = Color(0xFFFEF2F2),
+                                    onClick = { currentView = "overdue" },
+                                    tag = "queue_overdue"
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 18.dp),
+                                    color = Color(0xFFEFF1F6)
+                                )
+                                QueueRowItem(
+                                    title = "Today",
+                                    count = todayList.size,
+                                    icon = Icons.Default.Assignment,
+                                    iconColor = Color(0xFFF59E0B),
+                                    borderColor = Color(0xFFF59E0B),
+                                    bgColor = Color(0xFFFFFBEB),
+                                    onClick = { currentView = "today_revisions" },
+                                    tag = "queue_today"
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 18.dp),
+                                    color = Color(0xFFEFF1F6)
+                                )
+                                QueueRowItem(
+                                    title = "Upcoming",
+                                    count = upcomingList.size,
+                                    icon = Icons.Default.CheckCircle,
+                                    iconColor = Color(0xFF6C4DFF),
+                                    borderColor = Color(0xFF6C4DFF),
+                                    bgColor = Color(0xFFF1EEFF),
+                                    onClick = { currentView = "upcoming" },
+                                    tag = "queue_upcoming"
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -533,57 +707,49 @@ fun OverviewStatCard(
     bgColor: Color,
     tag: String
 ) {
-    Card(
+    Column(
         modifier = modifier
-            .height(90.dp)
+            .height(84.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(bgColor)
+            .border(1.dp, accentColor.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+            .padding(horizontal = 10.dp, vertical = 10.dp)
             .testTag(tag),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.12f))
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .size(26.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(accentColor.copy(alpha = 0.14f)),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(accentColor.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = accentColor,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-
-            Column(
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = value,
-                    color = accentColor,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = title,
-                    color = RevTextGray,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(14.dp)
+            )
         }
+        Text(
+            text = value,
+            color = accentColor,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = title,
+            color = RevTextGray,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
-
-
 }
+
 @Composable
 fun QueueRowItem(
     title: String,
@@ -595,62 +761,79 @@ fun QueueRowItem(
     onClick: () -> Unit,
     tag: String
 ) {
-    Card(
+    val subtitle = when (title) {
+        "Overdue" -> "Needs your attention"
+        "Today" -> "Scheduled for today"
+        else -> "Coming up next"
+    }
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .testTag(tag)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        border = BorderStroke(1.dp, borderColor)
+            .clip(RoundedCornerShape(14.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .testTag(tag),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(bgColor),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(if (icon == Icons.Default.Circle) 12.dp else 20.dp)
-                )
-                Text(
-                    text = title,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = RevTextDark
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = count.toString(),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = RevTextDark
-                )
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = RevTextGray,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(if (icon == Icons.Default.Circle) 12.dp else 20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = RevTextDark
+            )
+            Text(
+                text = subtitle,
+                fontSize = 11.sp,
+                color = RevTextGray
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(14.dp))
+                .background(borderColor.copy(alpha = 0.10f))
+                .padding(horizontal = 10.dp, vertical = 5.dp)
+        ) {
+            Text(
+                text = count.toString(),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = iconColor
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Box(
+            modifier = Modifier
+                .size(26.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFF1F3F9)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = RevTextGray,
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }
-
 
 // Screen 2 – Overdue Revisions Screen
 @OptIn(ExperimentalMaterial3Api::class)
