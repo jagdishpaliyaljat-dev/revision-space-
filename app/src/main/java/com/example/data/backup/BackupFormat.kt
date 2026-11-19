@@ -141,6 +141,27 @@ object BackupFormat {
             .map { it.first }
     }
 
+    /** Days since the last exported backup; `-1` when the user never backed up. */
+    fun backupAgeDays(lastBackupAtMs: Long, now: Long = System.currentTimeMillis()): Long {
+        if (lastBackupAtMs <= 0L) return -1L
+        val dayMs = 24L * 60L * 60L * 1000L
+        val diff = now - lastBackupAtMs
+        if (diff <= 0L) return 0L
+        return diff / dayMs
+    }
+
+    /** True when the user has data but has not exported a backup recently. */
+    fun isBackupStale(
+        lastBackupAtMs: Long,
+        hasData: Boolean,
+        now: Long = System.currentTimeMillis(),
+        thresholdDays: Long = 7L
+    ): Boolean {
+        if (!hasData) return false
+        val age = backupAgeDays(lastBackupAtMs, now)
+        return age < 0L || age >= thresholdDays
+    }
+
     /** Serializable envelope (kept separate from [BackupPayload] for clarity). */
     fun encode(
         createdAtMs: Long,

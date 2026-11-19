@@ -294,6 +294,44 @@ class BackupFormatTest {
         assertTrue(BackupFormat.snapshotsToDelete(emptyList(), keep = 3).isEmpty())
     }
 
+    @Test
+    fun backupAgeIsMeasuredInWholeDays() {
+        val day = 24L * 60L * 60L * 1000L
+        val now = 1_700_000_000_000L
+
+        assertEquals(-1L, BackupFormat.backupAgeDays(0L, now))
+        assertEquals(0L, BackupFormat.backupAgeDays(now, now))
+        assertEquals(0L, BackupFormat.backupAgeDays(now - day / 2, now))
+        assertEquals(1L, BackupFormat.backupAgeDays(now - day, now))
+        assertEquals(7L, BackupFormat.backupAgeDays(now - 7 * day, now))
+        // A clock that moved backwards must not produce a negative age.
+        assertEquals(0L, BackupFormat.backupAgeDays(now + 5 * day, now))
+    }
+
+    @Test
+    fun staleBackupRuleNeedsDataAndOldOrMissingExport() {
+        val day = 24L * 60L * 60L * 1000L
+        val now = 1_700_000_000_000L
+
+        // No data at all → never nag the user.
+        assertTrue(!BackupFormat.isBackupStale(0L, hasData = false, now = now))
+        // Data but never exported → nudge.
+        assertTrue(BackupFormat.isBackupStale(0L, hasData = true, now = now))
+        // Recent export → no nudge.
+        assertTrue(!BackupFormat.isBackupStale(now - day, hasData = true, now = now))
+        // Exactly a week old → nudge.
+        assertTrue(BackupFormat.isBackupStale(now - 7 * day, hasData = true, now = now))
+        // Custom threshold is respected.
+        assertTrue(
+            BackupFormat.isBackupStale(
+                now - 3 * day,
+                hasData = true,
+                now = now,
+                thresholdDays = 2L
+            )
+        )
+    }
+
     private fun assertFailure(expectedPart: String, block: () -> Unit) {
         try {
             block()

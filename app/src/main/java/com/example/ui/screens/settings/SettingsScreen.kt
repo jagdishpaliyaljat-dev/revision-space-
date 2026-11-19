@@ -69,6 +69,7 @@ import java.util.Locale
 fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
     val context = LocalContext.current
     val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
+    val subjects by viewModel.allSubjects.collectAsStateWithLifecycle(emptyList())
     val sharedPrefs = remember(context) { context.getSharedPreferences("revision_app_prefs", android.content.Context.MODE_PRIVATE) }
     val scope = rememberCoroutineScope()
 
@@ -94,9 +95,12 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
     var lastBackupStatus by remember {
         mutableStateOf(sharedPrefs.getString("last_backup_status", null))
     }
-    // Newest automatic pre-import copy, used by the "Undo last import" row.
+    // Newest automatic safety copy, used by the "Restore previous data" row.
     var safetySnapshot by remember { mutableStateOf<BackupManager.SafetySnapshot?>(null) }
     var safetyLoading by remember { mutableStateOf(false) }
+    var lastBackupAtMs by remember {
+        mutableStateOf(sharedPrefs.getLong(BackupManager.KEY_LAST_BACKUP_MS, 0L))
+    }
 
     LaunchedEffect(Unit) {
         safetySnapshot = withContext(Dispatchers.IO) {
@@ -160,6 +164,10 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
             exportInProgress = false
             result.onSuccess { rows ->
                 setBackupStatus("Last backup: $rows records")
+                lastBackupAtMs = System.currentTimeMillis()
+                sharedPrefs.edit()
+                    .putLong(BackupManager.KEY_LAST_BACKUP_MS, lastBackupAtMs)
+                    .apply()
                 Toast.makeText(context, "Backup saved — $rows records exported", Toast.LENGTH_LONG).show()
             }.onFailure { error ->
                 Toast.makeText(context, error.message ?: "Export failed", Toast.LENGTH_LONG).show()
@@ -524,8 +532,8 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     icon = Icons.Default.Restore,
                     iconBg = MaterialTheme.colorScheme.primaryContainer,
                     iconTint = MaterialTheme.colorScheme.primary,
-                    title = if (safetyLoading) "Opening safety copy…" else "Undo last import",
-                    subtitle = "Restore the copy saved before your last import (" +
+                    title = if (safetyLoading) "Opening safety copy…" else "Restore previous data",
+                    subtitle = "Copy saved before your last import or delete (" +
                         formatBackupDate(safetySnapshot!!.modifiedAtMs) + ")",
                     testTag = "settings_restore_safety_item",
                     onClick = { openSafetySnapshot() }
@@ -541,6 +549,44 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                         .padding(horizontal = 22.dp, vertical = 4.dp)
                         .testTag("settings_last_backup_status")
                 )
+            }
+            // Gentle nudge: with real data on the phone but no recent export, a
+            // lost/broken phone would take everything with it.
+            if (BackupFormat.isBackupStale(lastBackupAtMs, subjects.isNotEmpty())) {
+                val age = BackupFormat.backupAgeDays(lastBackupAtMs)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .testTag("settings_backup_nudge"),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CloudUpload,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            if (age < 0L) {
+                                "You haven't backed up yet. Export a copy so a lost phone can never erase your progress."
+                            } else {
+                                "Your last backup was $age days ago. Export a fresh copy to stay safe."
+                            },
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
             }
 
             // Dark Mode
@@ -716,7 +762,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
             title = { Text("Delete all data?", fontWeight = FontWeight.SemiBold, fontSize = 18.sp) },
             text = {
                 Text(
-                    "This permanently erases every subject, topic, revision history, note and streak stored on this device. This action cannot be undone.",
+                    "This erases every subject, topic, revision history, note and streak stored on this device. A safety copy is saved first, so you can bring it back from Backup & Restore.",
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -725,8 +771,34 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
-                        viewModel.clearLocalData()
-                        Toast.makeText(context, "All local data deleted", Toast.LENGTH_LONG).show()
+                        scope.launch {
+                            // Never delete without an undo copy.
+                            val snapshot = withContext(Dispatchers.IO) {
+                                runCatching {
+                                    val db = runCatching { com.example.MyApplication.database }.getOrNull()
+                                        ?: throw IllegalStateException("Local database is not ready. Please restart the app.")
+                                    BackupManager.saveSafetySnapshot(context, db, BuildConfig.VERSION_NAME)
+                                }.getOrNull()
+                            }
+                            viewModel.clearLocalData()
+                            snapshot?.let { safetySnapshot = it }
+                            setBackupStatus(
+                                if (snapshot != null) {
+                                    "Deleted all data — a safety copy is available"
+                                } else {
+                                    "Deleted all data"
+                                }
+                            )
+                            Toast.makeText(
+                                context,
+                                if (snapshot != null) {
+                                    "All data deleted — restore it from 'Restore previous data'"
+                                } else {
+                                    "All local data deleted"
+                                },
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     },
                     modifier = Modifier.testTag("confirm_delete_data_button")
                 ) {
@@ -977,7 +1049,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     }
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        "A safety copy of your previous data is kept on this device — use \"Undo last import\" in Settings to go back.",
+                        "A safety copy of your previous data is kept on this device — use \"Restore previous data\" in Settings to go back.",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -57,6 +57,9 @@ object BackupManager {
     /** Same preferences file used by the Settings screen. */
     const val PREFS_NAME = "revision_app_prefs"
 
+    /** Timestamp (ms) of the last successful manual export. */
+    const val KEY_LAST_BACKUP_MS = "last_backup_at_ms"
+
     /** 25 MB is far beyond a realistic study backup but protects the phone. */
     const val MAX_FILE_BYTES = 25 * 1024 * 1024
 
