@@ -283,8 +283,8 @@ class BackupFormatTest {
         )
         assertEquals(
             listOf(
-                "RevisionSpace-Safety-old.json",
-                "RevisionSpace-Safety-mid.json"
+                "RevisionSpace-Safety-mid.json",
+                "RevisionSpace-Safety-old.json"
             ),
             BackupFormat.snapshotsToDelete(entries, keep = 1)
         )
