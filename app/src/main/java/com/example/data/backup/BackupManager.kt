@@ -229,11 +229,10 @@ object BackupManager {
 
     private fun appTableNames(db: SupportSQLiteDatabase): List<String> {
         val names = ArrayList<String>()
-        db.rawQuery(
+        db.query(
             "SELECT name FROM sqlite_master WHERE type = 'table' " +
                 "AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'room_%' " +
-                "AND name NOT LIKE 'android_%'",
-            null
+                "AND name NOT LIKE 'android_%'"
         ).use { cursor ->
             while (cursor.moveToNext()) {
                 val name = cursor.getString(0) ?: continue
@@ -245,7 +244,7 @@ object BackupManager {
 
     private fun columnsOf(db: SupportSQLiteDatabase, table: String): Set<String> {
         val columns = HashSet<String>()
-        db.rawQuery("PRAGMA table_info(`$table`)", null).use { cursor ->
+        db.query("PRAGMA table_info(`$table`)").use { cursor ->
             val nameIndex = cursor.getColumnIndex("name")
             while (cursor.moveToNext()) {
                 if (nameIndex >= 0) cursor.getString(nameIndex)?.let { columns += it }
@@ -259,7 +258,7 @@ object BackupManager {
         table: String
     ): List<Map<String, JsonElement>> {
         val rows = ArrayList<Map<String, JsonElement>>()
-        db.rawQuery("SELECT * FROM `$table`", null).use { cursor ->
+        db.query("SELECT * FROM `$table`").use { cursor ->
             val columns = cursor.columnNames
             while (cursor.moveToNext()) {
                 val row = LinkedHashMap<String, JsonElement>(columns.size)
