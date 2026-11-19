@@ -332,6 +332,19 @@ class BackupFormatTest {
         )
     }
 
+    @Test
+    fun onlyUserSettingsAreExported() {
+        // Real settings travel with the backup.
+        assertTrue(BackupFormat.isExportedPref("dark_mode_enabled"))
+        assertTrue(BackupFormat.isExportedPref("notifications_enabled"))
+        assertTrue(BackupFormat.isExportedPref("reminder_hour"))
+        // Device-local bookkeeping must not.
+        assertTrue(!BackupFormat.isExportedPref("last_backup_status"))
+        assertTrue(!BackupFormat.isExportedPref("last_backup_at_ms"))
+        assertTrue(!BackupFormat.isExportedPref("last_backup_anything"))
+        assertTrue(!BackupFormat.isExportedPref(""))
+    }
+
     private fun assertFailure(expectedPart: String, block: () -> Unit) {
         try {
             block()

@@ -286,21 +286,10 @@ open class RevisionRepository {
     
     suspend fun clearAllData() {
         val rDb = roomDb ?: return
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            rDb.runInTransaction {
-                rDb.subjectDao().deleteAllForUserSync("offline_user")
-                rDb.chapterDao().deleteAllForUserSync("offline_user")
-                rDb.topicDao().deleteAllForUserSync("offline_user")
-                rDb.revisionDao().deleteAllForUserSync("offline_user")
-                rDb.studyLogDao().deleteAllForUserSync("offline_user")
-                rDb.examDao().deleteAllForUserSync("offline_user")
-                rDb.revisionHistoryDao().deleteAllForUserSync("offline_user")
-                rDb.subjectTestDao().deleteAllForUserSync("offline_user")
-                rDb.quickTaskDao().deleteAllForUserSync("offline_user")
-                rDb.coinTransactionDao().deleteAllForUserSync("offline_user")
-                rDb.appNotificationDao().deleteAllForUserSync("offline_user")
-            }
-        }
+        // One generic wipe covers every table (including the profile and offline
+        // notes, which the old per-DAO list missed) and recreates the default
+        // local profile.
+        com.example.data.backup.BackupManager.wipeAllData(rDb)
     }
 
     open suspend fun generateTestDataIfEmpty() {

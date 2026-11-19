@@ -78,14 +78,24 @@ object BackupManager {
     fun createBackup(context: Context, db: AppDatabase, appVersion: String): String {
         val writable = db.openHelper.writableDatabase
         val tables = LinkedHashMap<String, List<Map<String, JsonElement>>>()
-        writable.beginTransactionNonExclusive()
-        try {
+        val transactional = runCatching {
+            writable.beginTransactionNonExclusive()
+            try {
+                appTableNames(writable).forEach { table ->
+                    tables[table] = readTable(writable, table)
+                }
+                writable.setTransactionSuccessful()
+            } finally {
+                writable.endTransaction()
+            }
+        }.isSuccess
+        if (!transactional) {
+            // Another writer is already holding the connection. Fall back to a
+            // plain read instead of failing the user's export.
+            tables.clear()
             appTableNames(writable).forEach { table ->
                 tables[table] = readTable(writable, table)
             }
-            writable.setTransactionSuccessful()
-        } finally {
-            writable.endTransaction()
         }
         return BackupFormat.encode(
             createdAtMs = System.currentTimeMillis(),
@@ -268,18 +278,20 @@ object BackupManager {
                     droppedColumns += rowDropped
                     if (values.size() == 0) return@forEach
 
-                    val result = runCatching {
-                        writable.insert(
-                            table,
-                            SQLiteDatabase.CONFLICT_REPLACE,
-                            values
-                        )
-                    }
-                    if (result.getOrNull() != null && result.getOrNull() != -1L) {
-                        ok++
-                    } else {
-                        failedRows++
-                    }
+                    // Merge must never blank newer columns. SQLite's REPLACE
+                    // deletes the old row and re-inserts only the columns present
+                    // in the file, which would reset columns added in a later app
+                    // version. Updating the existing row keeps everything else.
+                    val idValue = values.get("id") as? String
+                    val exists = idValue != null && rowExists(writable, table, idValue)
+                    val applied = runCatching {
+                        if (exists) {
+                            writable.update(table, values, "id = ?", arrayOf(idValue))
+                        } else {
+                            writable.insert(table, SQLiteDatabase.CONFLICT_REPLACE, values).toInt()
+                        }
+                    }.getOrDefault(0)
+                    if (applied > 0) ok++ else failedRows++
                 }
                 imported[table] = ok
             }
@@ -302,6 +314,39 @@ object BackupManager {
     }
 
     // ------------------------------------------------------------- internals
+
+    /**
+     * Deletes every row from every app table and recreates the default local
+     * profile, so "Delete all data" really leaves nothing personal behind.
+     *
+     * The previous implementation only cleared 11 tables and silently kept the
+     * profile (name, coins, streaks, referral) and all offline notes.
+     */
+    suspend fun wipeAllData(db: AppDatabase): Int = kotlinx.coroutines.withContext(
+        kotlinx.coroutines.Dispatchers.IO
+    ) {
+        val writable = db.openHelper.writableDatabase
+        var deleted = 0
+        writable.beginTransaction()
+        try {
+            appTableNames(writable).forEach { table ->
+                deleted += runCatching {
+                    writable.delete(table, null, null)
+                }.getOrDefault(0)
+            }
+            writable.setTransactionSuccessful()
+        } finally {
+            writable.endTransaction()
+        }
+        // The app always expects a local profile row; recreate it with defaults.
+        runCatching { db.userProfileDao().insert(com.example.data.local.UserProfileEntity()) }
+        deleted
+    }
+
+    private fun rowExists(db: SupportSQLiteDatabase, table: String, id: String): Boolean =
+        db.query("SELECT 1 FROM `$table` WHERE id = ? LIMIT 1", arrayOf(id)).use { cursor ->
+            cursor.moveToFirst()
+        }
 
     private fun appTableNames(db: SupportSQLiteDatabase): List<String> {
         val names = ArrayList<String>()
@@ -362,6 +407,7 @@ object BackupManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val result = LinkedHashMap<String, JsonElement>()
         prefs.all.forEach { (key, value) ->
+            if (!BackupFormat.isExportedPref(key)) return@forEach
             result[key] = when (value) {
                 null -> JsonNull
                 is Boolean -> JsonPrimitive(value)
@@ -406,6 +452,9 @@ object BackupManager {
         val editor = sharedPrefs.edit()
         var applied = 0
         prefs.forEach { (key, value) ->
+            // Defence in depth: old backup files may still carry device-local
+            // keys, and they must never overwrite this phone's own state.
+            if (!BackupFormat.isExportedPref(key)) return@forEach
             when {
                 value is JsonNull -> {
                     editor.remove(key); applied++

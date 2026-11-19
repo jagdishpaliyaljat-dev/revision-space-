@@ -56,6 +56,22 @@ object BackupFormat {
 
     const val MIME_TYPE = "application/json"
 
+    /**
+     * Preferences that belong to this device only and must not travel in a
+     * backup: they would otherwise make an imported file show a false
+     * "last backup" date and suppress the backup reminder.
+     */
+    private val DEVICE_LOCAL_PREFS = setOf(
+        "last_backup_status",
+        "last_backup_at_ms"
+    )
+
+    /** True when [key] is a user setting that should be exported and restored. */
+    fun isExportedPref(key: String): Boolean =
+        key.isNotBlank() &&
+            key !in DEVICE_LOCAL_PREFS &&
+            !key.startsWith("last_backup")
+
     /** Safety limits so a malicious or corrupted file cannot exhaust memory. */
     const val MAX_TABLES = 100
     const val MAX_ROWS = 200_000
