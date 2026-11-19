@@ -299,7 +299,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                         }
                     }
 
-                    // Premium gradient progress hero
+                    // Premium gradient progress hero (redesigned: ring + stats in one card)
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -314,60 +314,10 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     .background(Brush.linearGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))))
                                     .padding(20.dp)
                             ) {
-                                // Soft decorative orbs
-                                Box(
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.08f))
-                                        .offset(x = 150.dp, y = (-40).dp)
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(80.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.06f))
-                                        .offset(x = 230.dp, y = 70.dp)
-                                )
-
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = "KEEP IT UP",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            letterSpacing = 1.2.sp,
-                                            color = Color.White.copy(alpha = 0.8f)
-                                        )
-                                        Spacer(modifier = Modifier.height(5.dp))
-                                        Text(
-                                            text = "You're making progress",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.White
-                                        )
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Text(
-                                            text = "$completedCount of $totalTopicsCount topics completed",
-                                            fontSize = 12.sp,
-                                            color = Color.White.copy(alpha = 0.85f)
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        LinearProgressIndicator(
-                                            progress = { completionFraction },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(6.dp)
-                                                .clip(RoundedCornerShape(3.dp)),
-                                            color = Color.White,
-                                            trackColor = Color.White.copy(alpha = 0.25f)
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
+                                    // Ring
                                     Box(
-                                        modifier = Modifier.size(84.dp),
+                                        modifier = Modifier.size(96.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         CircularProgressIndicator(
@@ -375,12 +325,12 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             modifier = Modifier.fillMaxSize(),
                                             color = Color.White,
                                             trackColor = Color.White.copy(alpha = 0.22f),
-                                            strokeWidth = 7.dp
+                                            strokeWidth = 8.dp
                                         )
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Text(
                                                 text = "$completionPercentage%",
-                                                fontSize = 20.sp,
+                                                fontSize = 22.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color.White,
                                                 modifier = Modifier.testTag("overview_completion")
@@ -394,53 +344,51 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             )
                                         }
                                     }
-                                }
-                            }
-                        }
-                    }
 
-                    // Compact stat strip — Total / Pending / Streak
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(22.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            border = BorderStroke(1.dp, Color(0xFFE7EAF3)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(14.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                OverviewStatCard(
-                                    modifier = Modifier.weight(1f),
-                                    title = "Total Topics",
-                                    value = totalTopicsCount.toString(),
-                                    icon = Icons.Default.MenuBook,
-                                    accentColor = Color(0xFF6C4DFF),
-                                    bgColor = Color(0xFFF1EEFF),
-                                    tag = "overview_total_topics"
-                                )
-                                OverviewStatCard(
-                                    modifier = Modifier.weight(1f),
-                                    title = "Pending",
-                                    value = pendingCount.toString(),
-                                    icon = Icons.Default.HourglassEmpty,
-                                    accentColor = Color(0xFFF59E0B),
-                                    bgColor = Color(0xFFFFFBEB),
-                                    tag = "overview_pending"
-                                )
-                                OverviewStatCard(
-                                    modifier = Modifier.weight(1f),
-                                    title = "Streak",
-                                    value = "$streakCount Days",
-                                    icon = Icons.Default.Whatshot,
-                                    accentColor = Color(0xFF10B981),
-                                    bgColor = Color(0xFFECFDF5),
-                                    tag = "overview_streak"
-                                )
+                                    Spacer(modifier = Modifier.width(18.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "KEEP IT UP",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.2.sp,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "You're making progress",
+                                            fontSize = 17.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "$completedCount of $totalTopicsCount topics completed",
+                                            fontSize = 12.sp,
+                                            color = Color.White.copy(alpha = 0.85f)
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        LinearProgressIndicator(
+                                            progress = { completionFraction },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(6.dp)
+                                                .clip(RoundedCornerShape(3.dp)),
+                                            color = Color.White,
+                                            trackColor = Color.White.copy(alpha = 0.25f)
+                                        )
+                                        Spacer(modifier = Modifier.height(14.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                        ) {
+                                            MiniStatPill(Icons.Default.MenuBook, "Total", totalTopicsCount.toString(), Modifier.testTag("overview_total_topics"))
+                                            MiniStatPill(Icons.Default.HourglassEmpty, "Pending", pendingCount.toString(), Modifier.testTag("overview_pending"))
+                                            MiniStatPill(Icons.Default.Whatshot, "Streak", "$streakCount", Modifier.testTag("overview_streak"))
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -696,6 +644,24 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
 }
 
 @Composable
+@Composable
+fun MiniStatPill(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White.copy(alpha = 0.18f))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Column {
+            Text(value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Text(label, color = Color.White.copy(alpha = 0.75f), fontSize = 9.sp)
+        }
+    }
+}
+
 fun OverviewStatCard(
     modifier: Modifier = Modifier,
     title: String,
