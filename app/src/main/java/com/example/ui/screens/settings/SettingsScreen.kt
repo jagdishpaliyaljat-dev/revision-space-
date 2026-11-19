@@ -67,6 +67,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showAccountDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     var isSyncing by remember { mutableStateOf(false) }
 
     // Notification permission (Android 13+) so the "turn on" switch actually
@@ -411,6 +412,24 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 onClick = { showAboutDialog = true }
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
+            SectionLabel("Account")
+
+            // Logout — same behaviour as the drawer, with a confirmation first.
+            SettingsItemRow(
+                icon = Icons.Default.Logout,
+                iconBg = MaterialTheme.colorScheme.errorContainer,
+                iconTint = MaterialTheme.colorScheme.error,
+                title = "Logout",
+                subtitle = if (signedInEmail != null) {
+                    "Sign out of $signedInEmail"
+                } else {
+                    "Sign out of this device"
+                },
+                testTag = "settings_logout_item",
+                onClick = { showLogoutDialog = true }
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
@@ -542,6 +561,66 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
             confirmButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
                     Text("Close", color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        )
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            modifier = Modifier.testTag("settings_logout_dialog"),
+            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.errorContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Logout,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            },
+            title = { Text("Logout?", fontWeight = FontWeight.SemiBold, fontSize = 18.sp) },
+            text = {
+                Text(
+                    "You will be signed out of this device. Your study data stays safe and can be synced again after signing in.",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        viewModel.logout(context) {
+                            try {
+                                navController.navigate(SignInRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Couldn't open the sign-in screen", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.testTag("confirm_settings_logout_button")
+                ) {
+                    Text("Logout", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showLogoutDialog = false },
+                    modifier = Modifier.testTag("cancel_settings_logout_button")
+                ) {
+                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         )
