@@ -603,16 +603,16 @@ fun TimerScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(18.dp))
+                        .clip(RoundedCornerShape(20.dp))
                         .background(Brush.horizontalGradient(listOf(FocusPurple, Color(0xFF8B5CF6))))
                         .clickable(enabled = !isRunning) { showTopicSelectionSheet = true }
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Icon(Icons.Default.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.width(11.dp))
                         val buttonText = if (currentChapterName.isNotEmpty()) {
                             currentChapterName.uppercase()
                         } else {
@@ -622,12 +622,12 @@ fun TimerScreen(
                             text = buttonText,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
+                            fontSize = 15.5.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f)
                         )
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                     }
                 }
             }
@@ -1580,12 +1580,12 @@ private fun ModePill(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(15.dp))
             .alpha(if (enabled) 1f else 0.45f)
             .background(if (selected) FocusPurple else MaterialTheme.colorScheme.surface)
-            .border(1.dp, if (selected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
+            .border(1.dp, if (selected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(15.dp))
             .clickable(enabled = enabled) { onClick() }
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = 15.dp, vertical = 11.dp),
         contentAlignment = Alignment.Center
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1593,12 +1593,12 @@ private fun ModePill(
                 icon,
                 contentDescription = null,
                 tint = if (selected) Color.White else FocusPurple,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(18.dp)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(7.dp))
             Text(
                 label,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (selected) Color.White else FocusTextDark
             )
