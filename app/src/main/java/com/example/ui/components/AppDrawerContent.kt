@@ -64,7 +64,8 @@ fun AppDrawerContent(
     val coins = userProfile?.totalCoins ?: 0
 
     val rank = remember(allUsers, userProfile) {
-        val sorted = allUsers.filter { !it.isBanned }.sortedByDescending { it.getOverallPerformanceScore() }
+        val sorted = (allUsers ?: emptyList()).filter { !it.isBanned }
+            .sortedByDescending { it.getOverallPerformanceScore() }
         val index = sorted.indexOfFirst { it.id == userProfile?.id }
         if (index != -1) index + 1 else null
     }
