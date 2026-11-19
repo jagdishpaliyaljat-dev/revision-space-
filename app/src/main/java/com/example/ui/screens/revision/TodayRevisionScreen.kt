@@ -299,95 +299,141 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                         }
                     }
 
-                    // Premium gradient progress hero (redesigned: ring + stats in one card)
+                    // Mobile-first "Today's Progress" card.
+                    // A compact ring on the left, readable copy on the right and the
+                    // three key numbers in equal thirds underneath so nothing squashes
+                    // on small phone widths.
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(26.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(26.dp))
-                                    .background(Brush.linearGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))))
-                                    .padding(20.dp)
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // Ring
+                            Column(modifier = Modifier.fillMaxWidth()) {
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 18.dp, vertical = 18.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Progress ring
                                     Box(
-                                        modifier = Modifier.size(96.dp),
+                                        modifier = Modifier.size(88.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         CircularProgressIndicator(
                                             progress = { completionFraction },
                                             modifier = Modifier.fillMaxSize(),
-                                            color = Color.White,
-                                            trackColor = Color.White.copy(alpha = 0.22f),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                             strokeWidth = 8.dp
                                         )
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Text(
                                                 text = "$completionPercentage%",
-                                                fontSize = 22.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White,
+                                                fontSize = 21.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = RevTextDark,
                                                 modifier = Modifier.testTag("overview_completion")
                                             )
                                             Text(
                                                 text = "DONE",
-                                                fontSize = 8.sp,
-                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 8.5.sp,
+                                                fontWeight = FontWeight.Medium,
                                                 letterSpacing = 1.sp,
-                                                color = Color.White.copy(alpha = 0.75f)
+                                                color = RevTextGray
                                             )
                                         }
                                     }
 
                                     Spacer(modifier = Modifier.width(18.dp))
 
+                                    // Copy + slim progress bar
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "KEEP IT UP",
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            text = "COMPLETION",
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.SemiBold,
                                             letterSpacing = 1.2.sp,
-                                            color = Color.White.copy(alpha = 0.8f)
+                                            color = MaterialTheme.colorScheme.primary
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "You're making progress",
-                                            fontSize = 17.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.White
+                                            text = if (totalTopicsCount > 0 && pendingCount == 0) {
+                                                "All caught up for today"
+                                            } else {
+                                                "You're making progress"
+                                            },
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = RevTextDark,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
-                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Spacer(modifier = Modifier.height(3.dp))
                                         Text(
                                             text = "$completedCount of $totalTopicsCount topics completed",
-                                            fontSize = 12.sp,
-                                            color = Color.White.copy(alpha = 0.85f)
+                                            fontSize = 11.5.sp,
+                                            color = RevTextGray,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
-                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Spacer(modifier = Modifier.height(10.dp))
                                         LinearProgressIndicator(
                                             progress = { completionFraction },
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .height(6.dp)
+                                                .height(5.dp)
                                                 .clip(RoundedCornerShape(3.dp)),
-                                            color = Color.White,
-                                            trackColor = Color.White.copy(alpha = 0.25f)
+                                            color = MaterialTheme.colorScheme.primary,
+                                            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                                         )
-                                        Spacer(modifier = Modifier.height(14.dp))
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                        ) {
-                                            MiniStatPill(Icons.Default.MenuBook, "Total", totalTopicsCount.toString(), Modifier.testTag("overview_total_topics"))
-                                            MiniStatPill(Icons.Default.HourglassEmpty, "Pending", pendingCount.toString(), Modifier.testTag("overview_pending"))
-                                            MiniStatPill(Icons.Default.Whatshot, "Streak", "$streakCount", Modifier.testTag("overview_streak"))
-                                        }
                                     }
+                                }
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 18.dp),
+                                    thickness = 1.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                )
+
+                                // Equal-width stats: always readable on narrow screens
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    ProgressStat(
+                                        value = totalTopicsCount.toString(),
+                                        label = "Total",
+                                        modifier = Modifier.weight(1f).testTag("overview_total_topics")
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(26.dp)
+                                            .background(MaterialTheme.colorScheme.outlineVariant)
+                                    )
+                                    ProgressStat(
+                                        value = pendingCount.toString(),
+                                        label = "Pending",
+                                        modifier = Modifier.weight(1f).testTag("overview_pending")
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(26.dp)
+                                            .background(MaterialTheme.colorScheme.outlineVariant)
+                                    )
+                                    ProgressStat(
+                                        value = "$streakCount",
+                                        label = "Day streak",
+                                        modifier = Modifier.weight(1f).testTag("overview_streak")
+                                    )
                                 }
                             }
                         }
@@ -641,6 +687,35 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
         )
     }
 } // closes Box
+}
+
+/** Value + label used in the Today's Progress card footer. */
+@Composable
+private fun ProgressStat(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = RevTextDark,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = RevTextGray,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 @Composable
