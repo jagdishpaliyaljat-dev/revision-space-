@@ -108,7 +108,6 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     var showAchievementsDialog by remember { mutableStateOf(openAchievements) }
-    val globalConfig by viewModel.globalConfig.collectAsStateWithLifecycle()
     val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
     val allTopics by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle()
     val profileStats by viewModel.profileStats.collectAsStateWithLifecycle()
@@ -220,14 +219,10 @@ fun ProfileScreen(
 
     // Dynamic stats derived from logs/DB with robust fallback
     val displayCoins = safeProfile.totalCoins ?: 0
-    val displayStreak = if (globalConfig.isStreakSystemEnabled) (safeProfile.currentStreak ?: 0) else 0
     
     
     val displayStudyHours = profileStats.displayStudyHours
-    val displayStudyTimeStr = profileStats.displayStudyTimeStr
     val displayRevisions = profileStats.displayRevisions
-    val completedChaptersCount = profileStats.completedChaptersCount
-    val displayMastery = profileStats.displayMastery
 
     // Modal Field drafts
     var nameField by remember { mutableStateOf("") }
@@ -359,32 +354,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             
-            // 0. Stats Hero (new)
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(22.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ProfileHeroStat(Icons.Default.LocalFireDepartment, Color(0xFFF97316), Color(0xFFF97316).copy(alpha = 0.12f), "Streak", "${displayStreak} days")
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        ProfileHeroStat(Icons.Default.Paid, Color(0xFFF59E0B), Color(0xFFF59E0B).copy(alpha = 0.12f), "Coins", String.format("%,d", displayCoins))
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        ProfileHeroStat(Icons.Default.Timer, Color(0xFF3B82F6), Color(0xFF3B82F6).copy(alpha = 0.12f), "Study Time", displayStudyTimeStr)
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        ProfileHeroStat(Icons.Default.FactCheck, Color(0xFF10B981), Color(0xFF10B981).copy(alpha = 0.12f), "Revisions", "$displayRevisions")
-                    }
-                }
-            }
-
-            // 1. Main Profile Card
+            // 1. Profile Card (primary section)
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().shadow(0.dp, RoundedCornerShape(24.dp)),
@@ -640,60 +610,7 @@ fun ProfileScreen(
             }
             }
 
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth().shadow(2.dp, RoundedCornerShape(16.dp), spotColor = MaterialTheme.colorScheme.outlineVariant),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            ProfileStatItem(
-                                icon = Icons.Outlined.MenuBook,
-                                iconBg = ProfilePurpleSuperLight,
-                                iconTint = ProfilePurple,
-                                title = "Chapters\nCompleted",
-                                value = "$completedChaptersCount",
-                                onClick = { navController.navigate(com.example.ui.SubjectsRoute) }
-                            )
-                            ProfileStatItem(
-                                icon = Icons.Default.Refresh,
-                                iconBg = Color(0xFF10B981).copy(alpha = 0.12f),
-                                iconTint = TrendGreen,
-                                title = "Revisions\nDone",
-                                value = "$displayRevisions",
-                                onClick = { navController.navigate(com.example.ui.TodayRevisionRoute("today_revisions")) }
-                            )
-                            ProfileStatItem(
-                                icon = Icons.Outlined.WatchLater,
-                                iconBg = Color(0xFF3B82F6).copy(alpha = 0.12f),
-                                iconTint = TrendBlue,
-                                title = "Study\nTime",
-                                value = displayStudyTimeStr,
-                                onClick = { navController.navigate(com.example.ui.AnalyticsRoute) }
-                            )
-                            ProfileStatItem(
-                                icon = Icons.Outlined.TrackChanges,
-                                iconBg = Color(0xFFFFFBEB),
-                                iconTint = TrendOrange,
-                                title = "Syllabus\nCovered",
-                                value = "${displayMastery}%",
-                                onClick = { navController.navigate(com.example.ui.SyllabusRoute) }
-                            )
-                        }
-                    }
-                }
-            }
-
-
-            // 5. Quick Actions Section
+            // 2. Quick Actions Section
             item {
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Text("Quick Actions", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = ProfileTextDark)
