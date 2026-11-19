@@ -13,6 +13,7 @@ import com.example.ui.components.*
 import com.example.ui.utils.*
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
@@ -39,15 +40,27 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.BuildConfig
+import com.example.data.backup.BackupFormat
+import com.example.data.backup.BackupFormatException
+import com.example.data.backup.BackupManager
+import com.example.data.backup.BackupPayload
+import com.example.data.backup.ImportMode
+import com.example.data.backup.ImportOutcome
 import com.example.viewmodel.RevisionViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,6 +82,14 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
     var showAccountDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var isSyncing by remember { mutableStateOf(false) }
+
+    // ---- Local file backup & restore (JSON via the system file picker) ----
+    var exportInProgress by remember { mutableStateOf(false) }
+    var importInProgress by remember { mutableStateOf(false) }
+    var pendingImport by remember { mutableStateOf<PendingBackup?>(null) }
+    var importOutcome by remember { mutableStateOf<ImportOutcome?>(null) }
+    var importError by remember { mutableStateOf<String?>(null) }
+    var lastBackupStatus by remember { mutableStateOf<String?>(null) }
 
     // Notification permission (Android 13+) so the "turn on" switch actually
     // results in alerts instead of silently doing nothing.
@@ -97,6 +118,93 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
         } else {
             viewModel.checkAndTriggerNotifications(context)
             Toast.makeText(context, "Notifications turned on", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Export: the user picks where to save. We generate the JSON, verify that we
+    // can parse what we are about to write, and only then hand it to the picker.
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(BackupFormat.MIME_TYPE)
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        exportInProgress = true
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val db = runCatching { com.example.MyApplication.database }.getOrNull()
+                        ?: throw IllegalStateException("Local database is not ready. Please restart the app.")
+                    val json = BackupManager.createBackup(context, db, BuildConfig.VERSION_NAME)
+                    val rows = BackupFormat.decode(json).totalRows
+                    BackupManager.writeBackupFile(context, uri, json)
+                    rows
+                }
+            }
+            exportInProgress = false
+            result.onSuccess { rows ->
+                lastBackupStatus = "Last backup: $rows records"
+                Toast.makeText(context, "Backup saved — $rows records exported", Toast.LENGTH_LONG).show()
+            }.onFailure { error ->
+                Toast.makeText(context, error.message ?: "Export failed", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    // Import step 1: read + validate the file. Nothing is written yet; the user
+    // first sees what the file contains and chooses Merge or Replace.
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        importInProgress = true
+        scope.launch {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val fileName = BackupManager.displayName(context, uri) ?: "backup.json"
+                    val payload = BackupFormat.decode(BackupManager.readBackupFile(context, uri))
+                    PendingBackup(fileName, payload)
+                }
+            }
+            importInProgress = false
+            result.onSuccess { pending -> pendingImport = pending }
+                .onFailure { error ->
+                    importError = when (error) {
+                        is BackupFormatException -> error.message ?: "Invalid backup file"
+                        else -> error.message ?: "Couldn't read the selected file"
+                    }
+                }
+        }
+    }
+
+    // Import step 2: apply the already validated payload in one transaction.
+    fun runImport(payload: BackupPayload, mode: ImportMode) {
+        pendingImport = null
+        importInProgress = true
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val db = runCatching { com.example.MyApplication.database }.getOrNull()
+                        ?: throw IllegalStateException("Local database is not ready. Please restart the app.")
+                    BackupManager.importBackup(context, db, payload, mode)
+                }
+            }
+            importInProgress = false
+            result.onSuccess { outcome ->
+                // Settings live in SharedPreferences, so reflect them right away.
+                notificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", notificationsEnabled)
+                runCatching {
+                    viewModel.setDarkMode(sharedPrefs.getBoolean("dark_mode_enabled", darkModeEnabled))
+                }
+                lastBackupStatus = "Last import: ${outcome.totalImported} records"
+                importOutcome = outcome
+            }.onFailure { error ->
+                importError = error.message ?: "Import failed. Your data was not changed."
+            }
         }
     }
 
@@ -310,6 +418,61 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     }
                 }
             )
+
+            // Local file backup & restore — works fully offline, no account needed.
+            SectionLabel("Backup & Restore")
+            SettingsItemRow(
+                icon = Icons.Default.FileUpload,
+                iconBg = MaterialTheme.colorScheme.tertiaryContainer,
+                iconTint = MaterialTheme.colorScheme.tertiary,
+                title = "Export Data",
+                subtitle = if (exportInProgress) {
+                    "Preparing your backup file…"
+                } else {
+                    "Save all subjects, topics, history and settings to a file"
+                },
+                testTag = "settings_export_data_item",
+                onClick = {
+                    if (!exportInProgress && !importInProgress) {
+                        exportLauncher.launch(BackupFormat.fileName())
+                    }
+                }
+            )
+            SettingsItemRow(
+                icon = Icons.Default.FileDownload,
+                iconBg = MaterialTheme.colorScheme.secondaryContainer,
+                iconTint = MaterialTheme.colorScheme.secondary,
+                title = "Import Data",
+                subtitle = if (importInProgress) {
+                    "Reading backup file…"
+                } else {
+                    "Restore from a Revision Space backup file"
+                },
+                testTag = "settings_import_data_item",
+                onClick = {
+                    if (!importInProgress && !exportInProgress) {
+                        importLauncher.launch(
+                            arrayOf(
+                                "application/json",
+                                "text/plain",
+                                "application/octet-stream",
+                                "*/*"
+                            )
+                        )
+                    }
+                }
+            )
+            if (lastBackupStatus != null) {
+                Text(
+                    lastBackupStatus!!,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = 22.dp, vertical = 4.dp)
+                        .testTag("settings_last_backup_status")
+                )
+            }
 
             // Dark Mode
             Card(
