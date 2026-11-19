@@ -644,7 +644,6 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
 }
 
 @Composable
-@Composable
 fun MiniStatPill(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
@@ -662,6 +661,7 @@ fun MiniStatPill(icon: ImageVector, label: String, value: String, modifier: Modi
     }
 }
 
+@Composable
 fun OverviewStatCard(
     modifier: Modifier = Modifier,
     title: String,
