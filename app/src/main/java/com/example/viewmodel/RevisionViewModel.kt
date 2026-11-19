@@ -2035,7 +2035,14 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
         launchSafe {
             try {
                 com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
-                
+
+                // Also clear the guest bypass flag. It lives in a different prefs file
+                // ("revision_space_prefs"); without this, Splash keeps routing straight
+                // to the dashboard after logout and the login screen never returns.
+                context.getSharedPreferences("revision_space_prefs", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply()
                 context.getSharedPreferences("revision_app_prefs", android.content.Context.MODE_PRIVATE)
                     .edit()
                     .clear()

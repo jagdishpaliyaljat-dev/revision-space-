@@ -385,7 +385,8 @@ fun AppNavigation(
                         onNavigateToOfflineNotes = { navController.navigate(OfflineNotesRoute) },
                         onNavigateToNotifications = { navController.navigate(NotificationsRoute) },
                         onLogout = {
-                            navController.navigate(DashboardRoute) {
+                            // Logging out must return to the login screen, not the dashboard.
+                            navController.navigate(SignInRoute) {
                                 popUpTo(0) { inclusive = true }
                             }
                         },

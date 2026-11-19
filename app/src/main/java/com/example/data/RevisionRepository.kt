@@ -3229,7 +3229,10 @@ open class RevisionRepository {
     }
 
     open suspend fun signInWithEmail(email: String, password: String) {
-        auth?.signInWithEmailAndPassword(email, password)?.await()
+        // Bound the network call so a missing connection cannot hang the UI forever.
+        kotlinx.coroutines.withTimeoutOrNull(12000L) {
+            auth?.signInWithEmailAndPassword(email, password)?.await()
+        }
         val userId = auth?.currentUser?.uid
         if (userId != null) {
             val userDoc = try {
@@ -3332,7 +3335,9 @@ open class RevisionRepository {
 
     open suspend fun signInAnonymously() {
         try {
-            val result = auth?.signInAnonymously()?.await()
+            val result = kotlinx.coroutines.withTimeoutOrNull(12000L) {
+                auth?.signInAnonymously()?.await()
+            }
             val userId = result?.user?.uid
             if (userId != null) {
                 val userDoc = try {
@@ -3372,7 +3377,9 @@ open class RevisionRepository {
                 val guestEmail = "guest_$randomId@revisionspace.app"
                 val guestPassword = java.util.UUID.randomUUID().toString()
                 
-                val result = auth?.createUserWithEmailAndPassword(guestEmail, guestPassword)?.await()
+                val result = kotlinx.coroutines.withTimeoutOrNull(12000L) {
+                    auth?.createUserWithEmailAndPassword(guestEmail, guestPassword)?.await()
+                }
                 val userId = result?.user?.uid
                 if (userId != null) {
                     val profile = UserProfile(
