@@ -111,6 +111,7 @@ fun ProfileScreen(
     val userProfile by viewModel.currentUserProfile.collectAsStateWithLifecycle()
     val allTopics by viewModel.allTopicsWithDetails.collectAsStateWithLifecycle()
     val profileStats by viewModel.profileStats.collectAsStateWithLifecycle()
+    val globalConfig by viewModel.globalConfig.collectAsStateWithLifecycle()
 
     val safeProfile = userProfile
     if (safeProfile == null) {
@@ -219,8 +220,9 @@ fun ProfileScreen(
 
     // Dynamic stats derived from logs/DB with robust fallback
     val displayCoins = safeProfile.totalCoins ?: 0
-    
-    
+    val displayStreak = if (globalConfig.isStreakSystemEnabled) (safeProfile.currentStreak ?: 0) else 0
+    val displayStudyTimeStr = profileStats.displayStudyTimeStr
+
     val displayStudyHours = profileStats.displayStudyHours
     val displayRevisions = profileStats.displayRevisions
 
@@ -632,6 +634,31 @@ fun ProfileScreen(
                             })
                             ProfileQuickAction(Modifier.weight(1f), icon = Icons.Default.BarChart, iconTint = TrendBlue, iconBg = Color(0xFF3B82F6).copy(alpha = 0.12f), label = "Analytics", onClick = { navController.navigate(AnalyticsRoute) })
                         }
+                    }
+                }
+            }
+
+            // 3. Stats Hero (Streak, Coins, Study Time, Revisions) - kept below Quick Actions
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfileHeroStat(Icons.Default.LocalFireDepartment, Color(0xFFF97316), Color(0xFFF97316).copy(alpha = 0.12f), "Streak", "${displayStreak} days")
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        ProfileHeroStat(Icons.Default.Paid, Color(0xFFF59E0B), Color(0xFFF59E0B).copy(alpha = 0.12f), "Coins", String.format("%,d", displayCoins))
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        ProfileHeroStat(Icons.Default.Timer, Color(0xFF3B82F6), Color(0xFF3B82F6).copy(alpha = 0.12f), "Study Time", displayStudyTimeStr)
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        ProfileHeroStat(Icons.Default.FactCheck, Color(0xFF10B981), Color(0xFF10B981).copy(alpha = 0.12f), "Revisions", "$displayRevisions")
                     }
                 }
             }
