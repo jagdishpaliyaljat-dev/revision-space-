@@ -20,9 +20,11 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.example.MainActivity
 import com.example.R
+import com.example.data.FocusSettings
 import com.example.data.RevisionRepository
 import com.example.receivers.TimerActionReceiver
 import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,6 +35,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.tasks.await
 
 class FocusTimerService : Service() {
@@ -53,7 +57,8 @@ class FocusTimerService : Service() {
     private var topicId: String = ""
 
     private var tts: TextToSpeech? = null
-    private var isTtsInitialized = false
+    @Volatile private var isTtsInitialized = false
+    private val ttsReady = CompletableDeferred<Boolean>()
     @Volatile private var isCompletionTriggered = false
 
     private val repository = RevisionRepository()
@@ -62,6 +67,8 @@ class FocusTimerService : Service() {
         const val CHANNEL_FOCUS = "focus_timer_channel"
         const val CHANNEL_BREAK = "break_timer_channel"
         const val CHANNEL_SILENT_COMPLETION = "silent_completion_channel_v2"
+
+        private val VIBRATION_PATTERN = longArrayOf(0L, 700L, 400L, 700L)
         
         const val NOTIFICATION_ID = 101
 
@@ -243,43 +250,69 @@ class FocusTimerService : Service() {
     }
 
     private fun initializeTts() {
-        tts = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val currentLocale = java.util.Locale.getDefault()
-                val result = tts?.setLanguage(currentLocale)
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    // Fallback to English
-                    val fallbackResult = tts?.setLanguage(java.util.Locale.ENGLISH)
-                    if (fallbackResult != TextToSpeech.LANG_MISSING_DATA && fallbackResult != TextToSpeech.LANG_NOT_SUPPORTED) {
-                        isTtsInitialized = true
+        if (tts != null) return
+        try {
+            tts = TextToSpeech(this) { status ->
+                val engine = tts
+                if (status == TextToSpeech.SUCCESS && engine != null) {
+                    val currentLocale = java.util.Locale.getDefault()
+                    var result = engine.setLanguage(currentLocale)
+                    if (result == TextToSpeech.LANG_MISSING_DATA ||
+                        result == TextToSpeech.LANG_NOT_SUPPORTED
+                    ) {
+                        // Fall back to English when the phone has no data for the
+                        // current language.
+                        result = engine.setLanguage(java.util.Locale.ENGLISH)
+                    }
+                    isTtsInitialized = result != TextToSpeech.LANG_MISSING_DATA &&
+                        result != TextToSpeech.LANG_NOT_SUPPORTED
+                    runCatching {
+                        engine.setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build()
+                        )
                     }
                 } else {
-                    isTtsInitialized = true
+                    isTtsInitialized = false
                 }
+                ttsReady.complete(isTtsInitialized)
             }
+        } catch (e: Exception) {
+            android.util.Log.e("FocusTimerService", "TTS init failed", e)
+            ttsReady.complete(false)
         }
     }
 
-    private fun speakCompletionAlert() {
+    private fun completionSpeechText(): String {
         val isHi = java.util.Locale.getDefault().language == "hi"
-        val speechText = if (currentSessionType.value == "Break") {
+        return if (currentSessionType.value == "Break") {
             if (isHi) "ब्रेक खत्म हो गया है। अपनी पढ़ाई जारी रखने का समय आ गया है।"
             else "Break is over. It's time to continue your study session."
         } else {
             if (isHi) "बहुत बढ़िया! आपका फोकस सेशन पूरा हो गया है। अब एक छोटा ब्रेक लेने का समय है।"
             else "Great job! Your focus session is complete. Time to take a short break."
         }
-        
-        serviceScope.launch(Dispatchers.Main) {
+    }
+
+    /**
+     * Waits for the engine to finish initialising and speaks the completion
+     * message. Returns true only when speech was actually queued, so the caller
+     * can fall back to the alarm sound when TTS is unavailable.
+     */
+    private suspend fun speakCompletionAlert(speechText: String): Boolean {
+        val ready = withTimeoutOrNull(1500L) { ttsReady.await() } ?: false
+        if (!ready) return false
+        return withContext(Dispatchers.Main) {
             try {
-                if (tts == null) {
-                    initializeTts()
-                }
                 val params = android.os.Bundle()
                 params.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, android.media.AudioManager.STREAM_MUSIC)
-                tts?.speak(speechText, TextToSpeech.QUEUE_FLUSH, params, "FocusTimerCompletionUtterance")
+                tts?.speak(speechText, TextToSpeech.QUEUE_FLUSH, params, "FocusTimerCompletionUtterance") ==
+                    TextToSpeech.SUCCESS
             } catch (e: Exception) {
                 android.util.Log.e("FocusTimerService", "TTS speak failed", e)
+                false
             }
         }
     }
@@ -407,12 +440,24 @@ class FocusTimerService : Service() {
         
         saveStudyDataBackground()
 
-        if (!Companion.hasSentNotification.value) {
-            showCompletionNotification()
-            Companion.hasSentNotification.value = true
+        // Load the user's alert preferences and try voice first; sound is the
+        // fallback so session completion is never silently ignored.
+        val speechText = completionSpeechText()
+        serviceScope.launch {
+            val settings = withContext(Dispatchers.IO) {
+                runCatching { repository.getUserProfile()?.focusSettings }
+                    .getOrNull() ?: FocusSettings()
+            }
+            val spoke = if (settings.voiceAnnouncementEnabled) {
+                speakCompletionAlert(speechText)
+            } else {
+                false
+            }
+            if (!Companion.hasSentNotification.value) {
+                showCompletionNotification(settings, voiceSpoken = spoke)
+                Companion.hasSentNotification.value = true
+            }
         }
-        
-        speakCompletionAlert()
         
         shutdownJob?.cancel()
         shutdownJob = null
@@ -469,7 +514,7 @@ class FocusTimerService : Service() {
         }
     }
 
-    private fun showCompletionNotification() {
+    private fun showCompletionNotification(settings: FocusSettings, voiceSpoken: Boolean) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         
         val isBreak = currentSessionType.value == "Break"
@@ -480,6 +525,12 @@ class FocusTimerService : Service() {
             "Subject: $subjectName\nTake a short break."
         }
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+
+        // Android 8+ takes sound/vibration from the channel, so pick the channel
+        // that matches the user's settings instead of relying on setSound().
+        val soundOn = FocusCompletionChannel.useSound(settings.completionSoundEnabled, voiceSpoken)
+        val vibrateOn = settings.vibrationEnabled
+        val channelId = FocusCompletionChannel.idFor(soundOn, vibrateOn)
         
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -488,7 +539,7 @@ class FocusTimerService : Service() {
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
-        val b = NotificationCompat.Builder(this, CHANNEL_SILENT_COMPLETION)
+        val b = NotificationCompat.Builder(this, channelId)
             .setContentTitle(titleText)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -496,9 +547,8 @@ class FocusTimerService : Service() {
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true)
-            .setSound(defaultSoundUri)
-            .setVibrate(longArrayOf(0, 1000, 500, 1000))
-            .setDefaults(Notification.DEFAULT_ALL)
+            .setSound(if (soundOn) defaultSoundUri else null)
+            .setVibrate(if (vibrateOn) VIBRATION_PATTERN else null)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setFullScreenIntent(pendingIntent, true) // Force show on lockscreen immediately
             
@@ -653,20 +703,51 @@ class FocusTimerService : Service() {
                 setBypassDnd(true)
             }
 
-            val voiceChannel = NotificationChannel(
-                CHANNEL_SILENT_COMPLETION,
-                "Session Completion",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Silent notification when sessions complete"
-                setSound(null, null)
-                enableVibration(false)
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            // Completion alert: four channels because Android 8+ locks sound and
+            // vibration per channel. The old single "silent" channel meant
+            // setSound() in the notification was ignored and users heard nothing.
+            val completionChannels = listOf(
+                true to true,
+                true to false,
+                false to true,
+                false to false
+            )
+            completionChannels.forEach { (sound, vibrate) ->
+                val id = FocusCompletionChannel.idFor(sound, vibrate)
+                val name = FocusCompletionChannel.nameFor(sound, vibrate)
+                val channel = NotificationChannel(
+                    id,
+                    name,
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "Alert when a focus or break session ends"
+                    val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                    if (sound && alarmUri != null) {
+                        setSound(
+                            alarmUri,
+                            AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .build()
+                        )
+                    } else {
+                        setSound(null, null)
+                    }
+                    enableVibration(vibrate)
+                    if (vibrate) {
+                        vibrationPattern = VIBRATION_PATTERN
+                    }
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                manager.createNotificationChannel(channel)
             }
+
+            // Remove the old always-silent channel used by previous versions.
+            runCatching { manager.deleteNotificationChannel(CHANNEL_SILENT_COMPLETION) }
             
             manager.createNotificationChannel(focusChannel)
             manager.createNotificationChannel(breakChannel)
-            manager.createNotificationChannel(voiceChannel)
         }
     }
 

@@ -1249,6 +1249,20 @@ fun FocusSettingsBottomSheet(
                     checked = draftSettings.vibrationEnabled,
                     onCheckedChange = { draftSettings = draftSettings.copy(vibrationEnabled = it) }
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                SwitchSettingItem(
+                    title = "Completion Sound",
+                    subtitle = "Alarm sound when a session ends (voice takes priority)",
+                    checked = draftSettings.completionSoundEnabled,
+                    onCheckedChange = { draftSettings = draftSettings.copy(completionSoundEnabled = it) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SwitchSettingItem(
+                    title = "Voice Announcement",
+                    subtitle = "Speak a message when a session ends",
+                    checked = draftSettings.voiceAnnouncementEnabled,
+                    onCheckedChange = { draftSettings = draftSettings.copy(voiceAnnouncementEnabled = it) }
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))

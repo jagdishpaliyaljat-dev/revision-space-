@@ -61,6 +61,10 @@ data class FocusSettings(
     var autoStartBreak: Boolean = true,
     var vibrationEnabled: Boolean = true,
     var soundEnabled: Boolean = true,
+    /** Alarm sound played when a focus/break session ends. */
+    var completionSoundEnabled: Boolean = true,
+    /** Spoken announcement when a focus/break session ends. */
+    var voiceAnnouncementEnabled: Boolean = true,
     var ambientSound: String = "None",
     var dailyFocusGoalMins: Int = 120,
     var keepScreenAwake: Boolean = true,
