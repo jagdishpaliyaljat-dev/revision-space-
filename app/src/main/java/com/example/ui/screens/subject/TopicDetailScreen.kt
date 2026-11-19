@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
@@ -269,6 +270,14 @@ fun TopicDetailScreen(
         diffDays == 1 -> "Due Tomorrow"
         else -> "Upcoming"
     }
+    val statusColor = when (badgeText) {
+        "Overdue" -> Color(0xFFEF4444)
+        "Due Today" -> Color(0xFFF59E0B)
+        "Due Tomorrow" -> Color(0xFF3B82F6)
+        "Upcoming" -> TdPurplePrimary
+        "Pending" -> Color(0xFF64748B)
+        else -> TdGreen
+    }
     
     // Setup study time format
     fun formatDuration(ms: Long, defaultStr: String): String {
@@ -401,12 +410,24 @@ fun TopicDetailScreen(
         },
         bottomBar = {
             if (topic != null) {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        .background(TdCardWhite)
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(MaterialTheme.colorScheme.outlineVariant)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                     // Save Revision (opens dialog to enter manual study/revision time in minutes and saves revision)
                     OutlinedButton(
                         onClick = {
@@ -493,6 +514,7 @@ fun TopicDetailScreen(
                         )
                     }
                 }
+                }
             }
         }
     ) { innerPadding ->
@@ -513,65 +535,89 @@ fun TopicDetailScreen(
                         .padding(innerPadding)
                         .verticalScroll(scrollState)
                 ) {
-                    // Breadcrumb navigation: Subject  >  Chapter
+                    // Breadcrumb (premium pill)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
-                            .padding(top = 8.dp, bottom = 4.dp),
+                            .padding(top = 10.dp, bottom = 2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = subject,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 13.sp,
-                            color = TdTextSecondary,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = "  >  ",
-                            color = Color.LightGray,
-                            fontSize = 13.sp,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = chapter,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TdPurplePrimary,
-                            fontSize = 13.sp,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f))
+                                .padding(horizontal = 12.dp, vertical = 7.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.FolderOpen,
+                                contentDescription = null,
+                                tint = TdPurplePrimary,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = subject,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 12.sp,
+                                color = TdTextSecondary,
+                                maxLines = 1
+                            )
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = TdTextSecondary,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Text(
+                                text = chapter,
+                                fontWeight = FontWeight.SemiBold,
+                                color = TdPurplePrimary,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                        }
                     }
 
-                    // Main Topic Card
+                    // Hero card — topic identity, progress, status
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(containerColor = TdCardWhite),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(modifier = Modifier.padding(20.dp)) {
-                            // Title row with Bookmark button
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Top,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
                                     text = topic.topicName,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp,
+                                    fontSize = 21.sp,
+                                    lineHeight = 27.sp,
+                                    letterSpacing = (-0.3).sp,
                                     color = TdTextPrimary,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f).padding(end = 10.dp)
                                 )
-                                IconButton(
-                                    onClick = {
-                                        isBookmarked = !isBookmarked
-                                        sharedPrefs.edit().putBoolean("topic_bookmark_${topic.topicId}", isBookmarked).apply()
-                                    },
-                                    modifier = Modifier.size(24.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(
+                                            if (isBookmarked) TdPurpleLight
+                                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                                        )
+                                        .clickable {
+                                            isBookmarked = !isBookmarked
+                                            sharedPrefs.edit().putBoolean("topic_bookmark_${topic.topicId}", isBookmarked).apply()
+                                        },
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -581,9 +627,9 @@ fun TopicDetailScreen(
                                     )
                                 }
                             }
-                            
-                            Spacer(modifier = Modifier.height(12.dp))
-                            
+
+                            Spacer(modifier = Modifier.height(18.dp))
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -593,60 +639,85 @@ fun TopicDetailScreen(
                                     text = "Completion Progress",
                                     fontSize = 12.sp,
                                     color = TdTextSecondary,
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = 0.2.sp
                                 )
                                 Text(
-                                    text = "${progressPercent}%",
-                                    fontSize = 12.sp,
+                                    text = "$progressPercent%",
+                                    fontSize = 16.sp,
                                     color = TdPurplePrimary,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.testTag("topic_progress_percentage")
                                 )
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                            // Progress bar
-                            LinearProgressIndicator(
-                                progress = { progressFraction },
-                                modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                                color = TdPurplePrimary,
-                                trackColor = TdPurpleLight,
-                                strokeCap = StrokeCap.Butt
-                            )
-                            
-                            Spacer(modifier = Modifier.height(16.dp))
-                            
-                            // Row with Status and tags
+                            // Gradient progress bar
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(10.dp)
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .fillMaxWidth(progressFraction)
+                                        .clip(RoundedCornerShape(5.dp))
+                                        .background(
+                                            Brush.horizontalGradient(
+                                                listOf(TdPurplePrimary, Color(0xFFA78BFA))
+                                            )
+                                        )
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(18.dp))
+
+                            val statusLabel = if (badgeText.isNotEmpty() && badgeText != "No Topics") badgeText else topic.status
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                // Status chip
+                                // Status chip — colour follows due state
                                 Box(
                                     modifier = Modifier
-                                        .background(TdGreenLight, RoundedCornerShape(8.dp))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                        .background(statusColor.copy(alpha = 0.12f), RoundedCornerShape(50))
+                                        .padding(horizontal = 12.dp, vertical = 7.dp)
                                 ) {
-                                    Text(
-                                        text = if (badgeText.isNotEmpty() && badgeText != "No Topics") badgeText else topic.status,
-                                        color = TdGreen,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.testTag("topic_status_badge")
-                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .clip(CircleShape)
+                                                .background(statusColor)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = statusLabel,
+                                            color = statusColor,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.testTag("topic_status_badge")
+                                        )
+                                    }
                                 }
-                                
-                                // Tags / Add tags button
+
+                                // Tags / Add tags
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.clickable { showTagEditDialog = true }
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(50))
+                                        .clickable { showTagEditDialog = true }
                                 ) {
                                     if (topic.tags.isEmpty()) {
                                         Box(
                                             modifier = Modifier
-                                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
-                                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f), RoundedCornerShape(50))
+                                                .padding(horizontal = 12.dp, vertical = 7.dp)
                                         ) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Text(
@@ -675,8 +746,8 @@ fun TopicDetailScreen(
                                             if (topic.tags.size > 3) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
-                                                        .padding(horizontal = 6.dp, vertical = 4.dp)
+                                                        .background(MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(50))
+                                                        .padding(horizontal = 7.dp, vertical = 4.dp)
                                                 ) {
                                                     Text(
                                                         text = "+${topic.tags.size - 3}",
@@ -700,93 +771,128 @@ fun TopicDetailScreen(
                         }
                     }
 
-                    // Card 2: Stats Row Card (Responsive for mobile screens)
+                    // Quick stats — everything visible, no horizontal scrolling
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(20.dp),
+                        shape = RoundedCornerShape(24.dp),
                         colors = CardDefaults.cardColors(containerColor = TdCardWhite),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                                .padding(vertical = 16.dp, horizontal = 12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.Top
                         ) {
-                            StatItem(Icons.Outlined.Event, "First Study\nDate", firstStudyDateStr, firstStudyDayStr, modifier = Modifier.width(80.dp))
-                            StatVerticalDivider()
-                            StatItem(Icons.Outlined.Schedule, "First Study\nTime", firstStudyTimeStr, "", modifier = Modifier.width(80.dp))
-                            StatVerticalDivider()
-                            StatItem(Icons.Outlined.Autorenew, "Total\nRevisions", "$revisionCount", "Times", modifier = Modifier.width(80.dp))
-                            StatVerticalDivider()
-                            StatItem(Icons.Outlined.Event, "Last Revision\nDate", lastRevisionDateStr, lastRevisionDayStr, modifier = Modifier.width(80.dp))
-                            StatVerticalDivider()
-                            StatItem(Icons.Outlined.Schedule, "Last Revision\nTime", lastRevisionTimeStr, "", modifier = Modifier.width(80.dp))
+                            TdStatTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Outlined.Event,
+                                tint = TdPurplePrimary,
+                                label = "FIRST STUDY",
+                                value = firstStudyDateStr,
+                                sub = if (hasStudied) listOf(firstStudyDayStr, firstStudyTimeStr)
+                                    .filter { it.isNotBlank() && it != "-" }
+                                    .joinToString(" • ") else "Not started"
+                            )
+                            TdStatDivider()
+                            TdStatTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Outlined.Autorenew,
+                                tint = Color(0xFF3B82F6),
+                                label = "LAST REVISION",
+                                value = lastRevisionDateStr,
+                                sub = if (hasRevised) listOf(lastRevisionDayStr, lastRevisionTimeStr)
+                                    .filter { it.isNotBlank() && it != "-" }
+                                    .joinToString(" • ") else "Not revised yet"
+                            )
+                            TdStatDivider()
+                            TdStatTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Outlined.CheckCircle,
+                                tint = TdGreen,
+                                label = "REVISIONS",
+                                value = "$revisionCount",
+                                sub = "of $totalScheduled scheduled"
+                            )
                         }
                     }
-                
-                // Next Revision Card
+
+                // Next revision + expected time (two balanced tiles)
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = TdCardWhite),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(20.dp),
+                        modifier = Modifier.fillMaxWidth().padding(18.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
-                            modifier = Modifier.size(48.dp).background(TdPurpleLight, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Outlined.Event, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(24.dp))
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1.1f)) {
-                            Text("Next Revision Date", color = TdTextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(nextRevisionDateStr, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdPurplePrimary)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(nextRevisionDayStr, color = TdTextSecondary, fontSize = 11.sp)
-                            
-                            if (badgeText.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(4.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
-                                        .background(TdPurpleLight, CircleShape)
-                                        .padding(horizontal = 6.dp, vertical = 1.dp)
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(TdPurplePrimary.copy(alpha = 0.12f)),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Text(badgeText, color = TdPurplePrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                    Icon(Icons.Outlined.Event, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(18.dp))
                                 }
+                                Spacer(modifier = Modifier.width(9.dp))
+                                Text("Next Revision", color = TdTextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(nextRevisionDateStr, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = TdTextPrimary, maxLines = 1)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(nextRevisionDayStr, color = TdTextSecondary, fontSize = 11.sp, maxLines = 1)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(statusColor.copy(alpha = 0.12f), RoundedCornerShape(50))
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                            ) {
+                                Text(badgeText, color = statusColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                             }
                         }
-                        
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(TdSurfaceGray))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        
-                        Box(
-                            modifier = Modifier.size(48.dp).background(TdPurpleLight, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Outlined.HourglassEmpty, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(24.dp))
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1.3f)) {
-                            Text("Expected Time", color = TdTextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+
+                        Box(modifier = Modifier.width(1.dp).height(92.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Column(modifier = Modifier.weight(0.9f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF3B82F6).copy(alpha = 0.12f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Outlined.HourglassEmpty, contentDescription = null, tint = Color(0xFF3B82F6), modifier = Modifier.size(18.dp))
+                                }
+                                Spacer(modifier = Modifier.width(9.dp))
+                                Text("Expected Time", color = TdTextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                formatEstimatedTime(topic?.estimatedRevisionTimeMins ?: 40),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 17.sp,
+                                color = TdTextPrimary,
+                                maxLines = 1
+                            )
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(formatEstimatedTime(topic?.estimatedRevisionTimeMins ?: 40), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdTextPrimary)
+                            Text("per revision", color = TdTextSecondary, fontSize = 11.sp, maxLines = 1)
                         }
                     }
                 }
-                
-                // Revision Schedule Card
+
+                // Spaced Repetition Schedule
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = TdCardWhite),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
@@ -794,46 +900,56 @@ fun TopicDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Spaced Repetition Schedule", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdTextPrimary)
-                            Spacer(modifier = Modifier.width(8.dp))
                             Box(
                                 modifier = Modifier
-                                    .background(TdPurpleLight, RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(TdPurplePrimary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = "SRS Active",
-                                    color = TdPurplePrimary,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Icon(Icons.Outlined.Autorenew, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(20.dp))
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Spaced Repetition", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdTextPrimary)
+                                Text("Smart intervals for long-term memory", fontSize = 11.sp, color = TdTextSecondary)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(TdPurplePrimary.copy(alpha = 0.10f))
+                                    .padding(horizontal = 9.dp, vertical = 4.dp)
+                            ) {
+                                Text("SRS", color = TdPurplePrimary, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
                             IconButton(
                                 onClick = { showEditTopicDialog = true },
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(34.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
                                     contentDescription = "Edit Schedule",
                                     tint = TdPurplePrimary,
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
-                        
-                        Spacer(modifier = Modifier.height(12.dp))
-                        
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
                         Text(
                             text = "Optimize recall by scheduling intervals based on difficulty level. Shorter intervals reinforce fragile memory, while longer intervals save time.",
                             fontSize = 12.sp,
                             color = TdTextSecondary,
-                            lineHeight = 16.sp
+                            lineHeight = 17.sp
                         )
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Difficulty selection pill row
+
+                        Spacer(modifier = Modifier.height(18.dp))
+
+                        Text("Difficulty", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TdTextPrimary)
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -842,127 +958,139 @@ fun TopicDetailScreen(
                             difficulties.forEach { diff ->
                                 val isSelected = selectedDifficulty.lowercase(Locale.getDefault()) == diff.lowercase(Locale.getDefault())
                                 val selectedBg = when (diff.lowercase(Locale.getDefault())) {
-                                    "easy" -> Color(0xFFDCFCE7) // green
-                                    "hard" -> Color(0xFFFEE2E2) // red
-                                    else -> Color(0xFFFEF3C7) // amber
+                                    "easy" -> Color(0xFFDCFCE7)
+                                    "hard" -> Color(0xFFFEE2E2)
+                                    else -> Color(0xFFFEF3C7)
                                 }
                                 val selectedText = when (diff.lowercase(Locale.getDefault())) {
                                     "easy" -> Color(0xFF15803D)
                                     "hard" -> Color(0xFFB91C1C)
                                     else -> Color(0xFFB45309)
                                 }
-                                
+
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(if (isSelected) selectedBg else MaterialTheme.colorScheme.surfaceVariant)
-                                        .clickable { 
+                                        .background(if (isSelected) selectedBg else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f))
+                                        .border(
+                                            1.dp,
+                                            if (isSelected) selectedText.copy(alpha = 0.35f) else Color.Transparent,
+                                            RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable {
                                             selectedDifficulty = diff
                                             currentIntervals = getSpacedRepetitionIntervals(diff)
                                         }
-                                        .padding(vertical = 8.dp)
+                                        .padding(vertical = 10.dp)
                                         .testTag("difficulty_${diff.lowercase(Locale.ROOT)}"),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
-                                        text = diff,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        color = if (isSelected) selectedText else TdTextSecondary
-                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .clip(CircleShape)
+                                                .background(if (isSelected) selectedText else TdTextSecondary)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = diff,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 12.sp,
+                                            color = if (isSelected) selectedText else TdTextSecondary
+                                        )
+                                    }
                                 }
                             }
                         }
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Interval adjusters
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Suggested Spacing Gaps:", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TdTextPrimary)
-                            Text(
-                                text = "Tap -/+ to fine-tune",
-                                fontSize = 11.sp,
-                                color = TdTextSecondary
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Spacer(modifier = Modifier.height(18.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Spacing gaps", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TdTextPrimary)
+                            Text(
+                                text = "Tap  -  /  +  to fine-tune",
+                                fontSize = 10.5.sp,
+                                color = TdTextSecondary
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             currentIntervals.forEachIndexed { index, interval ->
-                                Card(
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                                Column(
+                                    modifier = Modifier
+                                        .width(62.dp)
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
+                                        .padding(vertical = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.padding(vertical = 6.dp)
+                                    Text(
+                                        text = "${interval}d",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = TdTextPrimary,
+                                        modifier = Modifier.testTag("interval_value_$index")
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
-                                        Text(
-                                            text = "${interval}d",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.sp,
-                                            color = TdTextPrimary,
-                                            modifier = Modifier.testTag("interval_value_$index")
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Center
+                                        Box(
+                                            modifier = Modifier
+                                                .size(22.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                                                .clickable {
+                                                    val newList = currentIntervals.toMutableList()
+                                                    val newVal = (interval - 1).coerceAtLeast(1)
+                                                    newList[index] = newVal
+                                                    currentIntervals = newList
+                                                }
+                                                .testTag("interval_minus_$index"),
+                                            contentAlignment = Alignment.Center
                                         ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(20.dp)
-                                                    .clip(CircleShape)
-                                                    .background(Color.White)
-                                                    .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline), CircleShape)
-                                                    .clickable {
-                                                        val newList = currentIntervals.toMutableList()
-                                                        val newVal = (interval - 1).coerceAtLeast(1)
-                                                        newList[index] = newVal
-                                                        currentIntervals = newList
-                                                    }
-                                                    .testTag("interval_minus_$index"),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text("-", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TdPurplePrimary)
-                                            }
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(20.dp)
-                                                    .clip(CircleShape)
-                                                    .background(Color.White)
-                                                    .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline), CircleShape)
-                                                    .clickable {
-                                                        val newList = currentIntervals.toMutableList()
-                                                        val newVal = interval + 1
-                                                        newList[index] = newVal
-                                                        currentIntervals = newList
-                                                    }
-                                                    .testTag("interval_plus_$index"),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text("+", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TdPurplePrimary)
-                                            }
+                                            Text("-", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TdPurplePrimary)
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .size(22.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                                                .clickable {
+                                                    val newList = currentIntervals.toMutableList()
+                                                    val newVal = interval + 1
+                                                    newList[index] = newVal
+                                                    currentIntervals = newList
+                                                }
+                                                .testTag("interval_plus_$index"),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("+", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TdPurplePrimary)
                                         }
                                     }
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(20.dp))
-                        
+
                         // Timeline Preview header
                         Text("Preview", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TdTextPrimary)
                         
@@ -1105,14 +1233,30 @@ fun TopicDetailScreen(
                     // Topic Details Card
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(containerColor = TdCardWhite),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("Topic Details", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdTextPrimary)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(TdPurplePrimary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Outlined.Assignment, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(20.dp))
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text("Topic Details", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdTextPrimary)
+                                Text("Everything about this topic", fontSize = 11.sp, color = TdTextSecondary)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+
                         TopicDetailRow(Icons.Outlined.Assignment, "Subject", subject, isPurple = true)
                         TopicDetailDivider()
                         TopicDetailRow(Icons.Outlined.Assignment, "Chapter", chapter)
@@ -1708,9 +1852,9 @@ fun StatVerticalDivider() {
 @Composable
 fun ScheduleItem(day: String, date: String, status: String) {
     val bgColor = when (status) {
-        "done" -> TdGreenLight
+        "done" -> TdGreen.copy(alpha = 0.12f)
         "next" -> MaterialTheme.colorScheme.primaryContainer
-        else -> Color.White
+        else -> MaterialTheme.colorScheme.surface
     }
     
     val borderColor = when (status) {
@@ -1763,6 +1907,7 @@ fun ScheduleItem(day: String, date: String, status: String) {
 
 @Composable
 fun TimelineLine(isDashed: Boolean, modifier: Modifier = Modifier) {
+    val lineColor = MaterialTheme.colorScheme.outlineVariant
     Box(
         modifier = modifier
             .height(24.dp),
@@ -1772,19 +1917,19 @@ fun TimelineLine(isDashed: Boolean, modifier: Modifier = Modifier) {
             val pathEffect = if (isDashed) {
                 PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
             } else null
-            
+
             // Draw connector line
             drawLine(
-                color = Color(0xFFE7EAF3),
+                color = lineColor,
                 start = Offset(0f, size.height / 2),
                 end = Offset(size.width, size.height / 2),
                 strokeWidth = 2f,
                 pathEffect = pathEffect
             )
-            
+
             // Central dot
             drawCircle(
-                color = Color(0xFFE7EAF3),
+                color = lineColor,
                 radius = 3f,
                 center = Offset(size.width / 2, size.height / 2)
             )
@@ -1796,15 +1941,42 @@ fun TimelineLine(isDashed: Boolean, modifier: Modifier = Modifier) {
 fun TopicDetailRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String, isPurple: Boolean = false) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(label, color = TdTextSecondary, fontSize = 14.sp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(TdPurplePrimary.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = TdPurplePrimary, modifier = Modifier.size(16.dp))
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                label,
+                color = TdTextSecondary,
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        Text(value, color = if (isPurple) TdPurplePrimary else TdTextPrimary, fontSize = 14.sp, fontWeight = if (isPurple) FontWeight.Medium else FontWeight.Normal)
+        Spacer(modifier = Modifier.width(14.dp))
+        Text(
+            value,
+            color = if (isPurple) TdPurplePrimary else TdTextPrimary,
+            fontSize = 13.sp,
+            fontWeight = if (isPurple) FontWeight.SemiBold else FontWeight.Medium,
+            textAlign = TextAlign.End,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1.25f)
+        )
     }
 }
 
@@ -1823,10 +1995,10 @@ fun AiRevisionAssistant(
 
     Card(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F7FF)), // Light blue for AI
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, Color(0xFFCCE4FF))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
@@ -1835,19 +2007,34 @@ fun AiRevisionAssistant(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = null,
-                        tint = Color(0xFF007BFF),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "AI Revision Assistant",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color(0xFF0056B3)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF3B82F6).copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            tint = Color(0xFF3B82F6),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            "AI Revision Assistant",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = TdTextPrimary
+                        )
+                        Text(
+                            "Smart summary from your notes",
+                            fontSize = 11.sp,
+                            color = TdTextSecondary
+                        )
+                    }
                 }
                 
                 if (uiState is AiUiState.Success) {
@@ -1864,7 +2051,8 @@ fun AiRevisionAssistant(
                     Text(
                         "Get a smart AI-powered summary of your notes to speed up your revision.",
                         fontSize = 13.sp,
-                        color = Color(0xFF4B5563)
+                        color = TdTextSecondary,
+                        lineHeight = 19.sp
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
@@ -1887,8 +2075,8 @@ fun AiRevisionAssistant(
                     Text(
                         state.text,
                         fontSize = 14.sp,
-                        color = Color(0xFF1F2937),
-                        lineHeight = 20.sp
+                        color = TdTextPrimary,
+                        lineHeight = 21.sp
                     )
                 }
                 is AiUiState.Error -> {
@@ -1911,4 +2099,68 @@ fun AiRevisionAssistant(
     }
 }
 
+@Composable
+private fun TdStatTile(
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    tint: Color,
+    label: String,
+    value: String,
+    sub: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(horizontal = 4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(tint.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = label,
+            color = TdTextSecondary,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.6.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = value,
+            color = TdTextPrimary,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = sub.ifBlank { " " },
+            color = TdTextSecondary,
+            fontSize = 9.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
 
+@Composable
+private fun TdStatDivider() {
+    Box(
+        modifier = Modifier
+            .padding(top = 6.dp)
+            .width(1.dp)
+            .height(62.dp)
+            .background(MaterialTheme.colorScheme.outlineVariant)
+    )
+}
