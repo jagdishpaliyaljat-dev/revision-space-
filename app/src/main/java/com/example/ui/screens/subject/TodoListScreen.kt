@@ -167,6 +167,23 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                             )
                         }
                     },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = { LocalAppDrawer.current.open() },
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(40.dp)
+                                .background(MaterialTheme.colorScheme.surface, CircleShape)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = TodoTextDark,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                     actions = {
                         Surface(

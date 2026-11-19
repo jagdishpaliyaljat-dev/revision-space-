@@ -208,6 +208,16 @@ fun AppNavigation(
         else -> -1
     }
 
+    // App-wide hamburger drawer. Only the screens that actually render a
+    // hamburger button get the drawer; the Dashboard keeps its own drawer so it
+    // is skipped here to avoid composing two identical drawers on one screen.
+    val drawerScreens = listOf("SubjectsRoute", "TimerRoute", "TodoListRoute", "ProfileRoute")
+    val showAppDrawer = currentRoute?.let { route -> drawerScreens.any { route.contains(it) } } == true
+    com.example.ui.components.AppDrawerHost(
+        viewModel = viewModel,
+        navController = navController,
+        drawerEnabled = showAppDrawer
+    ) {
     androidx.compose.material3.Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -540,6 +550,7 @@ fun AppNavigation(
         composable<MyTestScoresRoute> {
             MyTestScoresScreen(viewModel = viewModel, navController = navController)
         }
-    }
+        }
+        }
     }
 }

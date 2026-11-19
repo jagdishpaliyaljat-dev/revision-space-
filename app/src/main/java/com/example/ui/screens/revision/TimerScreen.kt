@@ -479,15 +479,25 @@ fun TimerScreen(
                     }
                 },
                 navigationIcon = {
+                    val appDrawer = LocalAppDrawer.current
+                    // Opened as a tab -> hamburger menu. Opened from a topic -> back arrow.
+                    val openedFromTopic = topicId.isNotEmpty()
                     IconButton(
-                        onClick = { navController.popBackStack() },
+                        onClick = {
+                            if (openedFromTopic) navController.popBackStack() else appDrawer.open()
+                        },
                         modifier = Modifier
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .background(MaterialTheme.colorScheme.surface, CircleShape)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = FocusTextDark, modifier = Modifier.size(19.dp))
+                        Icon(
+                            if (openedFromTopic) Icons.Default.ArrowBack else Icons.Default.Menu,
+                            contentDescription = if (openedFromTopic) "Back" else "Menu",
+                            tint = FocusTextDark,
+                            modifier = Modifier.size(19.dp)
+                        )
                     }
                 },
                 actions = {

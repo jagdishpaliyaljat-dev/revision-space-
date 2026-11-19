@@ -135,6 +135,23 @@ fun SubjectsScreen(
                         }
                     }
                 },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { LocalAppDrawer.current.open() },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(40.dp)
+                            .background(Color.White, CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = "Menu",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                },
                 actions = {
                     IconButton(
                         onClick = {

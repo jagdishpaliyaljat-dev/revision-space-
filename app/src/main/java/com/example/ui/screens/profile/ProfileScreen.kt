@@ -294,14 +294,14 @@ fun ProfileScreen(
                 title = {},
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.navigate(com.example.ui.SettingsRoute) },
+                        onClick = { LocalAppDrawer.current.open() },
                         modifier = Modifier
                             .padding(start = 12.dp)
                             .size(42.dp)
                             .background(MaterialTheme.colorScheme.surface, CircleShape)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
-                        Icon(Icons.Default.Settings, "Settings", tint = ProfileTextDark, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Menu, "Menu", tint = ProfileTextDark, modifier = Modifier.size(20.dp))
                     }
                 },
                 actions = {
