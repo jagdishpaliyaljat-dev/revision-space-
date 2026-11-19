@@ -46,11 +46,12 @@ val DashPurplePrimaryShared = Color(0xFF6C4DFF)
 val DashTextGrayShared = Color(0xFF5B6478)
 
 /**
- * Floating, pill-shaped bottom navigation.
+ * Floating, pill-shaped bottom navigation — premium minimal redesign.
  *
- * The bar hovers above the content with a soft shadow and a hairline border,
- * while the selected destination gets a tinted indicator that animates in.
- * The central Timer action stays prominent as a gradient action button.
+ * - Slimmer 72dp bar with a soft hairline border and ambient shadow.
+ * - Selected tab gets a tinted pill behind the icon + a small dot indicator.
+ * - Central Timer action is a floating gradient circle that lifts above the bar.
+ * - All colors are theme-aware so dark mode stays consistent.
  */
 @Composable
 fun AppBottomNavigationBar(
@@ -62,39 +63,41 @@ fun AppBottomNavigationBar(
     onNavigateToProfile: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
-    val barShape = RoundedCornerShape(28.dp)
+    val barShape = RoundedCornerShape(24.dp)
     val surface = MaterialTheme.colorScheme.surface
-    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f)
+    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+    val primary = MaterialTheme.colorScheme.primary
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(start = 14.dp, end = 14.dp, bottom = 10.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
+        // Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(76.dp)
+                .height(72.dp)
                 .shadow(
-                    elevation = 18.dp,
+                    elevation = 16.dp,
                     shape = barShape,
                     clip = false,
-                    ambientColor = DashPurplePrimaryShared.copy(alpha = 0.14f),
-                    spotColor = DashPurplePrimaryShared.copy(alpha = 0.20f)
+                    ambientColor = primary.copy(alpha = 0.10f),
+                    spotColor = primary.copy(alpha = 0.18f)
                 )
                 .background(surface, barShape)
                 .border(1.dp, borderColor, barShape)
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 BottomTabItem(
                     isSelected = selectedBottomNav == 0,
                     label = "Home",
-                    activeIcon = Icons.Default.Home,
+                    activeIcon = Icons.Filled.Home,
                     inactiveIcon = Icons.Outlined.Home,
                     onClick = onNavigateToHome,
                     testTag = "home_tab"
@@ -102,47 +105,19 @@ fun AppBottomNavigationBar(
                 BottomTabItem(
                     isSelected = selectedBottomNav == 1,
                     label = "Subjects",
-                    activeIcon = Icons.Default.Layers,
+                    activeIcon = Icons.Filled.Layers,
                     inactiveIcon = Icons.Outlined.Layers,
                     onClick = onNavigateToSubjects,
                     testTag = "subjects_tab"
                 )
 
                 // Center slot reserved for the floating Timer action.
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable(
-                            onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onNavigateToTimer()
-                            },
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        )
-                        .padding(bottom = 10.dp)
-                        .testTag("timer_tab"),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Bottom
-                ) {
-                    Text(
-                        text = "Timer",
-                        color = if (selectedBottomNav == 2) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        fontSize = 10.sp,
-                        fontWeight = if (selectedBottomNav == 2) FontWeight.Bold else FontWeight.Medium,
-                        letterSpacing = 0.2.sp
-                    )
-                }
+                Spacer(modifier = Modifier.weight(1f))
 
                 BottomTabItem(
                     isSelected = selectedBottomNav == 3,
                     label = "To-Do",
-                    activeIcon = Icons.Default.Assignment,
+                    activeIcon = Icons.Filled.Assignment,
                     inactiveIcon = Icons.Outlined.Assignment,
                     onClick = onNavigateToTodoList,
                     testTag = "todo_tab"
@@ -150,7 +125,7 @@ fun AppBottomNavigationBar(
                 BottomTabItem(
                     isSelected = selectedBottomNav == 4,
                     label = "Profile",
-                    activeIcon = Icons.Default.Person,
+                    activeIcon = Icons.Filled.Person,
                     inactiveIcon = Icons.Outlined.Person,
                     onClick = onNavigateToProfile,
                     testTag = "profile_tab"
@@ -160,10 +135,10 @@ fun AppBottomNavigationBar(
 
         // Floating gradient Timer button that sits above the bar.
         val scaleTimer by animateFloatAsState(
-            targetValue = if (selectedBottomNav == 2) 1.08f else 1f,
+            targetValue = if (selectedBottomNav == 2) 1.06f else 1f,
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
+                stiffness = Spring.StiffnessMedium
             ),
             label = "scaleTimer"
         )
@@ -171,21 +146,21 @@ fun AppBottomNavigationBar(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-18).dp)
+                .offset(y = (-20).dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(58.dp)
+                    .size(56.dp)
                     .shadow(
-                        elevation = 12.dp,
+                        elevation = 14.dp,
                         shape = CircleShape,
                         clip = false,
-                        ambientColor = Color(0xFF6C4DFF).copy(alpha = 0.45f),
-                        spotColor = Color(0xFF4B32D6).copy(alpha = 0.45f)
+                        ambientColor = DashPurplePrimaryShared.copy(alpha = 0.35f),
+                        spotColor = DashPurplePrimaryShared.copy(alpha = 0.45f)
                     )
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFF6C4DFF), Color(0xFF4B32D6))
+                            colors = listOf(Color(0xFF7C5CFF), Color(0xFF4B32D6))
                         ),
                         shape = CircleShape
                     )
@@ -198,16 +173,27 @@ fun AppBottomNavigationBar(
                         indication = null,
                         interactionSource = remember { MutableInteractionSource() }
                     )
-                    .scale(scaleTimer),
+                    .scale(scaleTimer)
+                    .testTag("timer_tab"),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Timer,
+                    imageVector = Icons.Filled.Timer,
                     contentDescription = "Timer Button",
                     tint = Color.White,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
+            // Timer label under the floating button
+            Text(
+                text = "Timer",
+                color = if (selectedBottomNav == 2) primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 10.sp,
+                fontWeight = if (selectedBottomNav == 2) FontWeight.Bold else FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset(y = 46.dp)
+            )
         }
     }
 }
@@ -225,19 +211,19 @@ fun RowScope.BottomTabItem(
 
     val tintColor by animateColorAsState(
         targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-        animationSpec = tween(durationMillis = 220),
+        animationSpec = tween(durationMillis = 200),
         label = "tab_color"
     )
-    val indicatorColor by animateColorAsState(
+    val pillColor by animateColorAsState(
         targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        animationSpec = tween(durationMillis = 220),
-        label = "tab_indicator"
+        animationSpec = tween(durationMillis = 200),
+        label = "tab_pill"
     )
     val iconScale by animateFloatAsState(
-        targetValue = if (isSelected) 1f else 0.96f,
+        targetValue = if (isSelected) 1.05f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = Spring.StiffnessMedium
         ),
         label = "tab_scale"
     )
@@ -254,16 +240,15 @@ fun RowScope.BottomTabItem(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             )
-            .padding(bottom = 10.dp)
+            .padding(vertical = 6.dp)
             .testTag(testTag),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom
+        verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
-                .height(30.dp)
-                .width(44.dp)
-                .background(indicatorColor, RoundedCornerShape(15.dp)),
+                .size(40.dp)
+                .background(pillColor, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -271,17 +256,16 @@ fun RowScope.BottomTabItem(
                 contentDescription = label,
                 tint = tintColor,
                 modifier = Modifier
-                    .size(21.dp)
+                    .size(22.dp)
                     .scale(iconScale)
             )
         }
-        Spacer(modifier = Modifier.height(3.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
             color = tintColor,
-            fontSize = 10.sp,
+            fontSize = 10.5.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            letterSpacing = 0.2.sp,
             maxLines = 1
         )
     }
