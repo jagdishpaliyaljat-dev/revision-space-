@@ -341,7 +341,7 @@ fun TimerScreen(
                                     chapterName = currentChapterName
                                 )
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = FocusPurple),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -356,7 +356,7 @@ fun TimerScreen(
                                 val breakDuration = settings.shortBreakDuration
                                 viewModel.startBreakTimer(breakDuration)
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = FocusPurple),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -376,7 +376,7 @@ fun TimerScreen(
                                     chapterName = currentChapterName
                                 )
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = FocusPurple),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -503,7 +503,7 @@ fun TimerScreen(
                             Icon(
                                 Icons.Default.MusicNote,
                                 contentDescription = "Music",
-                                tint = if (settings.soundEnabled && settings.ambientSound != "None") FocusTextDark else FocusTextGray,
+                                tint = if (settings.soundEnabled && settings.ambientSound != "None") MaterialTheme.colorScheme.primary else FocusTextGray,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -596,7 +596,7 @@ fun TimerScreen(
                     Icon(
                         Icons.Outlined.MenuBook,
                         contentDescription = null,
-                        tint = FocusTextGray,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -606,7 +606,7 @@ fun TimerScreen(
                             fontSize = 9.5.sp,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.1.sp,
-                            color = FocusTextGray
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
@@ -663,7 +663,7 @@ fun TimerScreen(
                             .width(26.dp)
                             .height(3.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(if (i <= currentSession) FocusTextDark else MaterialTheme.colorScheme.outlineVariant)
+                            .background(if (i <= currentSession) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
                     )
                     if (i < 4) Spacer(modifier = Modifier.width(6.dp))
                 }
@@ -678,7 +678,7 @@ fun TimerScreen(
             }
 
             // ---------- 4. TIMER ----------
-            val ringAccent = if (isBreakSession) Color(0xFF0F766E) else FocusPurple
+            val ringAccent = if (isBreakSession) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
             Box(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
@@ -806,7 +806,7 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(76.dp)
                             .clip(CircleShape)
-                            .background(if (startEnabled) FocusTextDark else MaterialTheme.colorScheme.outlineVariant)
+                            .background(if (startEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)
                             .clickable(enabled = !isSavingCompletion) {
                                 if (!hasChapterSelected) {
                                     showTopicSelectionSheet = true
@@ -830,7 +830,7 @@ fun TimerScreen(
                         Icon(
                             if (isRunning && !isPaused) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isRunning && !isPaused) "Pause" else "Start or Resume",
-                            tint = if (startEnabled) MaterialTheme.colorScheme.surface else FocusTextGray,
+                            tint = if (startEnabled) MaterialTheme.colorScheme.onPrimary else FocusTextGray,
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -904,8 +904,12 @@ fun TimerScreen(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(10.dp))
                                 .alpha(if (presetEnabled) 1f else 0.4f)
-                                .background(if (isSelected) FocusTextDark else Color.Transparent)
-                                .border(1.dp, if (isSelected) FocusTextDark else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))
+                                .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+                                .border(
+                                    1.dp,
+                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.45f) else MaterialTheme.colorScheme.outlineVariant,
+                                    RoundedCornerShape(10.dp)
+                                )
                                 .clickable(enabled = presetEnabled) { updateActiveDuration(mins) }
                                 .padding(horizontal = 14.dp, vertical = 8.dp)
                         ) {
@@ -913,7 +917,7 @@ fun TimerScreen(
                                 "${mins}m",
                                 fontSize = 12.sp,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                color = if (isSelected) MaterialTheme.colorScheme.surface else FocusTextGray
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else FocusTextGray
                             )
                         }
                     }
@@ -959,7 +963,7 @@ fun TimerScreen(
                             },
                             modifier = Modifier.testTag("confirm_complete_session_button")
                         ) {
-                            Text("Complete & Save", color = FocusPurple, fontWeight = FontWeight.Bold)
+                            Text("Complete & Save", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                         }
                     },
                     dismissButton = {
@@ -1001,7 +1005,7 @@ fun TimerScreen(
                 Icon(
                     Icons.Outlined.MusicNote,
                     contentDescription = null,
-                    tint = FocusTextGray,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -1057,8 +1061,8 @@ fun TimerScreen(
                         .testTag("complete_session_button"),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = FocusTextDark,
-                        contentColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -1087,9 +1091,9 @@ fun TimerScreen(
                         modifier = Modifier.clickable { navController.navigate(AnalyticsRoute) { popUpTo(DashboardRoute) } },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Details", color = FocusTextGray, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                        Text("Details", color = MaterialTheme.colorScheme.primary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
                         Spacer(modifier = Modifier.width(2.dp))
-                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -1166,10 +1170,10 @@ fun FocusSettingsBottomSheet(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Tune, contentDescription = null, tint = FocusTextDark, modifier = Modifier.size(19.dp))
+                    Icon(Icons.Default.Tune, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(19.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
@@ -1245,8 +1249,8 @@ fun FocusSettingsBottomSheet(
                     .fillMaxWidth()
                     .height(52.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = FocusTextDark,
-                    contentColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 shape = RoundedCornerShape(12.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
@@ -1276,7 +1280,7 @@ private fun SettingsSectionCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(15.dp))
+                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(15.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(title, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.1.sp, color = FocusTextGray)
             }
@@ -1294,10 +1298,10 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
-                    .background(if (isSelected) FocusTextDark else Color.Transparent)
+                    .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                     .border(
                         1.dp,
-                        if (isSelected) FocusTextDark else MaterialTheme.colorScheme.outlineVariant,
+                        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                         RoundedCornerShape(10.dp)
                     )
                     .clickable { onSelect(opt) }
@@ -1305,7 +1309,7 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
             ) {
                 Text(
                     "$opt m",
-                    color = if (isSelected) MaterialTheme.colorScheme.surface else FocusTextGray,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else FocusTextGray,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     fontSize = 12.sp
                 )
@@ -1342,8 +1346,8 @@ fun SwitchSettingItem(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.surface,
-                checkedTrackColor = FocusTextDark,
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
                 uncheckedThumbColor = MaterialTheme.colorScheme.surface,
                 uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
             )
@@ -1375,10 +1379,10 @@ fun AmbientSoundBottomSheet(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = FocusTextDark, modifier = Modifier.size(19.dp))
+                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(19.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
@@ -1402,10 +1406,10 @@ fun AmbientSoundBottomSheet(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent)
+                                .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
                                 .border(
                                     1.dp,
-                                    if (isSelected) MaterialTheme.colorScheme.outlineVariant else Color.Transparent,
+                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.35f) else Color.Transparent,
                                     RoundedCornerShape(12.dp)
                                 )
                                 .clickable { onSelect(sound) }
@@ -1416,13 +1420,13 @@ fun AmbientSoundBottomSheet(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(if (isSelected) FocusTextDark else MaterialTheme.colorScheme.surfaceVariant),
+                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     if (sound == "None") Icons.Default.VolumeOff else Icons.Default.MusicNote,
                                     contentDescription = sound,
-                                    tint = if (isSelected) MaterialTheme.colorScheme.surface else FocusTextGray,
+                                    tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else FocusTextGray,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -1432,7 +1436,7 @@ fun AmbientSoundBottomSheet(
                                     text = sound,
                                     fontSize = 14.sp,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                    color = FocusTextDark
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else FocusTextDark
                                 )
                                 Text(soundDescriptions[index], fontSize = 11.sp, color = FocusTextGray)
                             }
@@ -1441,10 +1445,10 @@ fun AmbientSoundBottomSheet(
                                     modifier = Modifier
                                         .size(22.dp)
                                         .clip(CircleShape)
-                                        .background(FocusTextDark),
+                                        .background(MaterialTheme.colorScheme.primary),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.surface, modifier = Modifier.size(13.dp))
+                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(13.dp))
                                 }
                             }
                         }
@@ -1469,8 +1473,8 @@ private fun PremiumTimerRing(
     isBreak: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val accent = if (isBreak) Color(0xFF0F766E) else FocusPurple
-    val trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f)
+    val accent = if (isBreak) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+    val trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
     Canvas(modifier = modifier) {
         val stroke = 6.dp.toPx()
         val radius = (size.minDimension - stroke) / 2f
@@ -1514,10 +1518,10 @@ private fun ModePill(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
             .alpha(if (enabled) 1f else 0.4f)
-            .background(if (selected) FocusTextDark else Color.Transparent)
+            .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
             .border(
                 width = 1.dp,
-                color = if (selected) FocusTextDark else MaterialTheme.colorScheme.outlineVariant,
+                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(10.dp)
             )
             .clickable(enabled = enabled) { onClick() }
@@ -1528,7 +1532,7 @@ private fun ModePill(
             label,
             fontSize = 12.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-            color = if (selected) MaterialTheme.colorScheme.surface else FocusTextGray
+            color = if (selected) MaterialTheme.colorScheme.onPrimary else FocusTextGray
         )
     }
 }
@@ -1541,7 +1545,7 @@ private fun SectionKicker(text: String) {
         fontSize = 10.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 1.3.sp,
-        color = FocusTextGray
+        color = MaterialTheme.colorScheme.primary
     )
 }
 
@@ -1575,7 +1579,7 @@ private fun FocusTipCard() {
                 fontSize = 9.5.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 1.2.sp,
-                color = FocusTextGray
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(6.dp))
             AnimatedContent(
