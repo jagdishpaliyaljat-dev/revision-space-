@@ -293,8 +293,9 @@ fun ProfileScreen(
             CenterAlignedTopAppBar(
                 title = {},
                 navigationIcon = {
+                    val appDrawer = LocalAppDrawer.current
                     IconButton(
-                        onClick = { LocalAppDrawer.current.open() },
+                        onClick = { appDrawer.open() },
                         modifier = Modifier
                             .padding(start = 12.dp)
                             .size(42.dp)

@@ -168,8 +168,9 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                         }
                     },
                     navigationIcon = {
+                        val appDrawer = LocalAppDrawer.current
                         IconButton(
-                            onClick = { LocalAppDrawer.current.open() },
+                            onClick = { appDrawer.open() },
                             modifier = Modifier
                                 .padding(start = 8.dp)
                                 .size(40.dp)
