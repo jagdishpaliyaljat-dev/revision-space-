@@ -11,12 +11,18 @@ android {
   namespace = "com.example"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
+  // Every CI build gets a higher versionCode so Android treats it as an UPDATE
+  // (installs over the previous app and keeps all local data).
+  val ciBuildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 0
+  val appVersionCode = 1000 + ciBuildNumber
+  val appVersionName = if (ciBuildNumber > 0) "1.0.$ciBuildNumber" else "1.0"
+
   defaultConfig {
     applicationId = "com.aistudio.revisionspace.iqizua"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = appVersionCode
+    versionName = appVersionName
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

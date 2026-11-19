@@ -21,7 +21,9 @@ class MyApplication : Application() {
                 applicationContext,
                 AppDatabase::class.java, "offline_database"
             ).addMigrations(AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5)
-             .fallbackToDestructiveMigration()
+             // Upgrades must NEVER wipe user data: every schema change ships a real
+             // migration above. Only installing an OLDER build may reset the DB.
+             .fallbackToDestructiveMigrationOnDowngrade(true)
              .build()
         } catch (e: Exception) {
             android.util.Log.e("MyApplication", "Room Database init failed", e)

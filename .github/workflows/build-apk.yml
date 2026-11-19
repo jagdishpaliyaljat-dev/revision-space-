@@ -49,18 +49,12 @@ jobs:
         env:
           DEBUG_KEYSTORE_B64: ${{ secrets.DEBUG_KEYSTORE_B64 }}
         run: |
-          if [ -n "$DEBUG_KEYSTORE_B64" ]; then
-            echo "$DEBUG_KEYSTORE_B64" | base64 -d > debug.keystore
-            echo "Using stable debug keystore from repository secret."
-          else
-            keytool -genkeypair -v \
-              -keystore debug.keystore \
-              -storepass android -keypass android \
-              -alias androiddebugkey \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-            echo "No secret configured; generated a new debug keystore."
+          if [ -z "$DEBUG_KEYSTORE_B64" ]; then
+            echo "::error::DEBUG_KEYSTORE_B64 secret is missing. A random keystore would change the app signature and break in-place updates (and wipe data). Refusing to build."
+            exit 1
           fi
+          echo "$DEBUG_KEYSTORE_B64" | base64 -d > debug.keystore
+          echo "Using the stable debug keystore from repository secret (in-place updates supported)."
 
       - name: Print debug signing certificate info
         run: |
