@@ -286,7 +286,13 @@ object BackupManager {
                     val exists = idValue != null && rowExists(writable, table, idValue)
                     val applied = runCatching {
                         if (exists) {
-                            writable.update(table, values, "id = ?", arrayOf(idValue))
+                            writable.update(
+                                table,
+                                SQLiteDatabase.CONFLICT_ABORT,
+                                values,
+                                "id = ?",
+                                arrayOf(idValue)
+                            )
                         } else {
                             writable.insert(table, SQLiteDatabase.CONFLICT_REPLACE, values).toInt()
                         }
