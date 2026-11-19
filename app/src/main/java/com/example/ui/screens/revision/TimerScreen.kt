@@ -632,6 +632,27 @@ fun TimerScreen(
                 }
             }
 
+            if (currentChapterId.isEmpty() && effectiveTopicId.isEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = null,
+                        tint = FocusTextGray,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "Select a chapter above to start the timer",
+                        fontSize = 11.5.sp,
+                        color = FocusTextGray
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             // ---------- 4. SESSION CYCLE TRACKER ----------
@@ -784,11 +805,13 @@ fun TimerScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val controlsEnabled = (currentChapterId.isNotEmpty() || effectiveTopicId.isNotEmpty()) && !isSavingCompletion
+                val hasChapterSelected = currentChapterId.isNotEmpty() || effectiveTopicId.isNotEmpty()
+                val controlsEnabled = hasChapterSelected && !isSavingCompletion
 
                 // Stop
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    val stopClickable = controlsEnabled
+                    // Stop should always respond: it ends the session or leaves the screen.
+                    val stopClickable = !isSavingCompletion
                     Box(
                         modifier = Modifier
                             .size(62.dp)
@@ -825,8 +848,11 @@ fun TimerScreen(
                                 if (startEnabled) Brush.linearGradient(listOf(FocusPurple, Color(0xFF8B5CF6)))
                                 else Brush.linearGradient(listOf(Color(0xFFB8BECB), Color(0xFFB8BECB)))
                             )
-                            .clickable(enabled = startEnabled) {
-                                if (isRunning && !isPaused) {
+                            .clickable(enabled = !isSavingCompletion) {
+                                if (!hasChapterSelected) {
+                                    // Nothing selected yet — guide the user instead of doing nothing.
+                                    showTopicSelectionSheet = true
+                                } else if (isRunning && !isPaused) {
                                     viewModel.pauseTimer()
                                 } else if (isPaused) {
                                     viewModel.resumeTimer()
@@ -852,7 +878,11 @@ fun TimerScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        if (isRunning && !isPaused) "Pause" else if (isPaused || elapsedMs > 0) "Resume" else "Start",
+                        when {
+                            isRunning && !isPaused -> "Pause"
+                            isPaused || elapsedMs > 0 -> "Resume"
+                            else -> "Start"
+                        },
                         fontSize = 13.sp,
                         color = if (startEnabled) FocusTextDark else Color.Gray,
                         fontWeight = FontWeight.Bold
@@ -868,6 +898,7 @@ fun TimerScreen(
                         modifier = Modifier
                             .size(62.dp)
                             .clip(CircleShape)
+                            .alpha(if (skipClickable) 1f else 0.45f)
                             .background(MaterialTheme.colorScheme.surface)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                             .clickable(enabled = skipClickable) {

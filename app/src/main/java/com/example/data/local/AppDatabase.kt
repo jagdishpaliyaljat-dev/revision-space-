@@ -20,7 +20,7 @@ import androidx.room.TypeConverters
         CoinTransactionEntity::class,
         AppNotificationEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(RoomConverters::class)
@@ -60,6 +60,12 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE topics ADD COLUMN completedRevisions INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE topics ADD COLUMN totalRequiredRevisions INTEGER NOT NULL DEFAULT 4")
                 db.execSQL("ALTER TABLE topics ADD COLUMN progressScore INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE user_profiles ADD COLUMN focusSettingsStr TEXT NOT NULL DEFAULT ''")
             }
         }
     }

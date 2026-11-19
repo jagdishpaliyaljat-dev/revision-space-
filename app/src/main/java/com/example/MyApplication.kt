@@ -20,7 +20,7 @@ class MyApplication : Application() {
             database = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "offline_database"
-            ).addMigrations(AppDatabase.MIGRATION_3_4)
+            ).addMigrations(AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5)
              .fallbackToDestructiveMigration()
              .build()
         } catch (e: Exception) {

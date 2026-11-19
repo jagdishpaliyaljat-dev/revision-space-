@@ -294,7 +294,8 @@ fun UserProfileEntity.toDomain(): UserProfile = UserProfile(
     badge = badge,
     league = league,
     rankPosition = rankPosition,
-    isRanked = isRanked
+    isRanked = isRanked,
+    focusSettings = decodeFocusSettings(focusSettingsStr)
 )
 
 fun UserProfile.toEntity(): UserProfileEntity = UserProfileEntity(
@@ -331,7 +332,8 @@ fun UserProfile.toEntity(): UserProfileEntity = UserProfileEntity(
     badge = badge,
     league = league,
     rankPosition = rankPosition,
-    isRanked = isRanked
+    isRanked = isRanked,
+    focusSettingsStr = encodeFocusSettings(focusSettings)
 )
 
 fun ExamEntity.toDomain(): ExamCountdown = ExamCountdown(
@@ -475,3 +477,65 @@ fun AppNotification.toEntity(): AppNotificationEntity = AppNotificationEntity(
     chapterId = chapterId,
     revisionId = revisionId
 )
+
+// --- Focus settings (de)serialization ---
+// Kept dependency-free and versioned so the Room schema can stay a single TEXT column.
+private const val FOCUS_SETTINGS_PREFIX = "v1;"
+
+internal fun encodeFocusSettings(fs: FocusSettings): String {
+    val pairs = listOf(
+        "fd" to fs.focusDuration,
+        "sbd" to fs.shortBreakDuration,
+        "lbd" to fs.longBreakDuration,
+        "asf" to fs.autoStartFocus,
+        "asb" to fs.autoStartBreak,
+        "vib" to fs.vibrationEnabled,
+        "snd" to fs.soundEnabled,
+        "amb" to fs.ambientSound,
+        "dfg" to fs.dailyFocusGoalMins,
+        "ksa" to fs.keepScreenAwake,
+        "ssm" to fs.selectedStudyMode,
+        "lum" to fs.lastUsedMode,
+        "smd" to fs.studyModeDurationMins,
+        "rmd" to fs.revisionModeDurationMins,
+        "pmd" to fs.practiceModeDurationMins,
+        "mmd" to fs.mockTestModeDurationMins,
+        "wmd" to fs.writingPracticeModeDurationMins
+    )
+    return FOCUS_SETTINGS_PREFIX + pairs.joinToString(";") { "${it.first}=${it.second}" }
+}
+
+internal fun decodeFocusSettings(raw: String?): FocusSettings {
+    val defaults = FocusSettings()
+    if (raw.isNullOrBlank() || !raw.startsWith(FOCUS_SETTINGS_PREFIX)) return defaults
+    return try {
+        val map = raw.removePrefix(FOCUS_SETTINGS_PREFIX)
+            .split(";")
+            .mapNotNull { token ->
+                val i = token.indexOf('=')
+                if (i <= 0) null else token.substring(0, i) to token.substring(i + 1)
+            }
+            .toMap()
+        defaults.copy(
+            focusDuration = map["fd"]?.toIntOrNull() ?: defaults.focusDuration,
+            shortBreakDuration = map["sbd"]?.toIntOrNull() ?: defaults.shortBreakDuration,
+            longBreakDuration = map["lbd"]?.toIntOrNull() ?: defaults.longBreakDuration,
+            autoStartFocus = map["asf"]?.toBooleanStrictOrNull() ?: defaults.autoStartFocus,
+            autoStartBreak = map["asb"]?.toBooleanStrictOrNull() ?: defaults.autoStartBreak,
+            vibrationEnabled = map["vib"]?.toBooleanStrictOrNull() ?: defaults.vibrationEnabled,
+            soundEnabled = map["snd"]?.toBooleanStrictOrNull() ?: defaults.soundEnabled,
+            ambientSound = map["amb"] ?: defaults.ambientSound,
+            dailyFocusGoalMins = map["dfg"]?.toIntOrNull() ?: defaults.dailyFocusGoalMins,
+            keepScreenAwake = map["ksa"]?.toBooleanStrictOrNull() ?: defaults.keepScreenAwake,
+            selectedStudyMode = map["ssm"] ?: defaults.selectedStudyMode,
+            lastUsedMode = map["lum"] ?: defaults.lastUsedMode,
+            studyModeDurationMins = map["smd"]?.toIntOrNull() ?: defaults.studyModeDurationMins,
+            revisionModeDurationMins = map["rmd"]?.toIntOrNull() ?: defaults.revisionModeDurationMins,
+            practiceModeDurationMins = map["pmd"]?.toIntOrNull() ?: defaults.practiceModeDurationMins,
+            mockTestModeDurationMins = map["mmd"]?.toIntOrNull() ?: defaults.mockTestModeDurationMins,
+            writingPracticeModeDurationMins = map["wmd"]?.toIntOrNull() ?: defaults.writingPracticeModeDurationMins
+        )
+    } catch (e: Exception) {
+        defaults
+    }
+}

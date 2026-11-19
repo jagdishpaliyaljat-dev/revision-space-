@@ -181,7 +181,9 @@ data class UserProfileEntity(
     val badge: String = "Scholar",
     val league: String = "Diamond",
     val rankPosition: Int? = 1,
-    val isRanked: Boolean = true
+    val isRanked: Boolean = true,
+    // Focus timer settings (mode, durations, sound...) persisted as a compact v1 string.
+    val focusSettingsStr: String = ""
 )
 
 @Entity(tableName = "exams", indices = [Index(value = ["userId"])])
