@@ -11,13 +11,22 @@ import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.Constraints
 import androidx.work.NetworkType
+import com.example.MyApplication
+import com.example.notification.NotificationHelper
 import com.example.receivers.SrsAlarmReceiver
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 object SrsNotificationManager {
+
+    private const val DAILY_MISSION_WORK = "DailySrsMission"
     
     fun scheduleDailyMission(context: Context) {
+        // Never keep a daily mission alive for a user who turned notifications off.
+        if (!NotificationHelper.notificationsAllowed(context)) {
+            cancelDailyMission(context)
+            return
+        }
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
             .build()
@@ -28,10 +37,14 @@ object SrsNotificationManager {
             .build()
             
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "DailySrsMission",
+            DAILY_MISSION_WORK,
             ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
+    }
+
+    fun cancelDailyMission(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(DAILY_MISSION_WORK)
     }
     
     private fun calculateInitialDelayToMorning(): Long {
@@ -50,6 +63,9 @@ object SrsNotificationManager {
     }
     
     fun scheduleChapterRevision(context: Context, topicId: String, subjectId: String, chapterId: String, topicName: String, nextRevisionMs: Long, estimatedMins: Int) {
+        // With notifications switched off there is nothing to show, so do not
+        // leave an exact alarm behind that would fire for nothing.
+        if (!NotificationHelper.notificationsAllowed(context)) return
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, SrsAlarmReceiver::class.java).apply {
             action = SrsAlarmReceiver.ACTION_REVISION_DUE
@@ -101,5 +117,39 @@ object SrsNotificationManager {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+    }
+
+    /**
+     * Re-creates every per-topic revision alarm from the local database.
+     *
+     * Exact alarms are lost on reboot, on app update and after "force stop", and
+     * the repository only schedules one when a revision is saved. Without this
+     * sync a user could keep the app installed for weeks yet never get another
+     * topic reminder.
+     *
+     * Also used as the "apply the notification switch" routine: when
+     * notifications are disabled it cancels every pending alarm instead.
+     */
+    suspend fun rescheduleAllRevisionAlarms(context: Context) {
+        val db = runCatching { MyApplication.database }.getOrNull() ?: return
+        val topics = runCatching { db.topicDao().getTopicsList("offline_user") }
+            .getOrElse { return }
+        val enabled = NotificationHelper.notificationsAllowed(context)
+        val now = System.currentTimeMillis()
+        topics.forEach { topic ->
+            if (enabled && topic.nextRevisionDateMs > now) {
+                scheduleChapterRevision(
+                    context,
+                    topic.id,
+                    topic.subjectId,
+                    topic.chapterId,
+                    topic.name,
+                    topic.nextRevisionDateMs,
+                    topic.estimatedRevisionTimeMins
+                )
+            } else {
+                cancelChapterRevision(context, topic.id)
+            }
+        }
     }
 }

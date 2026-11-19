@@ -120,8 +120,8 @@ jobs:
         run: |
           if [ ! -f .env ]; then cp .env.example .env; fi
 
-      - name: Run backup unit tests
-        run: gradle :app:testDebugUnitTest --tests "com.example.data.backup.*" --stacktrace --no-daemon
+      - name: Run backup + alarm policy unit tests
+        run: gradle :app:testDebugUnitTest --tests "com.example.data.backup.*" --tests "com.example.services.*" --stacktrace --no-daemon
 
       - name: Upload test report on failure
         if: failure()

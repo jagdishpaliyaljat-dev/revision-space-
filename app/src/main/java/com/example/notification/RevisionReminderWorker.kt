@@ -14,6 +14,9 @@ class RevisionReminderWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        // The in-app master switch must win. Previously this worker always
+        // notified, so turning notifications off did nothing at all.
+        if (!NotificationHelper.notificationsAllowed(context)) return Result.success()
         return try {
             val db = MyApplication.database
             val now = System.currentTimeMillis()

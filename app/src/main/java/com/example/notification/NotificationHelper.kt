@@ -15,6 +15,27 @@ object NotificationHelper {
     const val CHANNEL_ID = "revision_reminder_channel"
     const val NOTIFICATION_ID = 1001
 
+    /** Channel used by SRS topic alarms and the daily mission worker. */
+    const val SRS_CHANNEL_ID = "srs_channel"
+    const val SRS_CHANNEL_NAME = "SRS Study Reminders"
+    const val SRS_CHANNEL_DESCRIPTION = "Reminders for topic & subject revisions"
+
+    /** Shared-preferences file that holds every user setting. */
+    const val APP_PREFS_NAME = "revision_app_prefs"
+
+    /**
+     * Single source of truth for "may the app post notifications right now?".
+     *
+     * Both the in-app master switch and the Android permission/channel state are
+     * honoured. Before this helper every producer ignored the master switch, so
+     * turning notifications off only hid them from Settings.
+     */
+    fun notificationsAllowed(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(APP_PREFS_NAME, Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("notifications_enabled", true)) return false
+        return NotificationManagerCompat.from(context).areNotificationsEnabled()
+    }
+
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Study Revision Reminder"
@@ -29,7 +50,30 @@ object NotificationHelper {
         }
     }
 
+    /**
+     * Creates the SRS channel with one canonical name/description.
+     *
+     * The alarm receiver used to create the same channel id as "SRS Reminders"
+     * while the worker used "SRS Study Reminders". Android keeps the first name,
+     * so the settings screen could show a different label than the code intended.
+     */
+    fun createSrsChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                SRS_CHANNEL_ID,
+                SRS_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = SRS_CHANNEL_DESCRIPTION
+            }
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     fun showRevisionReminder(context: Context) {
+        if (!notificationsAllowed(context)) return
         createNotificationChannel(context)
 
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -68,6 +112,7 @@ object NotificationHelper {
         subjectName: String,
         revisionCount: Int
     ) {
+        if (!notificationsAllowed(context)) return
         createNotificationChannel(context)
 
         val intent = Intent(context, MainActivity::class.java).apply {

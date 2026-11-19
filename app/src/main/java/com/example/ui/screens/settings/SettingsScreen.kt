@@ -115,13 +115,40 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
 
     // Notification permission (Android 13+) so the "turn on" switch actually
     // results in alerts instead of silently doing nothing.
+    fun syncNotificationSchedules() {
+        val enabled = sharedPrefs.getBoolean("notifications_enabled", true)
+        val reminderEnabled = sharedPrefs.getBoolean("reminder_enabled", false)
+        if (enabled && reminderEnabled) {
+            ReminderScheduler.scheduleDailyReminder(
+                context,
+                sharedPrefs.getInt("reminder_hour", 20),
+                sharedPrefs.getInt("reminder_minute", 0)
+            )
+        } else {
+            ReminderScheduler.cancelReminder(context)
+        }
+        if (enabled) {
+            SrsNotificationManager.scheduleDailyMission(context)
+        } else {
+            SrsNotificationManager.cancelDailyMission(context)
+        }
+        scope.launch(Dispatchers.IO) {
+            runCatching { SrsNotificationManager.rescheduleAllRevisionAlarms(context) }
+        }
+    }
+
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
+            syncNotificationSchedules()
             viewModel.checkAndTriggerNotifications(context)
             Toast.makeText(context, "Notifications turned on", Toast.LENGTH_SHORT).show()
         } else {
+            // Keep the saved switch truthful: without permission nothing can be shown.
+            notificationsEnabled = false
+            sharedPrefs.edit().putBoolean("notifications_enabled", false).apply()
+            syncNotificationSchedules()
             Toast.makeText(context, "Allow notifications in system settings to get alerts", Toast.LENGTH_LONG).show()
         }
     }
@@ -130,6 +157,9 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
         notificationsEnabled = enabled
         sharedPrefs.edit().putBoolean("notifications_enabled", enabled).apply()
         if (!enabled) {
+            // Cancel the reminder work and every pending revision alarm, so
+            // "off" really means off (previously they kept firing).
+            syncNotificationSchedules()
             Toast.makeText(context, "Notifications turned off", Toast.LENGTH_SHORT).show()
             return
         }
@@ -138,6 +168,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
         if (needsPermission) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
+            syncNotificationSchedules()
             viewModel.checkAndTriggerNotifications(context)
             Toast.makeText(context, "Notifications turned on", Toast.LENGTH_SHORT).show()
         }
@@ -234,18 +265,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     viewModel.setDarkMode(sharedPrefs.getBoolean("dark_mode_enabled", darkModeEnabled))
                 }
                 // Imported reminder settings must actually schedule (or cancel) alarms.
-                runCatching {
-                    if (sharedPrefs.getBoolean("reminder_enabled", false)) {
-                        ReminderScheduler.scheduleDailyReminder(
-                            context,
-                            sharedPrefs.getInt("reminder_hour", 20),
-                            sharedPrefs.getInt("reminder_minute", 0)
-                        )
-                    } else {
-                        ReminderScheduler.cancelReminder(context)
-                    }
-                    SrsNotificationManager.scheduleDailyMission(context)
-                }
+                runCatching { syncNotificationSchedules() }
                 setBackupStatus("Last import: ${outcome.totalImported} records")
                 importOutcome = outcome
             }.onFailure { error ->

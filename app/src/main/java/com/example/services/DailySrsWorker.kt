@@ -1,11 +1,9 @@
 package com.example.services
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -23,6 +21,10 @@ class DailySrsWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        // Respect the master notification switch (and the Android permission).
+        if (!com.example.notification.NotificationHelper.notificationsAllowed(context)) {
+            return Result.success()
+        }
         return try {
             val db = MyApplication.database
             val now = System.currentTimeMillis()
@@ -46,7 +48,7 @@ class DailySrsWorker(
             }
 
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            createChannels(manager)
+            createChannels()
 
             // 1. Overdue Notifications
             for (topic in overdueTopics) {
@@ -55,7 +57,9 @@ class DailySrsWorker(
                     val subjectName = subjects[topic.subjectId]?.name ?: "Subject"
                     val title = "Pending Revision: ${topic.name}"
                     val body = "Subject: $subjectName • Overdue by $daysOverdue days (1, 3, 7, 14, 30 days pattern)"
-                    sendNotification(manager, topic.id.hashCode(), title, body, topic)
+                    // Prefix the id so a daily summary never overwrites the exact
+                    // per-topic alarm notification (both used topicId.hashCode()).
+                    sendNotification(manager, ("daily_" + topic.id).hashCode(), title, body, topic)
 
                     db.appNotificationDao().insert(
                         AppNotificationEntity(
@@ -115,18 +119,9 @@ class DailySrsWorker(
         return cal.timeInMillis
     }
 
-    private fun createChannels(manager: NotificationManager) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "srs_channel",
-                "SRS Study Reminders",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Periodic reminders for topic & subject revisions"
-            }
-            channel.setBypassDnd(true)
-            manager.createNotificationChannel(channel)
-        }
+    private fun createChannels() {
+        // One canonical channel definition shared with SrsAlarmReceiver.
+        com.example.notification.NotificationHelper.createSrsChannel(context)
     }
 
     private fun sendNotification(
@@ -154,7 +149,7 @@ class DailySrsWorker(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, "srs_channel")
+        val builder = NotificationCompat.Builder(context, com.example.notification.NotificationHelper.SRS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_revision)
             .setContentTitle(title)
             .setContentText(body)

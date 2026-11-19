@@ -1620,7 +1620,7 @@ open class RevisionRepository {
             recordStudyTime(dateRaw, !isFirstStudyResult, durationMs)
 
             try {
-                val context = com.google.firebase.FirebaseApp.getInstance().applicationContext
+                val context = com.example.MyApplication.instance.applicationContext
                 if (finalTopic.nextRevisionDateMs != 0L) {
                     com.example.services.SrsNotificationManager.scheduleChapterRevision(
                         context,
@@ -1812,7 +1812,7 @@ open class RevisionRepository {
             
             // Schedule Notification
             try {
-                val context = com.google.firebase.FirebaseApp.getInstance().applicationContext
+                val context = com.example.MyApplication.instance.applicationContext
                 if (finalTopic.nextRevisionDateMs != 0L) {
                     com.example.services.SrsNotificationManager.scheduleChapterRevision(
                         context,
@@ -2079,7 +2079,7 @@ open class RevisionRepository {
         if (rDb != null) {
             rDb.topicDao().insert(finalTopic.toEntity())
             try {
-                val context = com.google.firebase.FirebaseApp.getInstance().applicationContext
+                val context = com.example.MyApplication.instance.applicationContext
                 if (finalTopic.nextRevisionDateMs != 0L) {
                     com.example.services.SrsNotificationManager.scheduleChapterRevision(
                         context,
@@ -2103,7 +2103,7 @@ open class RevisionRepository {
         }
         
         try {
-            val context = com.google.firebase.FirebaseApp.getInstance().applicationContext
+            val context = com.example.MyApplication.instance.applicationContext
             if (finalTopic.nextRevisionDateMs != 0L) {
                 com.example.services.SrsNotificationManager.scheduleChapterRevision(
                     context,
@@ -2280,7 +2280,7 @@ open class RevisionRepository {
         rDb?.revisionDao()?.deleteByTopic(id)
         rDb?.revisionHistoryDao()?.deleteByTopic(id)
         try {
-            val context = com.google.firebase.FirebaseApp.getInstance().applicationContext
+            val context = com.example.MyApplication.instance.applicationContext
             com.example.services.SrsNotificationManager.cancelChapterRevision(context, id)
         } catch(e: Exception) {}
         if (rDb != null || userId.isEmpty()) return

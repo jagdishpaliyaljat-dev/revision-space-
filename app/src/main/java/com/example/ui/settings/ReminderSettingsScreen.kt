@@ -36,6 +36,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notification.ReminderScheduler
+import com.example.services.SrsNotificationManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,15 +53,38 @@ fun ReminderSettingsScreen(
     var hour by remember { mutableIntStateOf(sharedPrefs.getInt("reminder_hour", 20)) }
     var minute by remember { mutableIntStateOf(sharedPrefs.getInt("reminder_minute", 0)) }
     var isReminderEnabled by remember { mutableStateOf(sharedPrefs.getBoolean("reminder_enabled", false)) }
+    val scope = rememberCoroutineScope()
+
+    fun enableReminder() {
+        isReminderEnabled = true
+        sharedPrefs.edit()
+            .putBoolean("reminder_enabled", true)
+            // Turning on the daily reminder only makes sense with notifications on.
+            // Otherwise the master switch silently suppressed every alert.
+            .putBoolean("notifications_enabled", true)
+            .apply()
+        ReminderScheduler.scheduleDailyReminder(context, hour, minute)
+        // Notifications may have been switched off earlier; bring the other
+        // schedules back as well so the master switch state stays consistent.
+        SrsNotificationManager.scheduleDailyMission(context)
+        scope.launch(Dispatchers.IO) {
+            runCatching { SrsNotificationManager.rescheduleAllRevisionAlarms(context) }
+        }
+        Toast.makeText(context, "Reminder enabled", Toast.LENGTH_SHORT).show()
+    }
+
+    fun disableReminder() {
+        isReminderEnabled = false
+        sharedPrefs.edit().putBoolean("reminder_enabled", false).apply()
+        ReminderScheduler.cancelReminder(context)
+        Toast.makeText(context, "Reminder disabled", Toast.LENGTH_SHORT).show()
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            isReminderEnabled = true
-            sharedPrefs.edit().putBoolean("reminder_enabled", true).apply()
-            ReminderScheduler.scheduleDailyReminder(context, hour, minute)
-            Toast.makeText(context, "Reminder enabled", Toast.LENGTH_SHORT).show()
+            enableReminder()
         } else {
             Toast.makeText(context, "Notification permission required", Toast.LENGTH_SHORT).show()
             isReminderEnabled = false
@@ -123,19 +149,18 @@ fun ReminderSettingsScreen(
                     checked = isReminderEnabled,
                     onCheckedChange = { checked ->
                         if (checked) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                androidx.core.content.ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+                            if (needsPermission) {
                                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             } else {
-                                isReminderEnabled = true
-                                sharedPrefs.edit().putBoolean("reminder_enabled", true).apply()
-                                ReminderScheduler.scheduleDailyReminder(context, hour, minute)
-                                Toast.makeText(context, "Reminder enabled", Toast.LENGTH_SHORT).show()
+                                enableReminder()
                             }
                         } else {
-                            isReminderEnabled = false
-                            sharedPrefs.edit().putBoolean("reminder_enabled", false).apply()
-                            ReminderScheduler.cancelReminder(context)
-                            Toast.makeText(context, "Reminder disabled", Toast.LENGTH_SHORT).show()
+                            disableReminder()
                         }
                     }
                 )

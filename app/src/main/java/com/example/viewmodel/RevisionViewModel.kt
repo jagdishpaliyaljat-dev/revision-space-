@@ -1790,6 +1790,12 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
 
                     repository.checkAndUpdateOverdueRevisionsStatus()
 
+                    // The in-app master switch and the Android permission must gate
+                    // every notification producer, including this one.
+                    if (!com.example.notification.NotificationHelper.notificationsAllowed(context)) {
+                        return@withContext
+                    }
+
                     val now = System.currentTimeMillis()
                     val cal = java.util.Calendar.getInstance()
                     cal.timeInMillis = now

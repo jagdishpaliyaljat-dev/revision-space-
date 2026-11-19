@@ -3,6 +3,9 @@ package com.example
 import android.app.Application
 import androidx.room.Room
 import com.example.data.local.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MyApplication : Application() {
     companion object {
@@ -56,10 +59,47 @@ class MyApplication : Application() {
         // document is missing) and Navigation treats offline errors as success.
 
         try {
-            com.example.services.SrsNotificationManager.scheduleDailyMission(this)
-            com.example.notification.ReminderScheduler.scheduleDailyReminder(this)
+            applyNotificationSchedules()
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    /**
+     * Restores every notification schedule from the saved user preferences.
+     *
+     * The old code unconditionally scheduled the daily reminder and the daily
+     * mission on each launch. That silently re-enabled a reminder the user had
+     * turned off, ignored the chosen reminder hour/minute, and scheduled work
+     * even when the notification master switch was off.
+     */
+    private fun applyNotificationSchedules() {
+        val prefs = getSharedPreferences(
+            com.example.notification.NotificationHelper.APP_PREFS_NAME,
+            android.content.Context.MODE_PRIVATE
+        )
+        val notificationsEnabled = prefs.getBoolean("notifications_enabled", true)
+        val reminderEnabled = prefs.getBoolean("reminder_enabled", false)
+        val hour = prefs.getInt("reminder_hour", 20)
+        val minute = prefs.getInt("reminder_minute", 0)
+
+        if (notificationsEnabled && reminderEnabled) {
+            com.example.notification.ReminderScheduler.scheduleDailyReminder(this, hour, minute)
+        } else {
+            com.example.notification.ReminderScheduler.cancelReminder(this)
+        }
+
+        if (notificationsEnabled) {
+            com.example.services.SrsNotificationManager.scheduleDailyMission(this)
+        } else {
+            com.example.services.SrsNotificationManager.cancelDailyMission(this)
+        }
+
+        // Exact alarms do not survive reboots/updates, so rebuild them from Room.
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                com.example.services.SrsNotificationManager.rescheduleAllRevisionAlarms(this@MyApplication)
+            }
         }
     }
 }
