@@ -1233,19 +1233,19 @@ fun PremiumNearestExamCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp)
-            .shadow(6.dp, RoundedCornerShape(24.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
+            .padding(horizontal = 16.dp, vertical = 5.dp)
+            .shadow(5.dp, RoundedCornerShape(20.dp), spotColor = DashPurplePrimary.copy(alpha = 0.08f)),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 // Logo, Name, Date
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(60.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                             .background(
                                 brush = Brush.linearGradient(
@@ -1255,41 +1255,43 @@ fun PremiumNearestExamCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFF7C3AED), modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFF7C3AED), modifier = Modifier.size(19.dp))
                             Text(
                                 text = if (exam.name.length >= 3) exam.name.take(3).uppercase() else "EXM",
                                 color = Color(0xFF7C3AED),
                                 fontWeight = FontWeight.Black,
-                                fontSize = 12.sp
+                                fontSize = 10.sp
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(13.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = exam.name,
                             fontWeight = FontWeight.Black,
-                            fontSize = 20.sp,
-                            color = DashTextDark
+                            fontSize = 16.sp,
+                            color = DashTextDark,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(3.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = DashTextGray, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(dateString, color = DashTextGray, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = DashTextGray, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(dateString, color = DashTextGray, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Gold Live Countdown Box
+                // Live Countdown Box
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(10.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer)
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .padding(horizontal = 13.dp, vertical = 10.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -1301,38 +1303,38 @@ fun PremiumNearestExamCard(
                                 imageVector = Icons.Default.HourglassTop,
                                 contentDescription = null,
                                 tint = Color(0xFF7C3AED),
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(22.dp)
                             )
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Spacer(modifier = Modifier.width(13.dp))
                             Column {
                                 Text(
                                     text = String.format("%dD %02dH %02dM %02dS", days, hours, minutes, seconds),
-                                    fontSize = 20.sp,
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF7C3AED)
                                 )
-                                Text("Remaining", color = Color(0xFF7C3AED), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                Text("Remaining", color = Color(0xFF7C3AED), fontSize = 10.sp, fontWeight = FontWeight.Medium)
                             }
                         }
-                        
+
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(10.dp))
+                                .border(1.dp, Color(0xFFFCA5A5), RoundedCornerShape(10.dp))
                                 .background(MaterialTheme.colorScheme.surface)
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                                .padding(horizontal = 6.dp, vertical = 3.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color(0xFFEF4444)))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("LIVE", color = Color(0xFFEF4444), fontSize = 10.sp, fontWeight = FontWeight.Black)
+                                Box(modifier = Modifier.size(5.dp).clip(CircleShape).background(Color(0xFFEF4444)))
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text("LIVE", color = Color(0xFFEF4444), fontSize = 8.sp, fontWeight = FontWeight.Black)
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Progress Banner
                 Column {
@@ -1341,16 +1343,16 @@ fun PremiumNearestExamCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Overall Progress", fontSize = 14.sp, color = DashTextDark, fontWeight = FontWeight.Bold)
-                        Text("${exam.progress.toInt()}%", fontSize = 14.sp, fontWeight = FontWeight.Black, color = DashPurplePrimary)
+                        Text("Overall Progress", fontSize = 12.sp, color = DashTextDark, fontWeight = FontWeight.Bold)
+                        Text("${exam.progress.toInt()}%", fontSize = 12.sp, fontWeight = FontWeight.Black, color = DashPurplePrimary)
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(MaterialTheme.colorScheme.outlineVariant)) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Box(modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(MaterialTheme.colorScheme.outlineVariant)) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(animatedExamProgress)
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(3.dp))
                                 .background(
                                     Brush.horizontalGradient(
                                         colors = listOf(Color(0xFF7C3AED), Color(0xFFA855F7))
@@ -1362,9 +1364,9 @@ fun PremiumNearestExamCard(
             }
 
             // Menu Options on Top-Right Corner
-            Box(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
-                IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = DashTextGray)
+            Box(modifier = Modifier.align(Alignment.TopEnd).padding(13.dp)) {
+                IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(20.dp)) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = DashTextGray, modifier = Modifier.size(18.dp))
                 }
                 DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
                     DropdownMenuItem(
