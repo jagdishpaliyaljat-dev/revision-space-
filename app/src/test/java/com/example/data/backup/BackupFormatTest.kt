@@ -258,6 +258,42 @@ class BackupFormatTest {
         assertTrue(BackupFormat.fileName(1_700_000_000_000L).endsWith(".json"))
     }
 
+    @Test
+    fun safetyFileNamesAreUniquePerSecond() {
+        val name = BackupFormat.safetyFileName(1_700_000_000_000L)
+        assertTrue(name.startsWith(BackupFormat.SAFETY_PREFIX))
+        assertTrue(name.endsWith(".json"))
+        // Two imports inside the same second must still not collide, so the name
+        // carries seconds instead of minutes.
+        val oneSecondLater = BackupFormat.safetyFileName(1_700_000_001_000L)
+        assertTrue(name != oneSecondLater)
+    }
+
+    @Test
+    fun safetyPruningKeepsOnlyNewestCopies() {
+        val entries = listOf(
+            "RevisionSpace-Safety-old.json" to 1_000L,
+            "RevisionSpace-Safety-new.json" to 3_000L,
+            "RevisionSpace-Safety-mid.json" to 2_000L
+        )
+
+        assertEquals(
+            listOf("RevisionSpace-Safety-old.json"),
+            BackupFormat.snapshotsToDelete(entries, keep = 2)
+        )
+        assertEquals(
+            listOf(
+                "RevisionSpace-Safety-old.json",
+                "RevisionSpace-Safety-mid.json"
+            ),
+            BackupFormat.snapshotsToDelete(entries, keep = 1)
+        )
+        assertTrue(BackupFormat.snapshotsToDelete(entries, keep = 3).isEmpty())
+        assertTrue(BackupFormat.snapshotsToDelete(entries, keep = 10).isEmpty())
+        assertEquals(3, BackupFormat.snapshotsToDelete(entries, keep = -1).size)
+        assertTrue(BackupFormat.snapshotsToDelete(emptyList(), keep = 3).isEmpty())
+    }
+
     private fun assertFailure(expectedPart: String, block: () -> Unit) {
         try {
             block()

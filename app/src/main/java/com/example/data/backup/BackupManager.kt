@@ -20,6 +20,7 @@ import kotlinx.serialization.json.double
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.long
 import kotlinx.serialization.json.longOrNull
+import java.io.File
 import java.io.IOException
 
 /** Which strategy was used when restoring a backup file. */
@@ -60,16 +61,28 @@ object BackupManager {
     const val MAX_FILE_BYTES = 25 * 1024 * 1024
 
     private const val BLOB_PREFIX = "base64:"
+    private const val SAFETY_DIR = "safety_backups"
     private val TABLE_NAME = Regex("^[A-Za-z_][A-Za-z0-9_]*$")
 
     // ---------------------------------------------------------------- export
 
-    /** Builds the full backup JSON: every app table + user preferences. */
+    /**
+     * Builds the full backup JSON: every app table + user preferences.
+     *
+     * All table reads happen inside one non-exclusive transaction so the exported
+     * file is a consistent snapshot even if the app writes data at the same time.
+     */
     fun createBackup(context: Context, db: AppDatabase, appVersion: String): String {
-        val readable = db.openHelper.readableDatabase
+        val writable = db.openHelper.writableDatabase
         val tables = LinkedHashMap<String, List<Map<String, JsonElement>>>()
-        appTableNames(readable).forEach { table ->
-            tables[table] = readTable(readable, table)
+        writable.beginTransactionNonExclusive()
+        try {
+            appTableNames(writable).forEach { table ->
+                tables[table] = readTable(writable, table)
+            }
+            writable.setTransactionSuccessful()
+        } finally {
+            writable.endTransaction()
         }
         return BackupFormat.encode(
             createdAtMs = System.currentTimeMillis(),
@@ -77,6 +90,66 @@ object BackupManager {
             tables = tables,
             prefs = readPrefs(context)
         )
+    }
+
+    // ------------------------------------------------------- safety snapshots
+
+    /** An automatic copy of the local data, kept on the device for undo. */
+    data class SafetySnapshot(val file: File, val modifiedAtMs: Long) {
+        val name: String get() = file.name
+        val sizeBytes: Long get() = file.length()
+    }
+
+    /**
+     * Saves the current data to app-private storage **before** an import runs.
+     *
+     * This is the undo safety net: if the user restores the wrong file (or picks
+     * "Replace" by mistake), the previous data is still on the device. The copy
+     * lives inside the app's own files directory, so it never needs a permission
+     * and it is removed when the app is uninstalled.
+     */
+    fun saveSafetySnapshot(context: Context, db: AppDatabase, appVersion: String): SafetySnapshot {
+        val json = createBackup(context, db, appVersion)
+        val dir = File(context.filesDir, SAFETY_DIR)
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw IOException("Couldn't create the safety copy folder.")
+        }
+        val file = File(dir, BackupFormat.safetyFileName())
+        file.writeText(json, Charsets.UTF_8)
+        pruneSafetySnapshots(context)
+        return SafetySnapshot(file, file.lastModified())
+    }
+
+    /** Newest first. Empty when no import has happened yet on this device. */
+    fun listSafetySnapshots(context: Context): List<SafetySnapshot> {
+        val dir = File(context.filesDir, SAFETY_DIR)
+        if (!dir.isDirectory) return emptyList()
+        return (dir.listFiles() ?: emptyArray())
+            .filter { it.isFile && it.name.startsWith(BackupFormat.SAFETY_PREFIX) }
+            .sortedByDescending { it.lastModified() }
+            .map { SafetySnapshot(it, it.lastModified()) }
+    }
+
+    fun latestSafetySnapshot(context: Context): SafetySnapshot? =
+        listSafetySnapshots(context).firstOrNull()
+
+    /** Reads and validates a safety copy with the same rules as a picked file. */
+    fun readSafetySnapshot(snapshot: SafetySnapshot): BackupPayload {
+        if (snapshot.sizeBytes > MAX_FILE_BYTES) {
+            throw BackupFormatException("The safety copy is too large to be restored.")
+        }
+        return BackupFormat.decode(snapshot.file.readText(Charsets.UTF_8))
+    }
+
+    private fun pruneSafetySnapshots(context: Context) {
+        val dir = File(context.filesDir, SAFETY_DIR)
+        val files = dir.listFiles() ?: return
+        val entries = files
+            .filter { it.isFile && it.name.startsWith(BackupFormat.SAFETY_PREFIX) }
+            .map { it.name to it.lastModified() }
+        BackupFormat.snapshotsToDelete(entries, BackupFormat.SAFETY_KEEP).forEach { name ->
+            runCatching { File(dir, name).delete() }
+        }
     }
 
     /** Writes the already generated JSON to the Uri the user picked. */

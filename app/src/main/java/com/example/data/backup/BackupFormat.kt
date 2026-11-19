@@ -106,6 +106,41 @@ object BackupFormat {
         return "RevisionSpace-Backup-$stamp.json"
     }
 
+    /** Prefix of the automatic copies taken right before an import. */
+    const val SAFETY_PREFIX = "RevisionSpace-Safety-"
+
+    /** How many automatic pre-import copies are kept on the device. */
+    const val SAFETY_KEEP = 3
+
+    /**
+     * Name of the automatic pre-import safety copy.
+     *
+     * Seconds (not minutes) are used so two imports inside the same minute never
+     * overwrite each other's safety copy.
+     */
+    fun safetyFileName(now: Long = System.currentTimeMillis()): String {
+        val stamp = SimpleDateFormat("yyyy-MM-dd_HHmmss", Locale.US).format(Date(now))
+        return "$SAFETY_PREFIX$stamp.json"
+    }
+
+    /**
+     * Picks the safety copies that can be deleted so that at most [keep] newest
+     * copies remain. [entries] are `(fileName, modifiedAtMs)` pairs.
+     *
+     * Pure Kotlin so the pruning rule is unit-tested without touching the disk.
+     */
+    fun snapshotsToDelete(entries: List<Pair<String, Long>>, keep: Int): List<String> {
+        if (keep < 0) return entries.map { it.first }
+        if (entries.size <= keep) return emptyList()
+        return entries
+            .sortedWith(
+                compareByDescending<Pair<String, Long>> { it.second }
+                    .thenByDescending { it.first }
+            )
+            .drop(keep)
+            .map { it.first }
+    }
+
     /** Serializable envelope (kept separate from [BackupPayload] for clarity). */
     fun encode(
         createdAtMs: Long,

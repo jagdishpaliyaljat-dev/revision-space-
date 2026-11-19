@@ -91,7 +91,23 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
     var pendingImport by remember { mutableStateOf<PendingBackup?>(null) }
     var importOutcome by remember { mutableStateOf<ImportOutcome?>(null) }
     var importError by remember { mutableStateOf<String?>(null) }
-    var lastBackupStatus by remember { mutableStateOf<String?>(null) }
+    var lastBackupStatus by remember {
+        mutableStateOf(sharedPrefs.getString("last_backup_status", null))
+    }
+    // Newest automatic pre-import copy, used by the "Undo last import" row.
+    var safetySnapshot by remember { mutableStateOf<BackupManager.SafetySnapshot?>(null) }
+    var safetyLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        safetySnapshot = withContext(Dispatchers.IO) {
+            runCatching { BackupManager.latestSafetySnapshot(context) }.getOrNull()
+        }
+    }
+
+    fun setBackupStatus(text: String) {
+        lastBackupStatus = text
+        sharedPrefs.edit().putString("last_backup_status", text).apply()
+    }
 
     // Notification permission (Android 13+) so the "turn on" switch actually
     // results in alerts instead of silently doing nothing.
@@ -143,7 +159,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
             }
             exportInProgress = false
             result.onSuccess { rows ->
-                lastBackupStatus = "Last backup: $rows records"
+                setBackupStatus("Last backup: $rows records")
                 Toast.makeText(context, "Backup saved — $rows records exported", Toast.LENGTH_LONG).show()
             }.onFailure { error ->
                 Toast.makeText(context, error.message ?: "Export failed", Toast.LENGTH_LONG).show()
@@ -192,11 +208,18 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 runCatching {
                     val db = runCatching { com.example.MyApplication.database }.getOrNull()
                         ?: throw IllegalStateException("Local database is not ready. Please restart the app.")
-                    BackupManager.importBackup(context, db, payload, mode)
+                    // Safety net: copy the current data before anything is touched.
+                    // If this fails we still import — it must never block the user.
+                    val safety = runCatching {
+                        BackupManager.saveSafetySnapshot(context, db, BuildConfig.VERSION_NAME)
+                    }.getOrNull()
+                    val outcome = BackupManager.importBackup(context, db, payload, mode)
+                    outcome to safety
                 }
             }
             importInProgress = false
-            result.onSuccess { outcome ->
+            result.onSuccess { (outcome, safety) ->
+                safety?.let { safetySnapshot = it }
                 // Settings live in SharedPreferences, so reflect them right away.
                 notificationsEnabled = sharedPrefs.getBoolean("notifications_enabled", notificationsEnabled)
                 runCatching {
@@ -215,10 +238,29 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     }
                     SrsNotificationManager.scheduleDailyMission(context)
                 }
-                lastBackupStatus = "Last import: ${outcome.totalImported} records"
+                setBackupStatus("Last import: ${outcome.totalImported} records")
                 importOutcome = outcome
             }.onFailure { error ->
                 importError = error.message ?: "Import failed. Your data was not changed."
+            }
+        }
+    }
+
+    // Opens the automatic pre-import copy in the same preview dialog used by a
+    // normal import, so the user can review it before restoring anything.
+    fun openSafetySnapshot() {
+        val snapshot = safetySnapshot ?: return
+        if (importInProgress || exportInProgress) return
+        safetyLoading = true
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching { BackupManager.readSafetySnapshot(snapshot) }
+            }
+            safetyLoading = false
+            result.onSuccess { payload ->
+                pendingImport = PendingBackup(snapshot.name, payload)
+            }.onFailure { error ->
+                importError = error.message ?: "Couldn't read the safety copy."
             }
         }
     }
@@ -477,6 +519,18 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     }
                 }
             )
+            if (safetySnapshot != null) {
+                SettingsItemRow(
+                    icon = Icons.Default.Restore,
+                    iconBg = MaterialTheme.colorScheme.primaryContainer,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    title = if (safetyLoading) "Opening safety copy…" else "Undo last import",
+                    subtitle = "Restore the copy saved before your last import (" +
+                        formatBackupDate(safetySnapshot!!.modifiedAtMs) + ")",
+                    testTag = "settings_restore_safety_item",
+                    onClick = { openSafetySnapshot() }
+                )
+            }
             if (lastBackupStatus != null) {
                 Text(
                     lastBackupStatus!!,
@@ -860,7 +914,7 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        "${pending.payload.totalRows} records in total. Merge keeps your current data; Replace deletes it first.",
+                        "${pending.payload.totalRows} records in total. Merge keeps your current data; Replace deletes it first. A safety copy is saved automatically, so this can be undone.",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -921,6 +975,12 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        "A safety copy of your previous data is kept on this device — use \"Undo last import\" in Settings to go back.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     Column(
                         modifier = Modifier
