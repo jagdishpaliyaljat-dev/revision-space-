@@ -13,7 +13,8 @@ import com.example.ui.components.*
 import com.example.ui.utils.*
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,12 +25,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,7 +50,7 @@ fun TopicListScreenWrapper(viewModel: RevisionViewModel, navController: NavContr
     TopicListScreen(viewModel, navController, route.chapterId, route.chapterName)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, chapterId: String, chapterName: String) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -62,6 +61,8 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
     var showDeleteDialogFromList by remember { mutableStateOf(false) }
     var editingTopic by remember { mutableStateOf<com.example.data.TopicWithSubjectAndChapter?>(null) }
     var deletingTopic by remember { mutableStateOf<com.example.data.TopicWithSubjectAndChapter?>(null) }
+    var optionTopic by remember { mutableStateOf<com.example.data.TopicWithSubjectAndChapter?>(null) }
+    var showTopicOptionsDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -123,11 +124,16 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 itemsIndexed(chapterTopics, key = { _, it -> it.topicId }) { index, topic ->
-                    var showTopicMenu by remember { mutableStateOf(false) }
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { navController.navigate(TopicDetailRoute(topic.topicId)) },
+                            .combinedClickable(
+                                onClick = { navController.navigate(TopicDetailRoute(topic.topicId)) },
+                                onLongClick = {
+                                    optionTopic = topic
+                                    showTopicOptionsDialog = true
+                                }
+                            ),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -168,56 +174,57 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                                 modifier = Modifier.weight(1f)
                             )
 
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Box {
-                                IconButton(
-                                    onClick = { showTopicMenu = true },
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.MoreVert,
-                                        contentDescription = "Topic Options",
-                                        tint = Color(0xFF8A94A6)
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = showTopicMenu,
-                                    onDismissRequest = { showTopicMenu = false },
-                                    modifier = Modifier.background(Color.White)
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("Edit Topic") },
-                                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF4F46E5)) },
-                                        onClick = {
-                                            showTopicMenu = false
-                                            editingTopic = topic
-                                            showEditDialogFromList = true
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("Delete Topic", color = Color.Red) },
-                                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) },
-                                        onClick = {
-                                            showTopicMenu = false
-                                            deletingTopic = topic
-                                            showDeleteDialogFromList = true
-                                        }
-                                    )
-                                }
-                            }
-
-                            Icon(
-                                Icons.Default.KeyboardArrowRight,
-                                contentDescription = null,
-                                tint = Color(0xFF8A94A6),
-                                modifier = Modifier.size(20.dp)
-                            )
                         }
                     }
                 }
             }
         }
+    }
+
+    if (showTopicOptionsDialog && optionTopic != null) {
+        val topic = optionTopic!!
+        AlertDialog(
+            onDismissRequest = { showTopicOptionsDialog = false },
+            title = { Text(topic.topicName, fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(
+                        onClick = {
+                            showTopicOptionsDialog = false
+                            editingTopic = topic
+                            showEditDialogFromList = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF6C4DFF))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Edit Topic", color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp)
+                        }
+                    }
+                    TextButton(
+                        onClick = {
+                            showTopicOptionsDialog = false
+                            deletingTopic = topic
+                            showDeleteDialogFromList = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Delete Topic", color = Color.Red, fontSize = 16.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showTopicOptionsDialog = false }) {
+                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        )
     }
 
     if (showAddDialog) {

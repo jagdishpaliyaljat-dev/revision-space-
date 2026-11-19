@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -229,13 +228,10 @@ fun SubjectDetailsScreen(
                         chapter = chapter,
                         index = index + 1,
                         onClick = { onChapterClick(chapter.id, chapter.name) },
-                        onRenameClick = {
+                        onLongClick = {
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                             chapterForAction = chapter
-                            showEditChapterDialog = true
-                        },
-                        onDeleteClick = {
-                            chapterForAction = chapter
-                            showDeleteChapterDialog = true
+                            showOptionsDialog = true
                         }
                     )
                 }
@@ -534,20 +530,18 @@ fun SubjectDetailsScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChapterItemCard(
     chapter: Chapter,
     index: Int,
     onClick: () -> Unit,
-    onRenameClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onLongClick: () -> Unit
 ) {
-    var showMenu by remember { mutableStateOf(false) }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -588,49 +582,6 @@ fun ChapterItemCard(
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Box {
-                IconButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Chapter Options",
-                        tint = Color(0xFF8A94A6)
-                    )
-                }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                    modifier = Modifier.background(Color.White)
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Rename Chapter") },
-                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF4F46E5)) },
-                        onClick = {
-                            showMenu = false
-                            onRenameClick()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Delete Chapter", color = Color.Red) },
-                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red) },
-                        onClick = {
-                            showMenu = false
-                            onDeleteClick()
-                        }
-                    )
-                }
-            }
-
-            Icon(
-                Icons.Default.KeyboardArrowRight,
-                contentDescription = null,
-                tint = Color(0xFF8A94A6),
-                modifier = Modifier.size(20.dp)
-            )
         }
     }
 }
