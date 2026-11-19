@@ -82,12 +82,12 @@ object BackupManager {
     /** Writes the already generated JSON to the Uri the user picked. */
     fun writeBackupFile(context: Context, uri: Uri, content: String) {
         val bytes = content.toByteArray(Charsets.UTF_8)
-        val stream = try {
+        // Some providers reject the truncating "wt" mode; fall back to plain "w".
+        val stream = runCatching {
             context.contentResolver.openOutputStream(uri, "wt")
-                ?: context.contentResolver.openOutputStream(uri)
-        } catch (e: Exception) {
-            null
-        } ?: throw IOException("Couldn't open the selected file for writing.")
+        }.getOrNull() ?: runCatching {
+            context.contentResolver.openOutputStream(uri)
+        }.getOrNull() ?: throw IOException("Couldn't open the selected file for writing.")
 
         stream.use { out ->
             out.write(bytes)
