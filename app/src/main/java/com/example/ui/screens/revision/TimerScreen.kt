@@ -12,7 +12,6 @@ import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
 
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.animation.*
@@ -37,6 +36,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material.icons.outlined.LibraryBooks
+import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Notifications
@@ -52,7 +52,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
@@ -460,36 +459,23 @@ fun TimerScreen(
     val isBreakSession = currentSessionTypeState == "Break"
 
     Scaffold(
-        containerColor = FocusBgLight,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(Brush.linearGradient(listOf(FocusPurple, Color(0xFFA78BFA)))),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Timer, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                "Focus",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                letterSpacing = (-0.5).sp,
-                                color = FocusTextDark
-                            )
-                            Text(
-                                "Stay in the zone",
-                                fontSize = 10.5.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = FocusTextGray
-                            )
-                        }
+                    Column {
+                        Text(
+                            "Focus",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 19.sp,
+                            letterSpacing = (-0.2).sp,
+                            color = FocusTextDark
+                        )
+                        Text(
+                            "Deep work timer",
+                            fontSize = 11.sp,
+                            color = FocusTextGray
+                        )
                     }
                 },
                 navigationIcon = {
@@ -505,12 +491,11 @@ fun TimerScreen(
                     }
                 },
                 actions = {
-                    Row(modifier = Modifier.padding(end = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(modifier = Modifier.padding(end = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (settings.soundEnabled && settings.ambientSound != "None") Color(0xFFF1EEFF) else MaterialTheme.colorScheme.surface)
                                 .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                                 .clickable { showAmbientSoundSheet = true },
                             contentAlignment = Alignment.Center
@@ -518,24 +503,23 @@ fun TimerScreen(
                             Icon(
                                 Icons.Default.MusicNote,
                                 contentDescription = "Music",
-                                tint = if (settings.soundEnabled && settings.ambientSound != "None") FocusPurple else FocusTextDark,
-                                modifier = Modifier.size(19.dp)
+                                tint = if (settings.soundEnabled && settings.ambientSound != "None") FocusTextDark else FocusTextGray,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface)
                                 .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                                 .clickable { showSettingsSheet = true },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = FocusTextDark, modifier = Modifier.size(19.dp))
+                            Icon(Icons.Default.Settings, contentDescription = "Settings", tint = FocusTextDark, modifier = Modifier.size(18.dp))
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FocusBgLight)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         }
     ) { padding ->
@@ -549,16 +533,16 @@ fun TimerScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // ---------- 1. QUICK MODE SELECTOR (new premium feature) ----------
+            // ---------- 1. MODE ----------
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SectionKicker("CHOOSE YOUR MODE")
+                    SectionKicker("MODE")
                     if (isSavingMode) {
-                        Text("Saving...", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = FocusTextGray)
+                        Text("Saving...", fontSize = 11.sp, color = FocusTextGray)
                     } else if (saveSuccess) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -567,10 +551,10 @@ fun TimerScreen(
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
-                                tint = Color(0xFF10B981),
-                                modifier = Modifier.size(13.dp)
+                                tint = FocusTextGray,
+                                modifier = Modifier.size(12.dp)
                             )
-                            Text("Synced", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                            Text("Saved", fontSize = 11.sp, color = FocusTextGray)
                         }
                     }
                 }
@@ -580,16 +564,15 @@ fun TimerScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     val modeOptions = listOf(
-                        "Study Mode" to Icons.Default.School,
-                        "Revision Mode" to Icons.Default.History,
-                        "Practice Mode" to Icons.Default.FitnessCenter,
-                        "Mock Test Mode" to Icons.Default.Assignment,
-                        "Writing Practice Mode" to Icons.Default.Edit
+                        "Study Mode",
+                        "Revision Mode",
+                        "Practice Mode",
+                        "Mock Test Mode",
+                        "Writing Practice Mode"
                     )
-                    modeOptions.forEach { (mode, icon) ->
+                    modeOptions.forEach { mode ->
                         ModePill(
                             label = mode.replace(" Mode", ""),
-                            icon = icon,
                             selected = mode == activeMode,
                             enabled = !isSavingMode && !isRunning && !isPaused,
                             onClick = { changeMode(mode) }
@@ -598,56 +581,68 @@ fun TimerScreen(
                 }
             }
 
-            // ---------- 3. CHAPTER SELECTOR ----------
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-                Box(
+            // ---------- 2. CHAPTER ----------
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 18.dp)) {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Brush.horizontalGradient(listOf(FocusPurple, Color(0xFF8B5CF6))))
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
                         .clickable(enabled = !isRunning) { showTopicSelectionSheet = true }
+                        .padding(horizontal = 16.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.MenuBook, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.width(11.dp))
-                        val buttonText = if (currentChapterName.isNotEmpty()) {
-                            currentChapterName.uppercase()
-                        } else {
-                            "Choose Chapter"
-                        }
+                    Icon(
+                        Icons.Outlined.MenuBook,
+                        contentDescription = null,
+                        tint = FocusTextGray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = buttonText,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.5.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
+                            "CHAPTER",
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.1.sp,
+                            color = FocusTextGray
                         )
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = if (currentChapterName.isNotEmpty()) currentChapterName else "Choose a chapter",
+                            color = FocusTextDark,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.5.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
+                    Icon(
+                        Icons.Default.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = FocusTextGray,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
             }
 
             if (currentChapterId.isEmpty() && effectiveTopicId.isEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         Icons.Default.Info,
                         contentDescription = null,
                         tint = FocusTextGray,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Select a chapter above to start the timer",
-                        fontSize = 11.5.sp,
+                        "Select a chapter to start",
+                        fontSize = 11.sp,
                         color = FocusTextGray
                     )
                 }
@@ -655,7 +650,7 @@ fun TimerScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ---------- 4. SESSION CYCLE TRACKER ----------
+            // ---------- 3. SESSION PROGRESS ----------
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -665,61 +660,31 @@ fun TimerScreen(
                 for (i in 1..4) {
                     Box(
                         modifier = Modifier
-                            .width(34.dp)
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(if (i <= currentSession) FocusPurple else Color(0xFFE1DDF0))
+                            .width(26.dp)
+                            .height(3.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(if (i <= currentSession) FocusTextDark else MaterialTheme.colorScheme.outlineVariant)
                     )
                     if (i < 4) Spacer(modifier = Modifier.width(6.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     "SESSION $currentSession / 4",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.sp,
                     color = FocusTextGray
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
-
-            // ---------- 5. GRADIENT TIMER RING ----------
+            // ---------- 4. TIMER ----------
+            val ringAccent = if (isBreakSession) Color(0xFF0F766E) else FocusPurple
             Box(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                if (isRunning) {
-                    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-                    val pulseScale by infiniteTransition.animateFloat(
-                        initialValue = 1f,
-                        targetValue = 1.07f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(1600, easing = FastOutSlowInEasing),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "scale"
-                    )
-                    val pulseAlpha by infiniteTransition.animateFloat(
-                        initialValue = 0.16f,
-                        targetValue = 0f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(1600, easing = FastOutSlowInEasing),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "alpha"
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .size(260.dp)
-                            .scale(pulseScale)
-                            .clip(CircleShape)
-                            .background((if (isBreakSession) Color(0xFF0EA5A4) else FocusPurple).copy(alpha = pulseAlpha))
-                    )
-                }
-
                 Box(
-                    modifier = Modifier.size(260.dp),
+                    modifier = Modifier.size(250.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     PremiumTimerRing(
@@ -729,36 +694,31 @@ fun TimerScreen(
                     )
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Surface(shape = RoundedCornerShape(50), color = if (isBreakSession) Color(0xFFECFDF5) else Color(0xFFF1EEFF)) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(6.dp)
-                                        .clip(CircleShape)
-                                        .background(if (isBreakSession) Color(0xFF10B981) else FocusPurple)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = if (isBreakSession) "BREAK TIME" else statusLabel,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.sp,
-                                    color = if (isBreakSession) Color(0xFF0EA5A4) else FocusPurple
-                                )
-                            }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .clip(CircleShape)
+                                    .background(ringAccent)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (isBreakSession) "BREAK" else statusLabel,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 1.4.sp,
+                                color = FocusTextGray
+                            )
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         val remainingMs = (focusMs - elapsedMs).coerceAtLeast(0L)
                         val minsLeft = (remainingMs / 1000) / 60
                         val secsLeft = (remainingMs / 1000) % 60
                         Text(
                             String.format("%02d:%02d", minsLeft, secsLeft),
-                            fontSize = 62.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 64.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = FocusTextDark,
                             letterSpacing = (-2).sp
                         )
@@ -766,39 +726,37 @@ fun TimerScreen(
                         val elapsedM = (elapsedMs / 1000) / 60
                         val elapsedS = (elapsedMs / 1000) % 60
                         Text(
-                            text = String.format("Elapsed: %02d:%02d", elapsedM, elapsedS),
-                            fontSize = 12.5.sp,
+                            text = String.format("Elapsed %02d:%02d", elapsedM, elapsedS),
+                            fontSize = 12.sp,
                             color = FocusTextGray,
-                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.testTag("timer_elapsed_text")
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         val focusContext = when {
-                            isBreakSession -> "Relax • Recharge • Return"
+                            isBreakSession -> "Break"
                             currentSubjectName.isNotEmpty() && currentChapterName.isNotEmpty() -> "$currentSubjectName • $currentChapterName"
-                            else -> "Select a chapter to begin"
+                            else -> "No chapter selected"
                         }
                         Text(
                             focusContext,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp,
                             color = FocusTextGray,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 28.dp)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            "of $focusDurationMins min session",
-                            fontSize = 11.sp,
+                            "$focusDurationMins min session",
+                            fontSize = 10.5.sp,
                             color = FocusTextGray
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -810,11 +768,10 @@ fun TimerScreen(
 
                 // Stop
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Stop should always respond: it ends the session or leaves the screen.
                     val stopClickable = !isSavingCompletion
                     Box(
                         modifier = Modifier
-                            .size(62.dp)
+                            .size(54.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
@@ -827,30 +784,31 @@ fun TimerScreen(
                         Icon(
                             Icons.Default.Stop,
                             contentDescription = "Stop",
-                            tint = if (stopClickable) FocusTextDark else Color(0xFF8A94A6),
-                            modifier = Modifier.size(26.dp)
+                            tint = if (stopClickable) FocusTextDark else FocusTextGray,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Stop", fontSize = 13.sp, color = if (stopClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Stop",
+                        fontSize = 11.sp,
+                        color = FocusTextGray,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
 
-                Spacer(modifier = Modifier.width(28.dp))
+                Spacer(modifier = Modifier.width(32.dp))
 
-                // Play / Pause — gradient hero button
+                // Play / Pause
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val startEnabled = controlsEnabled
                     Box(
                         modifier = Modifier
-                            .size(84.dp)
+                            .size(76.dp)
                             .clip(CircleShape)
-                            .background(
-                                if (startEnabled) Brush.linearGradient(listOf(FocusPurple, Color(0xFF8B5CF6)))
-                                else Brush.linearGradient(listOf(Color(0xFFB8BECB), Color(0xFFB8BECB)))
-                            )
+                            .background(if (startEnabled) FocusTextDark else MaterialTheme.colorScheme.outlineVariant)
                             .clickable(enabled = !isSavingCompletion) {
                                 if (!hasChapterSelected) {
-                                    // Nothing selected yet — guide the user instead of doing nothing.
                                     showTopicSelectionSheet = true
                                 } else if (isRunning && !isPaused) {
                                     viewModel.pauseTimer()
@@ -872,8 +830,8 @@ fun TimerScreen(
                         Icon(
                             if (isRunning && !isPaused) Icons.Default.Pause else Icons.Default.PlayArrow,
                             contentDescription = if (isRunning && !isPaused) "Pause" else "Start or Resume",
-                            tint = Color.White,
-                            modifier = Modifier.size(40.dp)
+                            tint = if (startEnabled) MaterialTheme.colorScheme.surface else FocusTextGray,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
@@ -883,20 +841,20 @@ fun TimerScreen(
                             isPaused || elapsedMs > 0 -> "Resume"
                             else -> "Start"
                         },
-                        fontSize = 13.sp,
-                        color = if (startEnabled) FocusTextDark else Color.Gray,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 11.sp,
+                        color = FocusTextGray,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
-                Spacer(modifier = Modifier.width(28.dp))
+                Spacer(modifier = Modifier.width(32.dp))
 
                 // Skip
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     val skipClickable = controlsEnabled
                     Box(
                         modifier = Modifier
-                            .size(62.dp)
+                            .size(54.dp)
                             .clip(CircleShape)
                             .alpha(if (skipClickable) 1f else 0.45f)
                             .background(MaterialTheme.colorScheme.surface)
@@ -917,18 +875,23 @@ fun TimerScreen(
                         Icon(
                             Icons.Default.SkipNext,
                             contentDescription = "Skip",
-                            tint = if (skipClickable) FocusTextDark else Color(0xFF8A94A6),
-                            modifier = Modifier.size(26.dp)
+                            tint = if (skipClickable) FocusTextDark else FocusTextGray,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Skip", fontSize = 13.sp, color = if (skipClickable) FocusTextDark else Color.Gray, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Skip",
+                        fontSize = 11.sp,
+                        color = FocusTextGray,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
 
-            // ---------- 6. QUICK DURATION PRESETS (new premium feature) ----------
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-                SectionKicker("QUICK SESSION LENGTH")
+            // ---------- 5. SESSION LENGTH ----------
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 26.dp)) {
+                SectionKicker("SESSION LENGTH")
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
@@ -939,18 +902,18 @@ fun TimerScreen(
                         val presetEnabled = !isRunning && !isPaused && !isBreakSession
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .alpha(if (presetEnabled) 1f else 0.45f)
-                                .background(if (isSelected) Color(0xFFF1EEFF) else MaterialTheme.colorScheme.surface)
-                                .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(10.dp))
+                                .alpha(if (presetEnabled) 1f else 0.4f)
+                                .background(if (isSelected) FocusTextDark else Color.Transparent)
+                                .border(1.dp, if (isSelected) FocusTextDark else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))
                                 .clickable(enabled = presetEnabled) { updateActiveDuration(mins) }
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .padding(horizontal = 14.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 "${mins}m",
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) FocusPurple else FocusTextDark
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                color = if (isSelected) MaterialTheme.colorScheme.surface else FocusTextGray
                             )
                         }
                     }
@@ -1023,37 +986,34 @@ fun TimerScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // ---------- 8. AMBIENT SOUND QUICK PILL (new premium feature) ----------
+            // ---------- 7. AMBIENT SOUND ----------
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(14.dp))
                     .background(MaterialTheme.colorScheme.surface)
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
                     .clickable { showAmbientSoundSheet = true }
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFF1EEFF)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(17.dp))
-                }
+                Icon(
+                    Icons.Outlined.MusicNote,
+                    contentDescription = null,
+                    tint = FocusTextGray,
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Ambient Sound", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = FocusTextDark)
+                    Text("Ambient sound", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FocusTextDark)
                     Text(
-                        if (settings.ambientSound == "None" || !settings.soundEnabled) "Off — tap to choose a sound" else settings.ambientSound,
+                        if (settings.ambientSound == "None" || !settings.soundEnabled) "Off" else settings.ambientSound,
                         fontSize = 11.sp,
                         color = FocusTextGray
                     )
                 }
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(16.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1093,18 +1053,20 @@ fun TimerScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
-                        .height(52.dp)
+                        .height(50.dp)
                         .testTag("complete_session_button"),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = FocusPurple)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = FocusTextDark,
+                        contentColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (isSavingCompletion) "Saving Session..." else "Complete & Save Revision",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        text = if (isSavingCompletion) "Saving..." else "Complete & save",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
                     )
                 }
             }
@@ -1118,38 +1080,38 @@ fun TimerScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FocusTextDark)
+                        Text("Today", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = FocusTextDark)
                         Text("Your progress at a glance", fontSize = 11.sp, color = FocusTextGray)
                     }
                     Row(
                         modifier = Modifier.clickable { navController.navigate(AnalyticsRoute) { popUpTo(DashboardRoute) } },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("View All", color = FocusPurple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(16.dp))
+                        Text("Details", color = FocusTextGray, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(14.dp))
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(20.dp),
+                    shape = RoundedCornerShape(14.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 18.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 16.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        SummaryColumnItem(Icons.Default.Timer, Color(0xFF6C4DFF), Color(0xFFF1EEFF), "Study Time", todayStudyTimeStr)
-                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        SummaryColumnItem(Icons.Default.MenuBook, Color(0xFF3B82F6), Color(0xFFEFF6FF), "Sessions", "$focusSessionsToday")
-                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        SummaryColumnItem(Icons.Default.FactCheck, Color(0xFF22C55E), Color(0xFFECFDF5), "Chapters Done", "$chaptersCompletedToday")
-                        Box(modifier = Modifier.width(1.dp).height(38.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        SummaryColumnItem(Icons.Default.Adjust, Color(0xFFF43F5E), Color(0xFFFFF1F2), "Accuracy", accuracyValue)
+                        SummaryColumnItem("Study time", todayStudyTimeStr)
+                        Box(modifier = Modifier.width(1.dp).height(26.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        SummaryColumnItem("Sessions", "$focusSessionsToday")
+                        Box(modifier = Modifier.width(1.dp).height(26.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        SummaryColumnItem("Chapters", "$chaptersCompletedToday")
+                        Box(modifier = Modifier.width(1.dp).height(26.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        SummaryColumnItem("Accuracy", accuracyValue)
                     }
                 }
             }
@@ -1160,15 +1122,11 @@ fun TimerScreen(
 }
 
 @Composable
-fun SummaryColumnItem(icon: androidx.compose.ui.graphics.vector.ImageVector, iconTint: Color, iconBg: Color, title: String, value: String) {
+fun SummaryColumnItem(title: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 4.dp)) {
-        Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(iconBg), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(18.dp))
-        }
-        Spacer(modifier = Modifier.height(12.dp))
+        Text(value, fontSize = 17.sp, color = FocusTextDark, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(title, fontSize = 10.sp, color = FocusTextGray, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(value, fontSize = 14.sp, color = FocusTextDark, fontWeight = FontWeight.Bold, maxLines = 1)
     }
 }
 
@@ -1193,8 +1151,8 @@ fun FocusSettingsBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = FocusBgLight,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFFD9D2EE)) }
+        containerColor = MaterialTheme.colorScheme.background,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outlineVariant) }
     ) {
         Column(
             modifier = Modifier
@@ -1206,17 +1164,17 @@ fun FocusSettingsBottomSheet(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(46.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Brush.linearGradient(listOf(FocusPurple, Color(0xFFA78BFA)))),
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Tune, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.Tune, contentDescription = null, tint = FocusTextDark, modifier = Modifier.size(19.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text("Customize Focus", fontWeight = FontWeight.Bold, fontSize = 21.sp, color = FocusTextDark)
-                    Text("Settings for $activeMode", fontSize = 12.sp, color = FocusTextGray)
+                    Text("Focus settings", fontWeight = FontWeight.SemiBold, fontSize = 19.sp, color = FocusTextDark)
+                    Text("For $activeMode", fontSize = 11.sp, color = FocusTextGray)
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -1285,16 +1243,17 @@ fun FocusSettingsBottomSheet(
                 onClick = { onSave(draftSettings) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Brush.horizontalGradient(listOf(FocusPurple, Color(0xFF8B5CF6)))),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                shape = RoundedCornerShape(16.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                    .height(52.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = FocusTextDark,
+                    contentColor = MaterialTheme.colorScheme.surface
+                ),
+                shape = RoundedCornerShape(12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
             ) {
-                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Preferences", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Save preferences", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             }
             Spacer(modifier = Modifier.height(28.dp))
         }
@@ -1317,17 +1276,9 @@ private fun SettingsSectionCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(Color(0xFFF1EEFF)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(icon, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(16.dp))
-                }
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(title, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, color = FocusTextGray)
+                Icon(icon, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(15.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(title, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.1.sp, color = FocusTextGray)
             }
             Spacer(modifier = Modifier.height(14.dp))
             content()
@@ -1342,17 +1293,21 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
             val isSelected = opt == selected
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) FocusPurple else MaterialTheme.colorScheme.surfaceVariant)
-                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(if (isSelected) FocusTextDark else Color.Transparent)
+                    .border(
+                        1.dp,
+                        if (isSelected) FocusTextDark else MaterialTheme.colorScheme.outlineVariant,
+                        RoundedCornerShape(10.dp)
+                    )
                     .clickable { onSelect(opt) }
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .padding(horizontal = 14.dp, vertical = 9.dp)
             ) {
                 Text(
                     "$opt m",
-                    color = if (isSelected) Color.White else FocusTextDark,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp
+                    color = if (isSelected) MaterialTheme.colorScheme.surface else FocusTextGray,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                    fontSize = 12.sp
                 )
             }
         }
@@ -1387,10 +1342,10 @@ fun SwitchSettingItem(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = FocusPurple,
-                uncheckedThumbColor = Color.White,
-                uncheckedTrackColor = Color(0xFFD9D2EE)
+                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = FocusTextDark,
+                uncheckedThumbColor = MaterialTheme.colorScheme.surface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
             )
         )
     }
@@ -1407,8 +1362,8 @@ fun AmbientSoundBottomSheet(
     val soundDescriptions = listOf("Silent studio", "Steady, even hum", "Softer, warmer tone", "Deep, calming rumble")
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = FocusBgLight,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = Color(0xFFD9D2EE)) }
+        containerColor = MaterialTheme.colorScheme.background,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.outlineVariant) }
     ) {
         Column(
             modifier = Modifier
@@ -1418,17 +1373,17 @@ fun AmbientSoundBottomSheet(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(46.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Brush.linearGradient(listOf(FocusPurple, Color(0xFFA78BFA)))),
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.MusicNote, contentDescription = null, tint = FocusTextDark, modifier = Modifier.size(19.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text("Ambient Sounds", fontWeight = FontWeight.Bold, fontSize = 21.sp, color = FocusTextDark)
-                    Text("Set the mood for deep work", fontSize = 12.sp, color = FocusTextGray)
+                    Text("Ambient sound", fontWeight = FontWeight.SemiBold, fontSize = 19.sp, color = FocusTextDark)
+                    Text("Background audio for deep work", fontSize = 11.sp, color = FocusTextGray)
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -1446,12 +1401,12 @@ fun AmbientSoundBottomSheet(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(if (isSelected) Color(0xFFF1EEFF) else Color.Transparent)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent)
                                 .border(
                                     1.dp,
-                                    if (isSelected) FocusPurple.copy(alpha = 0.35f) else Color.Transparent,
-                                    RoundedCornerShape(14.dp)
+                                    if (isSelected) MaterialTheme.colorScheme.outlineVariant else Color.Transparent,
+                                    RoundedCornerShape(12.dp)
                                 )
                                 .clickable { onSelect(sound) }
                                 .padding(horizontal = 12.dp, vertical = 12.dp),
@@ -1461,13 +1416,13 @@ fun AmbientSoundBottomSheet(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(if (isSelected) FocusPurple else Color(0xFFF1F3F9)),
+                                    .background(if (isSelected) FocusTextDark else MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     if (sound == "None") Icons.Default.VolumeOff else Icons.Default.MusicNote,
                                     contentDescription = sound,
-                                    tint = if (isSelected) Color.White else Color(0xFF8A94A6),
+                                    tint = if (isSelected) MaterialTheme.colorScheme.surface else FocusTextGray,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -1476,8 +1431,8 @@ fun AmbientSoundBottomSheet(
                                 Text(
                                     text = sound,
                                     fontSize = 14.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) FocusPurple else FocusTextDark
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                    color = FocusTextDark
                                 )
                                 Text(soundDescriptions[index], fontSize = 11.sp, color = FocusTextGray)
                             }
@@ -1486,10 +1441,10 @@ fun AmbientSoundBottomSheet(
                                     modifier = Modifier
                                         .size(22.dp)
                                         .clip(CircleShape)
-                                        .background(FocusPurple),
+                                        .background(FocusTextDark),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.surface, modifier = Modifier.size(13.dp))
                                 }
                             }
                         }
@@ -1507,41 +1462,23 @@ fun AmbientSoundBottomSheet(
    Pure UI building blocks — no new data sources, no changes to timer logic.
    ============================================================================ */
 
-/** Gradient arc timer ring with subtle tick marks around it. */
+/** Minimal timer ring — one accent, thin stroke, no decoration. */
 @Composable
 private fun PremiumTimerRing(
     progress: Float,
     isBreak: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val accentA = if (isBreak) Color(0xFF0EA5A4) else Color(0xFF6C4DFF)
-    val accentB = if (isBreak) Color(0xFF34D399) else Color(0xFFA78BFA)
+    val accent = if (isBreak) Color(0xFF0F766E) else FocusPurple
+    val trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f)
     Canvas(modifier = modifier) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        val stroke = 13.dp.toPx()
-        val radius = (size.minDimension - stroke - 12.dp.toPx()) / 2f
-        val arcTopLeft = Offset(cx - radius, cy - radius)
+        val stroke = 6.dp.toPx()
+        val radius = (size.minDimension - stroke) / 2f
+        val arcTopLeft = Offset(size.width / 2f - radius, size.height / 2f - radius)
         val arcSize = Size(radius * 2f, radius * 2f)
 
-        // Decorative minute ticks
-        for (i in 0 until 48) {
-            val angle = (i * 7.5f - 90f) * (kotlin.math.PI.toFloat() / 180f)
-            val cos = kotlin.math.cos(angle)
-            val sin = kotlin.math.sin(angle)
-            val inner = radius + stroke / 2f + 4.dp.toPx()
-            val outer = inner + if (i % 4 == 0) 7.dp.toPx() else 3.dp.toPx()
-            drawLine(
-                color = Color(0xFFD9D2EE).copy(alpha = if (i % 4 == 0) 0.9f else 0.45f),
-                start = Offset(cx + inner * cos, cy + inner * sin),
-                end = Offset(cx + outer * cos, cy + outer * sin),
-                strokeWidth = if (i % 4 == 0) 1.8.dp.toPx() else 1.dp.toPx()
-            )
-        }
-
-        // Track
         drawArc(
-            color = Color(0xFFEBE7F6),
+            color = trackColor,
             startAngle = 0f,
             sweepAngle = 360f,
             useCenter = false,
@@ -1550,14 +1487,10 @@ private fun PremiumTimerRing(
             style = Stroke(width = stroke)
         )
 
-        // Animated progress arc
         val sweep = 360f * progress.coerceIn(0f, 1f)
         if (sweep > 0.5f) {
             drawArc(
-                brush = Brush.sweepGradient(
-                    colors = listOf(accentA, accentB, accentA),
-                    center = Offset(cx, cy)
-                ),
+                color = accent,
                 startAngle = -90f,
                 sweepAngle = sweep,
                 useCenter = false,
@@ -1569,40 +1502,34 @@ private fun PremiumTimerRing(
     }
 }
 
-/** Premium pill used in the quick study-mode selector. */
+/** Minimal segmented chip used by the mode selector. */
 @Composable
 private fun ModePill(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
     selected: Boolean,
     enabled: Boolean,
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(15.dp))
-            .alpha(if (enabled) 1f else 0.45f)
-            .background(if (selected) FocusPurple else MaterialTheme.colorScheme.surface)
-            .border(1.dp, if (selected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(15.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .alpha(if (enabled) 1f else 0.4f)
+            .background(if (selected) FocusTextDark else Color.Transparent)
+            .border(
+                width = 1.dp,
+                color = if (selected) FocusTextDark else MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(10.dp)
+            )
             .clickable(enabled = enabled) { onClick() }
-            .padding(horizontal = 15.dp, vertical = 11.dp),
+            .padding(horizontal = 14.dp, vertical = 9.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = if (selected) Color.White else FocusPurple,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(7.dp))
-            Text(
-                label,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (selected) Color.White else FocusTextDark
-            )
-        }
+        Text(
+            label,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            color = if (selected) MaterialTheme.colorScheme.surface else FocusTextGray
+        )
     }
 }
 
@@ -1611,9 +1538,9 @@ private fun ModePill(
 private fun SectionKicker(text: String) {
     Text(
         text = text,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.Bold,
-        letterSpacing = 1.2.sp,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.3.sp,
         color = FocusTextGray
     )
 }
@@ -1637,25 +1564,20 @@ private fun FocusTipCard() {
     }
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        border = BorderStroke(1.dp, Color(0xFFE4DBFF)),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Info, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(18.dp))
-            }
-            Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Text(
+                "FOCUS TIP",
+                fontSize = 9.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 1.2.sp,
+                color = FocusTextGray
+            )
+            Spacer(modifier = Modifier.height(6.dp))
             AnimatedContent(
                 targetState = index,
                 transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -1664,9 +1586,8 @@ private fun FocusTipCard() {
                 Text(
                     text = tips[idx],
                     fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Medium,
                     color = FocusTextDark,
-                    lineHeight = 18.sp
+                    lineHeight = 19.sp
                 )
             }
         }
