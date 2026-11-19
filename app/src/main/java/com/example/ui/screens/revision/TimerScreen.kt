@@ -13,6 +13,7 @@ import com.example.ui.components.*
 import com.example.ui.utils.*
 
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -237,9 +238,6 @@ fun TimerScreen(
     val totalObtained = testsList.sumOf { it.marksObtained.toDouble() }
     val totalMax = testsList.sumOf { it.totalMarks.toDouble() }
     val accuracyValue = if (totalMax > 0.0) "${(totalObtained / totalMax * 100).toInt()}%" else "--"
-
-    val goalMins = settings.dailyFocusGoalMins.coerceAtLeast(1)
-    val progressPercent = ((totalTodayMins.toFloat() / goalMins.toFloat()) * 100).toInt().coerceIn(0, 100)
 
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showAmbientSoundSheet by remember { mutableStateOf(false) }
@@ -503,7 +501,7 @@ fun TimerScreen(
                             .background(MaterialTheme.colorScheme.surface, CircleShape)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                     ) {
-                        Icon(Icons.Default.Menu, "Menu", tint = FocusTextDark, modifier = Modifier.size(19.dp))
+                        Icon(Icons.Default.ArrowBack, "Back", tint = FocusTextDark, modifier = Modifier.size(19.dp))
                     }
                 },
                 actions = {
@@ -548,6 +546,8 @@ fun TimerScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             // ---------- 1. QUICK MODE SELECTOR (new premium feature) ----------
             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
@@ -771,7 +771,7 @@ fun TimerScreen(
                         Text(
                             "of $focusDurationMins min session",
                             fontSize = 11.sp,
-                            color = Color(0xFF8A94A6)
+                            color = FocusTextGray
                         )
                     }
                 }
@@ -905,12 +905,14 @@ fun TimerScreen(
                 ) {
                     listOf(15, 25, 45, 60, 90).forEach { mins ->
                         val isSelected = mins == focusDurationMins
+                        val presetEnabled = !isRunning && !isPaused && !isBreakSession
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
+                                .alpha(if (presetEnabled) 1f else 0.45f)
                                 .background(if (isSelected) Color(0xFFF1EEFF) else MaterialTheme.colorScheme.surface)
                                 .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
-                                .clickable(enabled = !isRunning && !isPaused && !isBreakSession) { updateActiveDuration(mins) }
+                                .clickable(enabled = presetEnabled) { updateActiveDuration(mins) }
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Text(
@@ -1020,7 +1022,7 @@ fun TimerScreen(
                         color = FocusTextGray
                     )
                 }
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF8A94A6), modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = FocusTextGray, modifier = Modifier.size(18.dp))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -1136,18 +1138,6 @@ fun SummaryColumnItem(icon: androidx.compose.ui.graphics.vector.ImageVector, ico
         Text(title, fontSize = 10.sp, color = FocusTextGray, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Spacer(modifier = Modifier.height(6.dp))
         Text(value, fontSize = 14.sp, color = FocusTextDark, fontWeight = FontWeight.Bold, maxLines = 1)
-    }
-}
-
-@Composable
-fun FocusSettingItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, value: String, tint: Color, modifier: Modifier = Modifier) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(tint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(title, fontSize = 10.sp, color = FocusTextDark, fontWeight = FontWeight.Bold)
-        Text(value, fontSize = 10.sp, color = FocusTextGray)
     }
 }
 
@@ -1306,7 +1296,7 @@ private fun SettingsSectionCard(
                     Icon(icon, contentDescription = null, tint = FocusPurple, modifier = Modifier.size(16.dp))
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(title, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, color = Color(0xFF8A94A6))
+                Text(title, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, color = FocusTextGray)
             }
             Spacer(modifier = Modifier.height(14.dp))
             content()
@@ -1322,7 +1312,7 @@ fun DurationSelector(options: List<Int>, selected: Int, onSelect: (Int) -> Unit)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) FocusPurple else Color(0xFFF8F9FC))
+                    .background(if (isSelected) FocusPurple else MaterialTheme.colorScheme.surfaceVariant)
                     .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                     .clickable { onSelect(opt) }
                     .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -1349,7 +1339,7 @@ fun SwitchSettingItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF8F9FC))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -1372,25 +1362,6 @@ fun SwitchSettingItem(
                 uncheckedTrackColor = Color(0xFFD9D2EE)
             )
         )
-    }
-}
-
-@Composable
-fun DurationSelectorStr(options: List<String>, selected: String, onSelect: (String) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-        items(options) { opt ->
-            val isSelected = opt == selected
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) FocusPurple else Color(0xFFF8F9FC))
-                    .border(1.dp, if (isSelected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
-                    .clickable { onSelect(opt) }
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Text(opt, color = if (isSelected) Color.White else FocusTextDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-            }
-        }
     }
 }
 
@@ -1567,35 +1538,6 @@ private fun PremiumTimerRing(
     }
 }
 
-/** Small circular ring used by the daily goal card. */
-@Composable
-private fun MiniGoalRing(progress: Float, modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        val stroke = 7.dp.toPx()
-        val radius = (size.minDimension - stroke) / 2f
-        val topLeft = Offset(cx - radius, cy - radius)
-        val arcSize = Size(radius * 2f, radius * 2f)
-        drawArc(Color(0xFFEBE7F6), 0f, 360f, false, topLeft, arcSize, style = Stroke(width = stroke))
-        val sweep = 360f * progress.coerceIn(0f, 1f)
-        if (sweep > 0.5f) {
-            drawArc(
-                brush = Brush.sweepGradient(
-                    colors = listOf(Color(0xFF6C4DFF), Color(0xFFA78BFA), Color(0xFF6C4DFF)),
-                    center = Offset(cx, cy)
-                ),
-                startAngle = -90f,
-                sweepAngle = sweep,
-                useCenter = false,
-                topLeft = topLeft,
-                size = arcSize,
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
-            )
-        }
-    }
-}
-
 /** Premium pill used in the quick study-mode selector. */
 @Composable
 private fun ModePill(
@@ -1608,6 +1550,7 @@ private fun ModePill(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(14.dp))
+            .alpha(if (enabled) 1f else 0.45f)
             .background(if (selected) FocusPurple else MaterialTheme.colorScheme.surface)
             .border(1.dp, if (selected) FocusPurple else MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
             .clickable(enabled = enabled) { onClick() }
@@ -1640,7 +1583,7 @@ private fun SectionKicker(text: String) {
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 1.2.sp,
-        color = Color(0xFF8A94A6)
+        color = FocusTextGray
     )
 }
 
