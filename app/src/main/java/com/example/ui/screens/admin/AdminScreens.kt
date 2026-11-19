@@ -57,7 +57,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-val PrimaryAdmin = Color(0xFF6C4DFF)
+val PrimaryAdmin = Color(0xFF7C3AED)
 val BackgroundAdmin: Color
     @Composable get() = MaterialTheme.colorScheme.background
 val SurfaceAdmin: Color
@@ -607,7 +607,7 @@ Row(
             Button(
                 onClick = { /* Navigate to Reward Events */ },
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8B5CF6)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA855F7)),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.EmojiEvents, contentDescription = "Reward Events", modifier = Modifier.size(18.dp))
@@ -1091,7 +1091,7 @@ fun DashboardTab(viewModel: RevisionViewModel) {
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 AdminStatCard(modifier = Modifier.weight(1f), title = "Average Study Time", value = "45m", change = "Per Session", icon = Icons.Default.AccessTime, iconColor = Color(0xFF3B82F6), bgColor = Color(0xFF3B82F6).copy(alpha = 0.1f))
-                AdminStatCard(modifier = Modifier.weight(1f), title = "User Retention Rate", value = "78%", change = "Weekly", icon = Icons.Default.CheckCircle, iconColor = Color(0xFF8B5CF6), bgColor = Color(0xFF8B5CF6).copy(alpha = 0.1f))
+                AdminStatCard(modifier = Modifier.weight(1f), title = "User Retention Rate", value = "78%", change = "Weekly", icon = Icons.Default.CheckCircle, iconColor = Color(0xFFA855F7), bgColor = Color(0xFFA855F7).copy(alpha = 0.1f))
             }
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -1537,7 +1537,7 @@ fun AppAnalyticsContent(viewModel: RevisionViewModel) {
         item {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 AdminStatCard(modifier = Modifier.weight(1f), title = "Average Study Time", value = "${avgTime}m", change = "Per Active User", icon = Icons.Default.Schedule, iconColor = Color(0xFF3B82F6), bgColor = Color(0xFF3B82F6).copy(alpha = 0.1f))
-                AdminStatCard(modifier = Modifier.weight(1f), title = "Revision Completion", value = "78%", change = "Avg", icon = Icons.Default.CheckCircle, iconColor = Color(0xFF8B5CF6), bgColor = Color(0xFF8B5CF6).copy(alpha = 0.1f))
+                AdminStatCard(modifier = Modifier.weight(1f), title = "Revision Completion", value = "78%", change = "Avg", icon = Icons.Default.CheckCircle, iconColor = Color(0xFFA855F7), bgColor = Color(0xFFA855F7).copy(alpha = 0.1f))
             }
         }
         

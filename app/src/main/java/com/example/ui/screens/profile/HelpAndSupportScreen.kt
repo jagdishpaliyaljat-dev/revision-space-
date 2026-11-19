@@ -96,7 +96,7 @@ fun HelpAndSupportScreen(navController: NavController) {
                         android.widget.Toast.makeText(context, "No email app found to send support request.", android.widget.Toast.LENGTH_LONG).show()
                     }
                 },
-                containerColor = Color(0xFF6C4DFF),
+                containerColor = Color(0xFF7C3AED),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Email, contentDescription = "Contact Support")

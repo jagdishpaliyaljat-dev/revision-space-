@@ -61,7 +61,7 @@ fun getTagVisuals(tagName: String): TagVisuals {
         lower.contains("urgent") || lower.contains("important") || lower.contains("hard") || lower.contains("imp") -> {
             TagVisuals(
                 backgroundColor = Color(0xFFFFF1F2),
-                textColor = Color(0xFFE11D48),
+                textColor = Color(0xFFEF4444),
                 borderColor = Color(0xFFFECDD3),
                 description = "Critical / Hard Topic"
             )
@@ -87,8 +87,8 @@ fun getTagVisuals(tagName: String): TagVisuals {
         // Purple / Theory (Notes, Read, Literature, History, Theory)
         lower.contains("theory") || lower.contains("notes") || lower.contains("read") || lower.contains("book") -> {
             TagVisuals(
-                backgroundColor = Color(0xFFF1EEFF),
-                textColor = Color(0xFF6C4DFF),
+                backgroundColor = Color(0xFFEDE9FE),
+                textColor = Color(0xFF7C3AED),
                 borderColor = Color(0xFFDCD6FF),
                 description = "Theoretical Concepts"
             )
@@ -105,7 +105,7 @@ fun getTagVisuals(tagName: String): TagVisuals {
         // Indigo / Exam (Exam, Test, Mock, PYQ)
         lower.contains("exam") || lower.contains("test") || lower.contains("mock") || lower.contains("pyq") || lower.contains("board") -> {
             TagVisuals(
-                backgroundColor = Color(0xFFF1EEFF),
+                backgroundColor = Color(0xFFEDE9FE),
                 textColor = Color(0xFF4F46E5),
                 borderColor = Color(0xFFC7D2FE),
                 description = "Exam Target"
@@ -124,12 +124,12 @@ fun getTagVisuals(tagName: String): TagVisuals {
             // Safe, deterministic hash-based theme assignment
             val index = Math.abs(tagName.hashCode()) % 7
             val bgs = listOf(
-                Color(0xFFF1EEFF), Color(0xFFECFDF5), Color(0xFFEFF6FF),
-                Color(0xFFFFF1F2), Color(0xFFFFFBEB), Color(0xFFF1EEFF), Color(0xFFFDF2F8)
+                Color(0xFFEDE9FE), Color(0xFFECFDF5), Color(0xFFEFF6FF),
+                Color(0xFFFFF1F2), Color(0xFFFFFBEB), Color(0xFFEDE9FE), Color(0xFFFDF2F8)
             )
             val txts = listOf(
-                Color(0xFF6C4DFF), Color(0xFF059669), Color(0xFF2563EB),
-                Color(0xFFE11D48), Color(0xFFD97706), Color(0xFF4F46E5), Color(0xFFDB2777)
+                Color(0xFF7C3AED), Color(0xFF059669), Color(0xFF2563EB),
+                Color(0xFFEF4444), Color(0xFFD97706), Color(0xFF4F46E5), Color(0xFFDB2777)
             )
             val borders = listOf(
                 Color(0xFFDCD6FF), Color(0xFFA7F3D0), Color(0xFFBFDBFE),
@@ -225,7 +225,7 @@ fun TagEditDialog(
                 Icon(
                     imageVector = Icons.Default.LocalOffer,
                     contentDescription = null,
-                    tint = Color(0xFF6C4DFF),
+                    tint = Color(0xFF7C3AED),
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -311,7 +311,7 @@ fun TagEditDialog(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF6C4DFF),
+                            focusedBorderColor = Color(0xFF7C3AED),
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White
@@ -328,7 +328,7 @@ fun TagEditDialog(
                         },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = Color(0xFF6C4DFF)
+                            contentColor = Color(0xFF7C3AED)
                         ),
                         modifier = Modifier
                             .size(52.dp)
@@ -407,7 +407,7 @@ fun TagEditDialog(
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6C4DFF)
+                    containerColor = Color(0xFF7C3AED)
                 ),
                 modifier = Modifier.height(44.dp)
             ) {

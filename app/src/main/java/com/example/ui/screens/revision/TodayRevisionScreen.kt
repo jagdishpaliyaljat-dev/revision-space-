@@ -64,7 +64,7 @@ val RevTextDark: Color
     @Composable get() = MaterialTheme.colorScheme.onSurface
 val RevTextGray: Color
     @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
-val RevPrimary = Color(0xFF6C4DFF)
+val RevPrimary = Color(0xFF7C3AED)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -244,7 +244,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                 modifier = Modifier
                                     .padding(end = 16.dp)
                                     .clip(RoundedCornerShape(20.dp))
-                                    .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                                    .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFFA855F7))))
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
                                 Text(
@@ -278,7 +278,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     .width(4.dp)
                                     .height(20.dp)
                                     .clip(RoundedCornerShape(2.dp))
-                                    .background(Brush.verticalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                                    .background(Brush.verticalGradient(listOf(RevPrimary, Color(0xFFA855F7))))
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
@@ -455,7 +455,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(4.dp)
-                                        .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                                        .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFFA855F7))))
                                 )
                                 Column(modifier = Modifier.padding(18.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -463,7 +463,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             modifier = Modifier
                                                 .size(38.dp)
                                                 .clip(RoundedCornerShape(12.dp))
-                                                .background(Color(0xFFF1EEFF)),
+                                                .background(Color(0xFFEDE9FE)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
@@ -550,7 +550,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             .fillMaxWidth()
                                             .height(52.dp)
                                             .clip(RoundedCornerShape(16.dp))
-                                            .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFF8B5CF6))))
+                                            .background(Brush.horizontalGradient(listOf(RevPrimary, Color(0xFFA855F7))))
                                             .testTag("start_todays_revisions_button"),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                                         shape = RoundedCornerShape(16.dp)
@@ -582,7 +582,7 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     .width(4.dp)
                                     .height(20.dp)
                                     .clip(RoundedCornerShape(2.dp))
-                                    .background(Brush.verticalGradient(listOf(RevPrimary, Color(0xFF9B8CFF))))
+                                    .background(Brush.verticalGradient(listOf(RevPrimary, Color(0xFFA855F7))))
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
@@ -645,9 +645,9 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     title = "Upcoming",
                                     count = upcomingList.size,
                                     icon = Icons.Default.CheckCircle,
-                                    iconColor = Color(0xFF6C4DFF),
-                                    borderColor = Color(0xFF6C4DFF),
-                                    bgColor = Color(0xFFF1EEFF),
+                                    iconColor = Color(0xFF7C3AED),
+                                    borderColor = Color(0xFF7C3AED),
+                                    bgColor = Color(0xFFEDE9FE),
                                     onClick = { currentView = "upcoming" },
                                     tag = "queue_upcoming"
                                 )
@@ -994,7 +994,7 @@ fun OverdueRevisionsView(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
-                                tint = Color(0xFF6C4DFF)
+                                tint = Color(0xFF7C3AED)
                             )
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -1368,7 +1368,7 @@ fun ErrorStateScreen(message: String, onRetry: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onRetry,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
             ) {
@@ -1538,7 +1538,7 @@ fun UpcomingRevisionsView(
                             text = "(${sortedTopics.size})",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF6C4DFF)
+                            color = Color(0xFF7C3AED)
                         )
                     }
                 },
@@ -1597,7 +1597,7 @@ fun UpcomingRevisionsView(
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF6C4DFF),
+                            tint = Color(0xFF7C3AED),
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -1649,7 +1649,7 @@ fun UpcomingRevisionsView(
                                     Icon(
                                         imageVector = Icons.Outlined.CalendarToday,
                                         contentDescription = null,
-                                        tint = Color(0xFF6C4DFF),
+                                        tint = Color(0xFF7C3AED),
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -1699,7 +1699,7 @@ fun UpcomingRevisionsView(
                                         Icon(
                                             imageVector = Icons.Outlined.CalendarToday,
                                             contentDescription = null,
-                                            tint = Color(0xFF6C4DFF),
+                                            tint = Color(0xFF7C3AED),
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -1739,7 +1739,7 @@ fun UpcomingRevisionsView(
                                         Icon(
                                             imageVector = Icons.Outlined.Timer,
                                             contentDescription = null,
-                                            tint = Color(0xFF6C4DFF),
+                                            tint = Color(0xFF7C3AED),
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -1870,7 +1870,7 @@ fun UpcomingRevisionsView(
                                         Text(
                                             text = badgeText,
                                             fontSize = 11.sp,
-                                            color = if (daysRemaining == 1) Color(0xFF6C4DFF) else Color(0xFF475569),
+                                            color = if (daysRemaining == 1) Color(0xFF7C3AED) else Color(0xFF475569),
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -1949,13 +1949,13 @@ fun UpcomingRevisionsView(
                                         text = countText,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF6C4DFF)
+                                        color = Color(0xFF7C3AED)
                                     )
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Icon(
                                         imageVector = Icons.Default.KeyboardArrowRight,
                                         contentDescription = null,
-                                        tint = Color(0xFF6C4DFF),
+                                        tint = Color(0xFF7C3AED),
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -2087,7 +2087,7 @@ fun UpcomingRevisionsView(
                     onClick = { showFilterBottomSheet = false },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6C4DFF)
+                        containerColor = Color(0xFF7C3AED)
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -2146,11 +2146,11 @@ fun CustomFilterChip(
         animationSpec = tween(durationMillis = 200)
     )
     val borderColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF6C4DFF) else MaterialTheme.colorScheme.outlineVariant,
+        targetValue = if (selected) Color(0xFF7C3AED) else MaterialTheme.colorScheme.outlineVariant,
         animationSpec = tween(durationMillis = 200)
     )
     val textColor by animateColorAsState(
-        targetValue = if (selected) Color(0xFF6C4DFF) else Color(0xFF475569),
+        targetValue = if (selected) Color(0xFF7C3AED) else Color(0xFF475569),
         animationSpec = tween(durationMillis = 200)
     )
 
@@ -2196,7 +2196,7 @@ fun formatTotalMins(totalMins: Long): String {
     return if (m == 0L) "${h}h" else "${h}h ${m}m"
 }
 
-fun parseHexColor(hex: String, fallback: Color = Color(0xFF6C4DFF)): Color {
+fun parseHexColor(hex: String, fallback: Color = Color(0xFF7C3AED)): Color {
     return try {
         if (hex.isNotEmpty()) {
             Color(android.graphics.Color.parseColor(hex))
@@ -2247,7 +2247,7 @@ fun TodayRevisionsView(
                                     text = "(${todayList.size})",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF6C4DFF), // Blue-700
+                                    color = Color(0xFF7C3AED), // Blue-700
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }

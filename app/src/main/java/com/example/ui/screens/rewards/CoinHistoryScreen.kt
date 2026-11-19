@@ -162,7 +162,7 @@ fun CoinHistoryScreen(viewModel: RevisionViewModel, navController: NavController
                                 .fillMaxWidth()
                                 .background(
                                     Brush.verticalGradient(
-                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF8B5CF6))
+                                        colors = listOf(Color(0xFF7C3AED), Color(0xFFA855F7))
                                     )
                                 )
                                 .padding(24.dp)
@@ -201,7 +201,7 @@ fun CoinHistoryScreen(viewModel: RevisionViewModel, navController: NavController
                                             .background(Color(0xFFFFD700)),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Text("₹", color = Color(0xFF6C4DFF), fontWeight = FontWeight.Black, fontSize = 16.sp)
+                                        Text("₹", color = Color(0xFF7C3AED), fontWeight = FontWeight.Black, fontSize = 16.sp)
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
@@ -306,11 +306,11 @@ fun CoinHistoryScreen(viewModel: RevisionViewModel, navController: NavController
                     TabRow(
                         selectedTabIndex = selectedTab,
                         containerColor = Color.Transparent,
-                        contentColor = Color(0xFF6C4DFF),
+                        contentColor = Color(0xFF7C3AED),
                         indicator = { tabPositions ->
                             TabRowDefaults.SecondaryIndicator(
                                 Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                                color = Color(0xFF6C4DFF)
+                                color = Color(0xFF7C3AED)
                             )
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -516,13 +516,13 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF6C4DFF).copy(alpha = 0.1f)),
+                            .background(Color(0xFF7C3AED).copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Default.Bolt,
                             contentDescription = null,
-                            tint = Color(0xFF6C4DFF),
+                            tint = Color(0xFF7C3AED),
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -596,8 +596,8 @@ fun RecentEarningWidget(recentEarnings: List<CoinTransaction>) {
                 ) {
                     recentEarnings.forEach { tx ->
                         val isReferral = tx.description.contains("Referral", ignoreCase = true) || tx.description.contains("Invite", ignoreCase = true)
-                        val iconBg = if (isReferral) Color(0xFF6C4DFF).copy(alpha = 0.08f) else Color(0xFF10B981).copy(alpha = 0.08f)
-                        val iconTint = if (isReferral) Color(0xFF6C4DFF) else Color(0xFF10B981)
+                        val iconBg = if (isReferral) Color(0xFF7C3AED).copy(alpha = 0.08f) else Color(0xFF10B981).copy(alpha = 0.08f)
+                        val iconTint = if (isReferral) Color(0xFF7C3AED) else Color(0xFF10B981)
                         val vectorIcon = if (isReferral) Icons.Default.GroupAdd else Icons.Default.Timer
 
                         Row(
@@ -713,13 +713,13 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF6C4DFF).copy(alpha = 0.1f)),
+                        .background(Color(0xFF7C3AED).copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Default.BarChart,
                         contentDescription = null,
-                        tint = Color(0xFF6C4DFF),
+                        tint = Color(0xFF7C3AED),
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -750,7 +750,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
                             Text(
                                 text = amount.toString(),
                                 fontSize = 9.sp,
-                                color = Color(0xFF6C4DFF),
+                                color = Color(0xFF7C3AED),
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(4.dp))
@@ -761,7 +761,7 @@ fun DailyEarningsChart(transactions: List<CoinTransaction>) {
                                 .fillMaxWidth(0.6f)
                                 .fillMaxHeight(heightFraction.coerceAtLeast(0.02f))
                                 .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(Brush.verticalGradient(listOf(Color(0xFF8B5CF6), Color(0xFF6C4DFF))))
+                                .background(Brush.verticalGradient(listOf(Color(0xFFA855F7), Color(0xFF7C3AED))))
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(

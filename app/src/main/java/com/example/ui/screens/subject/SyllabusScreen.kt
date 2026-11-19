@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 val BluePrimary = Color(0xFF3B82F6)
-val SyllabusPurplePrimary = Color(0xFF6C4DFF)
+val SyllabusPurplePrimary = Color(0xFF7C3AED)
 val SyllabusPurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val BackgroundWhite: Color
@@ -516,7 +516,7 @@ fun SubjectItemCard(
     
     // Exact colors from the image
     val colors = listOf(
-        Color(0xFF6C4DFF), // Purple for Reasoning
+        Color(0xFF7C3AED), // Purple for Reasoning
         Color(0xFF10B981), // Green for Maths
         Color(0xFFF59E0B), // Orange for General Awareness
         Color(0xFFEF4444), // Red for English

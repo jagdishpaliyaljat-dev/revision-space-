@@ -143,7 +143,7 @@ open class RevisionRepository {
             userId = "offline_user",
             examId = examId,
             name = subjectName,
-            colorHex = "#6C4DFF"
+            colorHex = "#7C3AED"
         )
         roomDb?.subjectDao()?.insert(subject.toEntity())
         // try { db.collection("subjects").document(subjectId).set(subject) } catch (e: Exception) {}

@@ -64,7 +64,7 @@ import java.util.Calendar
 import kotlinx.coroutines.launch
 
 // Colors
-val TdPurplePrimary = Color(0xFF6C4DFF)
+val TdPurplePrimary = Color(0xFF7C3AED)
 val TdPurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val TdBackgroundWhite: Color
@@ -667,7 +667,7 @@ fun TopicDetailScreen(
                                         .clip(RoundedCornerShape(5.dp))
                                         .background(
                                             Brush.horizontalGradient(
-                                                listOf(TdPurplePrimary, Color(0xFFA78BFA))
+                                                listOf(TdPurplePrimary, Color(0xFFA855F7))
                                             )
                                         )
                                 )

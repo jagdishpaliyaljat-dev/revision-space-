@@ -50,7 +50,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.ui.draw.alpha
 
-val TodoPurple = Color(0xFF6C4DFF)
+val TodoPurple = Color(0xFF7C3AED)
 val TodoBgLight: Color
     @Composable get() = MaterialTheme.colorScheme.background
 val TodoTextDark: Color

@@ -135,13 +135,13 @@ fun SplashScreen(isSetupComplete: Boolean, onTransitionComplete: () -> Unit) {
         animationSpec = tween(500)
     )
 
-    // Background Gradient: Deep Purple (#6C4DFF) to Royal Blue (#2196F3)
+    // Background Gradient: Deep Purple (#7C3AED) to Royal Blue (#2196F3)
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF4B2BD6), Color(0xFF251A66))
+                    colors = listOf(Color(0xFF7C3AED), Color(0xFF6D28D9), Color(0xFF251A66))
                 )
             )
             .blur(bgBlur.dp),
@@ -166,7 +166,7 @@ fun SplashScreen(isSetupComplete: Boolean, onTransitionComplete: () -> Unit) {
                     modifier = Modifier
                         .size(140.dp)
                         .blur(30.dp)
-                        .background(Color(0xFF9B8CFF).copy(alpha = 0.55f), RoundedCornerShape(100.dp))
+                        .background(Color(0xFFA855F7).copy(alpha = 0.55f), RoundedCornerShape(100.dp))
                 )
                 
                 // Thin glowing ring

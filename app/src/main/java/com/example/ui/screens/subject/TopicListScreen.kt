@@ -104,7 +104,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = Color(0xFF6C4DFF),
+                containerColor = Color(0xFF7C3AED),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Topic")
@@ -197,7 +197,7 @@ fun TopicListScreen(viewModel: RevisionViewModel, navController: NavController, 
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF6C4DFF))
+                            Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF7C3AED))
                             Spacer(modifier = Modifier.width(12.dp))
                             Text("Edit Topic", color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp)
                         }

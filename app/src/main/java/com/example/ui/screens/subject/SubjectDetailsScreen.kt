@@ -53,7 +53,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 
 // Shared Colors (Ideally from a central theme, defined here for self-containment matching the image)
-val SubPurplePrimary = Color(0xFF6C4DFF)
+val SubPurplePrimary = Color(0xFF7C3AED)
 val SubPurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val SubBackgroundWhite: Color

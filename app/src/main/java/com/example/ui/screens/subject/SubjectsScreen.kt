@@ -110,7 +110,7 @@ fun SubjectsScreen(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedContainerColor = Color.White,
                                 unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color(0xFF6C4DFF),
+                                focusedBorderColor = Color(0xFF7C3AED),
                                 unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                             ),
                             modifier = Modifier
@@ -179,7 +179,7 @@ fun SubjectsScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddSubjectDialog = true },
-                containerColor = Color(0xFF6C4DFF),
+                containerColor = Color(0xFF7C3AED),
                 contentColor = Color.White,
                 shape = RoundedCornerShape(18.dp),
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
@@ -234,7 +234,7 @@ fun SubjectsScreen(
                                 "${filteredSubjects.size}",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF6C4DFF),
+                                color = Color(0xFF7C3AED),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(50))
                                     .background(MaterialTheme.colorScheme.primaryContainer)
@@ -317,7 +317,7 @@ fun SubjectsScreen(
                             showAddSubjectDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                     enabled = !isSaving
                 ) { Text("Save") }
             },
@@ -403,7 +403,7 @@ private fun SubjectsEmptyState(isSearching: Boolean, onAdd: () -> Unit) {
                 Icons.Outlined.MenuBook,
                 contentDescription = null,
                 modifier = Modifier.size(52.dp),
-                tint = Color(0xFF6C4DFF)
+                tint = Color(0xFF7C3AED)
             )
         }
         Spacer(modifier = Modifier.height(22.dp))
@@ -425,7 +425,7 @@ private fun SubjectsEmptyState(isSearching: Boolean, onAdd: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onAdd,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                 shape = RoundedCornerShape(16.dp),
                 contentPadding = PaddingValues(horizontal = 22.dp, vertical = 12.dp)
             ) {
@@ -457,7 +457,7 @@ fun ExpandableSubjectCard(
     var isDeleting by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
 
-    val customThemeColor = runCatching { Color(android.graphics.Color.parseColor(subject.colorHex)) }.getOrDefault(Color(0xFF6C4DFF))
+    val customThemeColor = runCatching { Color(android.graphics.Color.parseColor(subject.colorHex)) }.getOrDefault(Color(0xFF7C3AED))
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { dismissValue ->
@@ -661,7 +661,7 @@ fun ExpandableSubjectCard(
                             showEditDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                     enabled = !isSaving
                 ) { Text("Save") }
             },
@@ -726,7 +726,7 @@ fun ExpandableSubjectCard(
                             showRenameDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
                     enabled = !isSaving
                 ) { Text("Save") }
             },

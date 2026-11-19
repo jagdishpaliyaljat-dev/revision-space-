@@ -159,18 +159,18 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF6C4DFF).copy(alpha = 0.06f))
+                    .background(Color(0xFF7C3AED).copy(alpha = 0.06f))
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Schedule, contentDescription = null, tint = Color(0xFF6C4DFF), modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Schedule, contentDescription = null, tint = Color(0xFF7C3AED), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "All-time Ranking — $countdownText",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF6C4DFF)
+                        color = Color(0xFF7C3AED)
                     )
                 }
             }
@@ -255,19 +255,19 @@ fun LeaderboardScreen(viewModel: RevisionViewModel, navController: NavController
                             text = "#$myRank",
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp,
-                            color = Color(0xFF6C4DFF),
+                            color = Color(0xFF7C3AED),
                             modifier = Modifier.width(44.dp)
                         )
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF6C4DFF).copy(alpha = 0.12f)),
+                                .background(Color(0xFF7C3AED).copy(alpha = 0.12f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 safeCurrentUserProfile.name.take(1).ifEmpty { safeCurrentUserProfile.email.take(1) }.uppercase(),
-                                color = Color(0xFF6C4DFF),
+                                color = Color(0xFF7C3AED),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
@@ -362,7 +362,7 @@ fun PodiumColumn(user: UserProfile, height: androidx.compose.ui.unit.Dp, rankTex
             text = String.format("%.1fh", user.studyTimeMinutes / 60.0),
             fontWeight = FontWeight.Black,
             fontSize = 11.sp,
-            color = Color(0xFF6C4DFF)
+            color = Color(0xFF7C3AED)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Box(
@@ -400,11 +400,11 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.04f) else Color.White
+            containerColor = if (isMe) Color(0xFF7C3AED).copy(alpha = 0.04f) else Color.White
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant
+            color = if (isMe) Color(0xFF7C3AED).copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Row(
@@ -429,12 +429,12 @@ fun LeaderboardUserRow(rank: Int, user: UserProfile, isMe: Boolean) {
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(if (isMe) Color(0xFF6C4DFF).copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant),
+                    .background(if (isMe) Color(0xFF7C3AED).copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = user.name.take(1).ifEmpty { user.email.take(1) }.uppercase(),
-                    color = if (isMe) Color(0xFF6C4DFF) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (isMe) Color(0xFF7C3AED) else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )

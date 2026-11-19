@@ -221,7 +221,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             Text("Studied Days: $totalStudyDays", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF6C4DFF)))
+                            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF7C3AED)))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text("Revision Days: $totalRevisionDays", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
                         }
@@ -272,7 +272,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                 text = "$unlockedCount / ${badges.size} Unlocked",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF6C4DFF)
+                                color = Color(0xFF7C3AED)
                             )
                         }
                     }
@@ -288,7 +288,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(if (isSelected) Color(0xFF6C4DFF) else MaterialTheme.colorScheme.surfaceVariant)
+                                    .background(if (isSelected) Color(0xFF7C3AED) else MaterialTheme.colorScheme.surfaceVariant)
                                     .clickable { selectedCategory = cat }
                                     .padding(horizontal = 12.dp, vertical = 6.dp)
                             ) {
@@ -514,7 +514,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                                     .fillMaxWidth()
                                     .height(8.dp)
                                     .clip(CircleShape),
-                                color = if (badge.isUnlocked) Color(0xFF8B5CF6) else Color(0xFF8A94A6),
+                                color = if (badge.isUnlocked) Color(0xFFA855F7) else Color(0xFF8A94A6),
                                 trackColor = MaterialTheme.colorScheme.outlineVariant
                             )
                         }
@@ -525,7 +525,7 @@ fun StreakDetailsScreen(viewModel: RevisionViewModel, navController: NavControll
                         onClick = { selectedBadge = null },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED))
                     ) {
                         Text("Cool!")
                     }

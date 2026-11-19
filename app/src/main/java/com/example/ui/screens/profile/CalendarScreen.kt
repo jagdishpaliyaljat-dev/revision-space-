@@ -57,7 +57,7 @@ import com.example.viewmodel.RevisionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val CalPurple = Color(0xFF6C4DFF)
+private val CalPurple = Color(0xFF7C3AED)
 private val CalBg: Color
     @Composable get() = MaterialTheme.colorScheme.background
 private val CalTextDark: Color

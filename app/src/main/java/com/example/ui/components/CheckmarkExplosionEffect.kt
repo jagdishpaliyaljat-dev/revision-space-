@@ -56,12 +56,12 @@ fun CheckmarkExplosionEffect(
         
     val particles = remember {
         val colors = listOf(
-            Color(0xFF6C4DFF), // TodoPurple
+            Color(0xFF7C3AED), // TodoPurple
             Color(0xFF10B981), // Emerald Green
             Color(0xFF3B82F6), // Blue
             Color(0xFFF59E0B), // Amber
             Color(0xFFEC4899), // Pink
-            Color(0xFF8B5CF6)  // Purple
+            Color(0xFFA855F7)  // Purple
         )
         List(40) {
             ConfettiParticle(

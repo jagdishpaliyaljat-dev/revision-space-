@@ -71,7 +71,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.airbnb.lottie.compose.*
 
-val DashPurplePrimary = Color(0xFF6C4DFF)
+val DashPurplePrimary = Color(0xFF7C3AED)
 val DashPurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val DashBackground: Color
@@ -525,7 +525,7 @@ fun DashboardScreen(
                             .clip(RoundedCornerShape(24.dp))
                             .background(
                                 Brush.linearGradient(
-                                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))
+                                    colors = listOf(Color(0xFF7C3AED), Color(0xFFA855F7))
                                 )
                             )
                             .bounceClick { startRevisionAction() }
@@ -862,7 +862,7 @@ fun DashboardScreen(
                                     icon = Icons.Default.MenuBook,
                                     title = "Syllabus",
                                     subtitle = "Track Progress",
-                                    accent = Color(0xFF6C4DFF),
+                                    accent = Color(0xFF7C3AED),
                                     softBg = MaterialTheme.colorScheme.primaryContainer,
                                     onClick = onNavigateToSyllabus
                                 )
@@ -1143,7 +1143,7 @@ fun ThreeDTargetCanvas() {
 
         // Magenta/Purple inner
         drawCircle(
-            color = Color(0xFF8B5CF6),
+            color = Color(0xFFA855F7),
             radius = maxRad * 0.45f,
             center = center
         )
@@ -1255,10 +1255,10 @@ fun PremiumNearestExamCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFF6C4DFF), modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.School, contentDescription = null, tint = Color(0xFF7C3AED), modifier = Modifier.size(24.dp))
                             Text(
                                 text = if (exam.name.length >= 3) exam.name.take(3).uppercase() else "EXM",
-                                color = Color(0xFF6C4DFF),
+                                color = Color(0xFF7C3AED),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp
                             )
@@ -1300,7 +1300,7 @@ fun PremiumNearestExamCard(
                             Icon(
                                 imageVector = Icons.Default.HourglassTop,
                                 contentDescription = null,
-                                tint = Color(0xFF6C4DFF),
+                                tint = Color(0xFF7C3AED),
                                 modifier = Modifier.size(28.dp)
                             )
                             Spacer(modifier = Modifier.width(16.dp))
@@ -1309,9 +1309,9 @@ fun PremiumNearestExamCard(
                                     text = String.format("%dD %02dH %02dM %02dS", days, hours, minutes, seconds),
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF6C4DFF)
+                                    color = Color(0xFF7C3AED)
                                 )
-                                Text("Remaining", color = Color(0xFF6C4DFF), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                Text("Remaining", color = Color(0xFF7C3AED), fontSize = 12.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                         
@@ -1353,7 +1353,7 @@ fun PremiumNearestExamCard(
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(
                                     Brush.horizontalGradient(
-                                        colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))
+                                        colors = listOf(Color(0xFF7C3AED), Color(0xFFA855F7))
                                     )
                                 )
                         )
@@ -1796,7 +1796,7 @@ fun DashboardDrawerContent(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
                             Icon(Icons.Default.School, contentDescription = null, tint = DashPurplePrimary, modifier = Modifier.size(50.dp).offset(y = 10.dp))
-                            Box(modifier = Modifier.width(60.dp).height(14.dp).background(Color(0xFF8B5CF6), RoundedCornerShape(4.dp)))
+                            Box(modifier = Modifier.width(60.dp).height(14.dp).background(Color(0xFFA855F7), RoundedCornerShape(4.dp)))
                             Spacer(modifier = Modifier.height(2.dp))
                             Box(modifier = Modifier.width(70.dp).height(18.dp).background(Color(0xFF6D28D9), RoundedCornerShape(4.dp)))
                         }
@@ -2015,7 +2015,7 @@ fun WeeklyVisualizationSection(metrics: com.example.data.AnalyticsMetrics) {
                                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 2.dp, bottomEnd = 2.dp))
                                     .background(
                                         if (day.sessions > 0)
-                                            Brush.verticalGradient(listOf(DashPurplePrimary, Color(0xFF9B8CFF)))
+                                            Brush.verticalGradient(listOf(DashPurplePrimary, Color(0xFFA855F7)))
                                         else
                                             Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                                     )

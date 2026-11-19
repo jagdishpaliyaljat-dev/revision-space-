@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 
 val FocusBgLight: Color
     @Composable get() = MaterialTheme.colorScheme.background
-val FocusPurple = Color(0xFF6C4DFF)
+val FocusPurple = Color(0xFF7C3AED)
 val FocusPurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val FocusTextDark: Color

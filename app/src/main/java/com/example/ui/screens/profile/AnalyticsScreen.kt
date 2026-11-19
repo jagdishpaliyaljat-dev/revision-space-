@@ -323,7 +323,7 @@ fun EmptyAnalyticsState(onStartStudying: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = onStartStudying,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C4DFF)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.height(48.dp)
         ) {
@@ -376,7 +376,7 @@ fun StudyRecommendationsCard(metrics: AnalyticsMetrics) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color(0xFF6C4DFF), CircleShape),
+                    .background(Color(0xFF7C3AED), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = Color.White)
@@ -487,7 +487,7 @@ fun FocusInsightsCard(metrics: AnalyticsMetrics) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.Insights, contentDescription = null, tint = Color(0xFF8B5CF6))
+                Icon(Icons.Outlined.Insights, contentDescription = null, tint = Color(0xFFA855F7))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Focus & Session Insights", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
             }
@@ -502,7 +502,7 @@ fun FocusInsightsCard(metrics: AnalyticsMetrics) {
                     InsightItem(Icons.Outlined.WarningAmber, "Distractions", metrics.distractionCount.toString(), Color(0xFFF43F5E))
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    InsightItem(Icons.Outlined.Headphones, "Total Sessions", metrics.focusSessions.toString(), Color(0xFF8B5CF6))
+                    InsightItem(Icons.Outlined.Headphones, "Total Sessions", metrics.focusSessions.toString(), Color(0xFFA855F7))
                     Spacer(modifier = Modifier.height(12.dp))
                     InsightItem(Icons.Outlined.WorkspacePremium, "Longest", metrics.longestSessionStr, Color(0xFFF59E0B))
                     Spacer(modifier = Modifier.height(12.dp))
@@ -709,7 +709,7 @@ fun ExamReadinessCard(metrics: AnalyticsMetrics) {
                     LinearProgressIndicator(
                         progress = { animatedProgress },
                         modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                        color = Color(0xFFE11D48),
+                        color = Color(0xFFEF4444),
                         trackColor = Color(0xFFFFE4E6)
                     )
                 }
@@ -717,7 +717,7 @@ fun ExamReadinessCard(metrics: AnalyticsMetrics) {
                     Canvas(modifier = Modifier.size(90.dp)) {
                         val strokeWidth = 16.dp.toPx()
                         drawArc(Color(0xFFFFE4E6), 0f, 360f, false, style = Stroke(strokeWidth, cap = StrokeCap.Round))
-                        drawArc(Color(0xFFE11D48), 270f, (metrics.readinessPercentage / 100f) * 360f, false, style = Stroke(strokeWidth, cap = StrokeCap.Round))
+                        drawArc(Color(0xFFEF4444), 270f, (metrics.readinessPercentage / 100f) * 360f, false, style = Stroke(strokeWidth, cap = StrokeCap.Round))
                     }
                     Text("${metrics.readinessPercentage}%", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 }
@@ -741,7 +741,7 @@ fun RevisionStats(modifier: Modifier = Modifier, metrics: AnalyticsMetrics) {
             RevisionStatRow(icon = Icons.Outlined.DoneAll, iconColor = Color(0xFF10B981), iconBg = Color(0xFFECFDF5), title = "Total Revisions", value = metrics.totalRevisions.toString())
             RevisionStatRow(icon = Icons.Outlined.PlaylistAddCheck, iconColor = Color(0xFF3B82F6), iconBg = Color(0xFFEFF6FF), title = "Completed Topics", value = metrics.completedTopics.toString())
             RevisionStatRow(icon = Icons.Outlined.PendingActions, iconColor = Color(0xFFF59E0B), iconBg = Color(0xFFFEF3C7), title = "Pending Topics", value = metrics.pendingTopics.toString(), valueColor = Color(0xFFF59E0B))
-            RevisionStatRow(icon = Icons.Outlined.Psychology, iconColor = Color(0xFF8B5CF6), iconBg = Color(0xFFF5F3FF), title = "Retention Rate", value = "${metrics.retentionRate}%", valueColor = Color(0xFF8B5CF6))
+            RevisionStatRow(icon = Icons.Outlined.Psychology, iconColor = Color(0xFFA855F7), iconBg = Color(0xFFF5F3FF), title = "Retention Rate", value = "${metrics.retentionRate}%", valueColor = Color(0xFFA855F7))
         }
     }
 }

@@ -66,8 +66,8 @@ private val TextDark: Color
 private val TextGray: Color
     @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
-private val PurplePrimary = Color(0xFF6C4DFF)
-private val PurpleGlow = Color(0xFF6C4DFF).copy(alpha = 0.15f)
+private val PurplePrimary = Color(0xFF7C3AED)
+private val PurpleGlow = Color(0xFF7C3AED).copy(alpha = 0.15f)
 private val PurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 
@@ -193,7 +193,7 @@ fun SessionCompleteScreen(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .height(340.dp)
-                    .background(Brush.verticalGradient(listOf(Color(0xFFF1EEFF), Color(0xFFF6F7FB))))
+                    .background(Brush.verticalGradient(listOf(Color(0xFFEDE9FE), Color(0xFFF6F7FB))))
             )
 
             // Confetti Burst Background
@@ -277,7 +277,7 @@ fun SessionCompleteScreen(
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold,
-                            brush = Brush.horizontalGradient(listOf(Color(0xFF6C4DFF), Color(0xFF9B6DFF)))
+                            brush = Brush.horizontalGradient(listOf(Color(0xFF7C3AED), Color(0xFFA855F7)))
                         ),
                         textAlign = TextAlign.Center
                     )
@@ -515,7 +515,7 @@ fun SessionCompleteScreen(
                             )
                             .background(
                                 brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF6C4DFF), Color(0xFF8B5CF6))
+                                    colors = listOf(Color(0xFF7C3AED), Color(0xFFA855F7))
                                 ),
                                 shape = RoundedCornerShape(18.dp)
                             )
@@ -708,7 +708,7 @@ fun PremiumCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(3.dp)
-                    .background(Brush.horizontalGradient(listOf(Color(0xFF6C4DFF), Color(0xFFA78BFA))))
+                    .background(Brush.horizontalGradient(listOf(Color(0xFF7C3AED), Color(0xFFA855F7))))
             )
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -279,7 +279,7 @@ fun DailyGoalCongratsDialog(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF6C4DFF)
+                                containerColor = Color(0xFF7C3AED)
                             )
                         ) {
                             Text(

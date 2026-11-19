@@ -81,7 +81,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // Styling Color Constants
-val ProfilePurple = Color(0xFF6C4DFF)
+val ProfilePurple = Color(0xFF7C3AED)
 val ProfilePurpleLight: Color
     @Composable get() = MaterialTheme.colorScheme.primaryContainer
 val ProfilePurpleSuperLight: Color
@@ -932,7 +932,7 @@ fun ProfileScreen(
                                 try {
                                     Color(android.graphics.Color.parseColor(topic.subjectColorHex))
                                 } catch (e: Exception) {
-                                    Color(0xFF6C4DFF)
+                                    Color(0xFF7C3AED)
                                 }
                             }
                             Card(
@@ -1735,7 +1735,7 @@ fun ReferralSection(
                     text = referralCode,
                     fontWeight = FontWeight.Black,
                     fontSize = 18.sp,
-                    color = Color(0xFF6C4DFF),
+                    color = Color(0xFF7C3AED),
                     letterSpacing = 2.sp
                 )
                 Row {
@@ -1748,7 +1748,7 @@ fun ReferralSection(
                         },
                         modifier = Modifier.size(36.dp)
                     ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Color(0xFF6C4DFF))
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = Color(0xFF7C3AED))
                     }
                     IconButton(
                         onClick = {
@@ -1764,7 +1764,7 @@ fun ReferralSection(
                         },
                         modifier = Modifier.size(36.dp)
                     ) {
-                        Icon(Icons.Default.Share, contentDescription = "Share", tint = Color(0xFF6C4DFF))
+                        Icon(Icons.Default.Share, contentDescription = "Share", tint = Color(0xFF7C3AED))
                     }
                 }
             }

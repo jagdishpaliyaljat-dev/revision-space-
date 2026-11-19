@@ -123,13 +123,13 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             elevation = 14.dp,
                             shape = RoundedCornerShape(24.dp),
                             clip = false,
-                            ambientColor = Color(0xFF6C4DFF).copy(alpha = 0.30f),
-                            spotColor = Color(0xFF6C4DFF).copy(alpha = 0.35f)
+                            ambientColor = Color(0xFF7C3AED).copy(alpha = 0.30f),
+                            spotColor = Color(0xFF7C3AED).copy(alpha = 0.35f)
                         )
                         .clip(RoundedCornerShape(24.dp))
                         .background(
                             Brush.linearGradient(
-                                colors = listOf(Color(0xFF6C4DFF), Color(0xFF9B8CFF))
+                                colors = listOf(Color(0xFF7C3AED), Color(0xFFA855F7))
                             )
                         )
                 ) {
@@ -199,7 +199,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clickable { selectedMethod = "UPI" }
-                                    .background(if (selectedMethod == "UPI") Color(0xFF6C4DFF) else Color.Transparent),
+                                    .background(if (selectedMethod == "UPI") Color(0xFF7C3AED) else Color.Transparent),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -214,7 +214,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clickable { selectedMethod = "BANK" }
-                                    .background(if (selectedMethod == "BANK") Color(0xFF6C4DFF) else Color.Transparent),
+                                    .background(if (selectedMethod == "BANK") Color(0xFF7C3AED) else Color.Transparent),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
@@ -240,7 +240,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF6C4DFF),
+                                    focusedBorderColor = Color(0xFF7C3AED),
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
@@ -255,7 +255,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF6C4DFF),
+                                    focusedBorderColor = Color(0xFF7C3AED),
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
@@ -273,7 +273,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF6C4DFF),
+                                    focusedBorderColor = Color(0xFF7C3AED),
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
@@ -290,7 +290,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF6C4DFF),
+                                    focusedBorderColor = Color(0xFF7C3AED),
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
@@ -314,7 +314,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF6C4DFF),
+                                    focusedBorderColor = Color(0xFF7C3AED),
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 ),
                                 shape = RoundedCornerShape(12.dp)
@@ -389,7 +389,7 @@ fun WithdrawalScreen(viewModel: RevisionViewModel, navController: NavController)
                             modifier = Modifier.fillMaxWidth(),
                             enabled = !submitLoading,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF6C4DFF),
+                                containerColor = Color(0xFF7C3AED),
                                 disabledContainerColor = MaterialTheme.colorScheme.outlineVariant
                             ),
                             shape = RoundedCornerShape(12.dp)

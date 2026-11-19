@@ -91,7 +91,7 @@ fun LanguageScreen(navController: NavController) {
                 ) {
                     Text(lang, fontSize = 16.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal)
                     if (isSelected) {
-                        Icon(Icons.Default.Check, contentDescription = "Selected", tint = Color(0xFF6C4DFF))
+                        Icon(Icons.Default.Check, contentDescription = "Selected", tint = Color(0xFF7C3AED))
                     }
                 }
                 HorizontalDivider()

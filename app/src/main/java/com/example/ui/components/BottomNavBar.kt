@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val DashPurplePrimaryShared = Color(0xFF6C4DFF)
+val DashPurplePrimaryShared = Color(0xFF7C3AED)
 val DashTextGrayShared = Color(0xFF5B6478)
 
 /**
@@ -160,7 +160,7 @@ fun AppBottomNavigationBar(
                     )
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFF7C5CFF), Color(0xFF4B32D6))
+                            colors = listOf(Color(0xFF7C3AED), Color(0xFF6D28D9))
                         ),
                         shape = CircleShape
                     )
