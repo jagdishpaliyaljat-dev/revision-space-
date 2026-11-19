@@ -21,15 +21,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.ui.AnalyticsRoute
+import com.example.ui.DashboardRoute
 import com.example.ui.CoinHistoryRoute
 import com.example.ui.HelpAndSupportRoute
 import com.example.ui.LanguageRoute
 import com.example.ui.OfflineNotesRoute
 import com.example.ui.ProfileRoute
 import com.example.ui.SettingsRoute
+import com.example.ui.SubjectsRoute
 import com.example.ui.StreakDetailsRoute
-import com.example.ui.screens.home.DashboardDrawerContent
+import com.example.ui.TimerRoute
+import com.example.ui.TodoListRoute
 import com.example.viewmodel.RevisionViewModel
 import kotlinx.coroutines.launch
 
@@ -76,21 +80,33 @@ fun AppDrawerHost(
     val closeDrawer: () -> Unit = { scope.launch { drawerState.close() } }
 
     if (drawerEnabled) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                DashboardDrawerContent(
+                AppDrawerContent(
                     viewModel = viewModel,
+                    currentRoute = currentRoute,
                     closeDrawer = closeDrawer,
-                    onNavigateToAnalytics = { navController.navigateSafely(AnalyticsRoute) },
-                    onNavigateToProfile = { navController.navigateSafely(ProfileRoute()) },
-                    onNavigateToWallet = { navController.navigateSafely(CoinHistoryRoute) },
-                    onNavigateToStreak = { navController.navigateSafely(StreakDetailsRoute) },
-                    onNavigateToSettings = { navController.navigateSafely(SettingsRoute) },
-                    onNavigateToOfflineNotes = { navController.navigateSafely(OfflineNotesRoute) },
-                    onLogoutClick = { showLogoutDialog = true },
-                    onNavigateToLanguage = { navController.navigateSafely(LanguageRoute) },
-                    onNavigateToHelpAndSupport = { navController.navigateSafely(HelpAndSupportRoute) }
+                    onNavigate = { destination ->
+                        when (destination) {
+                            DrawerDestination.Home -> navController.navigateTab(DashboardRoute)
+                            DrawerDestination.Subjects -> navController.navigateTab(SubjectsRoute)
+                            DrawerDestination.Focus -> navController.navigateTab(TimerRoute("", false))
+                            DrawerDestination.Tasks -> navController.navigateTab(TodoListRoute)
+                            DrawerDestination.Analytics -> navController.navigateSafely(AnalyticsRoute)
+                            DrawerDestination.Profile -> navController.navigateSafely(ProfileRoute())
+                            DrawerDestination.Coins -> navController.navigateSafely(CoinHistoryRoute)
+                            DrawerDestination.Streak -> navController.navigateSafely(StreakDetailsRoute)
+                            DrawerDestination.Settings -> navController.navigateSafely(SettingsRoute)
+                            DrawerDestination.OfflineNotes -> navController.navigateSafely(OfflineNotesRoute)
+                            DrawerDestination.Language -> navController.navigateSafely(LanguageRoute)
+                            DrawerDestination.Help -> navController.navigateSafely(HelpAndSupportRoute)
+                        }
+                    },
+                    onLogoutClick = { showLogoutDialog = true }
                 )
             }
         ) {
@@ -140,6 +156,22 @@ private fun NavHostController.navigateSafely(route: Any) {
         navigate(route) { launchSingleTop = true }
     } catch (e: Exception) {
         Log.e("AppDrawer", "Navigation failed for $route", e)
+    }
+}
+
+/**
+ * Opens one of the four main tabs (Home / Subjects / Focus / Tasks) without
+ * stacking duplicates, mirroring the bottom navigation behaviour.
+ */
+private fun NavHostController.navigateTab(route: Any) {
+    try {
+        navigate(route) {
+            popUpTo(DashboardRoute) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    } catch (e: Exception) {
+        Log.e("AppDrawer", "Tab navigation failed for $route", e)
     }
 }
 

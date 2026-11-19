@@ -240,18 +240,27 @@ fun DashboardScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DashboardDrawerContent(
+            AppDrawerContent(
                 viewModel = viewModel,
+                currentRoute = "DashboardRoute",
                 closeDrawer = { scope.launch { drawerState.close() } },
-                onNavigateToAnalytics = onNavigateToAnalytics,
-                onNavigateToProfile = onNavigateToProfile,
-                onNavigateToWallet = onNavigateToWallet,
-                onNavigateToStreak = onNavigateToStreak,
-                onNavigateToSettings = onNavigateToSettings,
-                onNavigateToOfflineNotes = onNavigateToOfflineNotes,
-                onLogoutClick = { showLogoutDialog = true },
-                onNavigateToLanguage = onNavigateToLanguage,
-                onNavigateToHelpAndSupport = onNavigateToHelpAndSupport
+                onNavigate = { destination ->
+                    when (destination) {
+                        DrawerDestination.Home -> Unit
+                        DrawerDestination.Subjects -> onNavigateToSubjects()
+                        DrawerDestination.Focus -> onNavigateToTimer()
+                        DrawerDestination.Tasks -> onNavigateToTodoList()
+                        DrawerDestination.Analytics -> onNavigateToAnalytics()
+                        DrawerDestination.Profile -> onNavigateToProfile()
+                        DrawerDestination.Coins -> onNavigateToWallet()
+                        DrawerDestination.Streak -> onNavigateToStreak()
+                        DrawerDestination.Settings -> onNavigateToSettings()
+                        DrawerDestination.OfflineNotes -> onNavigateToOfflineNotes()
+                        DrawerDestination.Language -> onNavigateToLanguage()
+                        DrawerDestination.Help -> onNavigateToHelpAndSupport()
+                    }
+                },
+                onLogoutClick = { showLogoutDialog = true }
             )
         }
     ) {
