@@ -3228,6 +3228,36 @@ open class RevisionRepository {
         }
     }
 
+    /**
+     * Saves the signed-in Firebase identity (Google name/email/photo) into the local
+     * Room profile row ("offline_user"). The Profile screen reads that row, so without
+     * this the UI kept showing the default "Student" placeholder after Google login.
+     * Existing local stats (coins, streaks, etc.) are preserved.
+     */
+    private suspend fun persistLocalProfileFromAuth(user: com.google.firebase.auth.FirebaseUser?) {
+        try {
+            val rDb = roomDb ?: return
+            if (user == null) return
+            val existing = rDb.userProfileDao().getProfileSync("offline_user")?.toDomain()
+                ?: UserProfile(id = "offline_user")
+            val authName = user.displayName
+            val authEmail = user.email
+            val authPhoto = user.photoUrl?.toString()
+            val merged = existing.copy(
+                id = "offline_user",
+                name = if (!authName.isNullOrBlank()) authName else existing.name,
+                email = if (!authEmail.isNullOrBlank()) authEmail else existing.email,
+                profilePictureUrl = if (!authPhoto.isNullOrBlank()) authPhoto else existing.profilePictureUrl,
+                isEmailVerified = user.isEmailVerified || existing.isEmailVerified,
+                lastActiveTimeMs = System.currentTimeMillis()
+            )
+            rDb.userProfileDao().insert(merged.toEntity())
+            android.util.Log.i("RevisionRepository", "Local profile updated from Firebase auth")
+        } catch (e: Exception) {
+            android.util.Log.w("RevisionRepository", "Local profile save skipped: ${e.message}")
+        }
+    }
+
     open suspend fun signInWithEmail(email: String, password: String) {
         // Bound the network call so a missing connection cannot hang the UI forever.
         kotlinx.coroutines.withTimeoutOrNull(12000L) {
@@ -3277,6 +3307,7 @@ open class RevisionRepository {
                     throw Exception("Your account has been suspended by administrator.\nContact support for assistance.")
                 }
             }
+            persistLocalProfileFromAuth(auth?.currentUser)
         }
     }
 
@@ -3326,6 +3357,11 @@ open class RevisionRepository {
                         throw Exception("Your account has been suspended by administrator.\nContact support for assistance.")
                     }
                 }
+
+                // Persist the Google identity into the local Room profile so the Profile
+                // screen (which reads the "offline_user" row) shows the real name, email
+                // and photo instead of the default placeholder.
+                persistLocalProfileFromAuth(result?.user)
             }
         } catch (e: Exception) {
             e.printStackTrace()
