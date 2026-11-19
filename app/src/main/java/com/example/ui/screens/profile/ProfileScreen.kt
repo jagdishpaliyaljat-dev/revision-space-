@@ -396,7 +396,7 @@ fun ProfileScreen(
                                     .size(96.dp)
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.surface)
-                                    .clickable { showPhotoBottomSheet = true },
+                                    .clickable { showEditProfileDialog = true },
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (isUploading) {
@@ -522,9 +522,6 @@ fun ProfileScreen(
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
-                                IconButton(onClick = { showEditProfileDialog = true }, modifier = Modifier.size(20.dp)) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Edit Profile", tint = ProfileTextGray, modifier = Modifier.size(14.dp))
-                                }
                             }
                             
                             if (bioField.isNotBlank()) {
