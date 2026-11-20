@@ -2,7 +2,6 @@ package com.example.ui
 import com.example.ui.*
 
 import com.example.ui.screens.auth.*
-import com.example.ui.screens.chat.*
 import com.example.ui.screens.home.*
 import com.example.ui.screens.revision.*
 import com.example.ui.screens.subject.*
@@ -13,7 +12,6 @@ import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
 import com.example.ui.screens.auth.*
-import com.example.ui.screens.chat.*
 import com.example.ui.screens.home.*
 import com.example.ui.screens.revision.*
 import com.example.ui.screens.subject.*
@@ -101,7 +99,6 @@ import androidx.compose.ui.text.style.TextAlign
 @Serializable object ReminderSettingsRoute
 @Serializable object NotificationsRoute
 @Serializable object MyTestScoresRoute
-@Serializable object StudyChatRoute
 
 @Composable
 fun AppNavigation(
@@ -198,7 +195,6 @@ fun AppNavigation(
         currentRoute.contains("TimerRoute") ||
         currentRoute.contains("TodoListRoute") ||
         currentRoute.contains("ProfileRoute") ||
-        currentRoute.contains("StudyChatRoute") ||
         currentRoute.contains("AnalyticsRoute") ||
         currentRoute.contains("SessionCompleteRoute")
     )
@@ -209,7 +205,6 @@ fun AppNavigation(
         currentRoute?.contains("TimerRoute") == true -> 2
         currentRoute?.contains("TodoListRoute") == true -> 3
         currentRoute?.contains("ProfileRoute") == true -> 4
-        currentRoute?.contains("StudyChatRoute") == true -> 5
         else -> -1
     }
 
@@ -258,13 +253,6 @@ fun AppNavigation(
                     },
                     onNavigateToProfile = {
                         navController.navigate(ProfileRoute()) {
-                            popUpTo(DashboardRoute) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    onNavigateToChat = {
-                        navController.navigate(StudyChatRoute) {
                             popUpTo(DashboardRoute) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -484,12 +472,6 @@ fun AppNavigation(
         composable<TodayRevisionRoute> { backStackEntry ->
             val route = backStackEntry.toRoute<TodayRevisionRoute>()
             TodayRevisionScreen(viewModel, navController, initialView = route.initialView)
-        }
-        composable<StudyChatRoute> {
-            StudyChatScreen(
-                revisionViewModel = viewModel,
-                navController = navController
-            )
         }
         composable<AnalyticsRoute> {
             AnalyticsScreen(viewModel, navController)

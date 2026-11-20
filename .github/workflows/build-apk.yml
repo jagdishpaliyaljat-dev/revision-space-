@@ -121,7 +121,7 @@ jobs:
           if [ ! -f .env ]; then cp .env.example .env; fi
 
       - name: Run backup + alarm policy unit tests
-        run: gradle :app:testDebugUnitTest --tests "com.example.data.backup.*" --tests "com.example.data.local.*" --tests "com.example.data.syllabus.*" --tests "com.example.data.chat.*" --tests "com.example.services.*" --stacktrace --no-daemon
+        run: gradle :app:testDebugUnitTest --tests "com.example.data.backup.*" --tests "com.example.data.local.*" --tests "com.example.data.syllabus.*" --tests "com.example.services.*" --stacktrace --no-daemon
 
       - name: Upload test report on failure
         if: failure()
