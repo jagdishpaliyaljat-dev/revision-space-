@@ -17,11 +17,14 @@ import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.Assignment
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.SmartToy
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,10 +33,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -43,16 +44,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val DashPurplePrimaryShared = Color(0xFF6C4DFF)
-val DashTextGrayShared = Color(0xFF5B6478)
+private val BarHeight = 64.dp
 
 /**
  * Premium floating bottom navigation — refined, mobile-friendly, minimal.
  *
- * - Slim 64dp glass bar with soft border + ambient shadow.
- * - 5 tabs in a single row; center (Timer) is a larger gradient circle.
- * - Selected tab: filled icon + tinted pill + accent dot; unselected: outlined icon, muted.
- * - All colors theme-aware for dark mode.
+ * Six equal tabs in a single row (Home · Subjects · Timer · To-Do · Profile · AI).
+ * Keeping every tab the same width makes the bar symmetric on any screen size
+ * and keeps the elevated-FAB asymmetry from crowding the sixth tab.
+ *
+ * Selected tab: filled icon + tinted pill + accent dot; unselected: outlined
+ * icon, muted. All colors theme-aware for dark mode.
  */
 @Composable
 fun AppBottomNavigationBar(
@@ -61,12 +63,12 @@ fun AppBottomNavigationBar(
     onNavigateToSubjects: () -> Unit,
     onNavigateToTimer: () -> Unit,
     onNavigateToTodoList: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNavigateToChat: () -> Unit
 ) {
-    val haptic = LocalHapticFeedback.current
-    val barShape = RoundedCornerShape(22.dp)
+    val barShape = RoundedCornerShape(24.dp)
     val surface = MaterialTheme.colorScheme.surface
-    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
     val primary = MaterialTheme.colorScheme.primary
 
     Box(
@@ -76,15 +78,13 @@ fun AppBottomNavigationBar(
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // Bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .shadow(
+                .height(BarHeight)
+                .shadowSafe(
                     elevation = 16.dp,
                     shape = barShape,
-                    clip = false,
                     ambientColor = primary.copy(alpha = 0.06f),
                     spotColor = primary.copy(alpha = 0.12f)
                 )
@@ -95,112 +95,16 @@ fun AppBottomNavigationBar(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 6.dp),
+                    .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                BottomTabItem(
-                    isSelected = selectedBottomNav == 0,
-                    label = "Home",
-                    activeIcon = Icons.Filled.Home,
-                    inactiveIcon = Icons.Outlined.Home,
-                    onClick = onNavigateToHome,
-                    testTag = "home_tab"
-                )
-                BottomTabItem(
-                    isSelected = selectedBottomNav == 1,
-                    label = "Subjects",
-                    activeIcon = Icons.Filled.Layers,
-                    inactiveIcon = Icons.Outlined.Layers,
-                    onClick = onNavigateToSubjects,
-                    testTag = "subjects_tab"
-                )
-
-                // Center Timer tab — elevated gradient circle
-                TimerTabItem(
-                    isSelected = selectedBottomNav == 2,
-                    onClick = onNavigateToTimer,
-                    testTag = "timer_tab"
-                )
-
-                BottomTabItem(
-                    isSelected = selectedBottomNav == 3,
-                    label = "To-Do",
-                    activeIcon = Icons.Filled.Assignment,
-                    inactiveIcon = Icons.Outlined.Assignment,
-                    onClick = onNavigateToTodoList,
-                    testTag = "todo_tab"
-                )
-                BottomTabItem(
-                    isSelected = selectedBottomNav == 4,
-                    label = "Profile",
-                    activeIcon = Icons.Filled.Person,
-                    inactiveIcon = Icons.Outlined.Person,
-                    onClick = onNavigateToProfile,
-                    testTag = "profile_tab"
-                )
+                BottomTabItem(selectedBottomNav == 0, "Home", Icons.Filled.Home, Icons.Outlined.Home, onNavigateToHome, "home_tab")
+                BottomTabItem(selectedBottomNav == 1, "Subjects", Icons.Filled.Layers, Icons.Outlined.Layers, onNavigateToSubjects, "subjects_tab")
+                BottomTabItem(selectedBottomNav == 2, "Timer", Icons.Filled.Timer, Icons.Outlined.Timer, onNavigateToTimer, "timer_tab")
+                BottomTabItem(selectedBottomNav == 3, "To-Do", Icons.Filled.Assignment, Icons.Outlined.Assignment, onNavigateToTodoList, "todo_tab")
+                BottomTabItem(selectedBottomNav == 4, "Profile", Icons.Filled.Person, Icons.Outlined.Person, onNavigateToProfile, "profile_tab")
+                BottomTabItem(selectedBottomNav == 5, "AI", Icons.Filled.SmartToy, Icons.Outlined.SmartToy, onNavigateToChat, "chat_tab")
             }
-        }
-    }
-}
-
-@Composable
-fun RowScope.TimerTabItem(
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    testTag: String
-) {
-    val haptic = LocalHapticFeedback.current
-    val scaleTimer by animateFloatAsState(
-        targetValue = if (isSelected) 1.06f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "scaleTimer"
-    )
-
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight()
-            .clickable(
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onClick()
-                },
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            )
-            .testTag(testTag),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(46.dp)
-                .shadow(
-                    elevation = 10.dp,
-                    shape = CircleShape,
-                    clip = false,
-                    ambientColor = DashPurplePrimaryShared.copy(alpha = 0.35f),
-                    spotColor = DashPurplePrimaryShared.copy(alpha = 0.45f)
-                )
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF8B6CFF), Color(0xFF4B32D6))
-                    ),
-                    shape = CircleShape
-                )
-                .border(2.5.dp, MaterialTheme.colorScheme.surface, CircleShape)
-                .scale(scaleTimer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Timer,
-                contentDescription = "Timer",
-                tint = Color.White,
-                modifier = Modifier.size(22.dp)
-            )
         }
     }
 }
@@ -254,8 +158,8 @@ fun RowScope.BottomTabItem(
     ) {
         Box(
             modifier = Modifier
-                .size(38.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .size(34.dp)
+                .clip(RoundedCornerShape(10.dp))
                 .background(pillColor),
             contentAlignment = Alignment.Center
         ) {
@@ -264,7 +168,7 @@ fun RowScope.BottomTabItem(
                 contentDescription = label,
                 tint = tintColor,
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(20.dp)
                     .scale(iconScale)
             )
         }
@@ -272,11 +176,11 @@ fun RowScope.BottomTabItem(
         Text(
             text = label,
             color = tintColor,
-            fontSize = 10.sp,
+            fontSize = 9.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-            maxLines = 1
+            maxLines = 1,
+            softWrap = false
         )
-        // Selected dot
         Spacer(modifier = Modifier.height(1.dp))
         Box(
             modifier = Modifier
@@ -285,3 +189,21 @@ fun RowScope.BottomTabItem(
         )
     }
 }
+
+/**
+ * Shadow with the right import — androidx.compose.ui.draw.shadow needs its
+ * own import. Kept as a tiny wrapper so the bar file stays clean.
+ */
+@Composable
+private fun Modifier.shadowSafe(
+    elevation: androidx.compose.ui.unit.Dp,
+    shape: androidx.compose.ui.graphics.Shape,
+    ambientColor: Color,
+    spotColor: Color
+): Modifier = this.shadow(
+    elevation = elevation,
+    shape = shape,
+    clip = false,
+    ambientColor = ambientColor,
+    spotColor = spotColor
+)
