@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.chat.StudyChatPrompt
 import com.example.data.chat.StudyTurn
 import com.google.firebase.Firebase
+import com.google.firebase.ai.GenerativeBackend
 import com.google.firebase.ai.ai
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
@@ -28,7 +29,8 @@ data class ChatMessage(
 class StudyChatViewModel : ViewModel() {
 
     private val model by lazy {
-        Firebase.ai.generativeModel("gemini-3.8-flash")
+        Firebase.ai(backend = GenerativeBackend.googleAI())
+            .generativeModel("gemini-3.8-flash")
     }
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
@@ -70,8 +72,7 @@ class StudyChatViewModel : ViewModel() {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Chat request failed", e)
-                _error.value = e.localizedMessage
-                    ?: "Could not reach the AI. Check your internet connection."
+                _error.value = AiErrorMessages.forThrowable(e)
             } finally {
                 _isSending.value = false
             }

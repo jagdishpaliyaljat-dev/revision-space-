@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
+import com.google.firebase.ai.GenerativeBackend
 import com.google.firebase.ai.ai
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
@@ -24,7 +25,8 @@ sealed interface AiUiState {
 
 class AiViewModel : ViewModel() {
     private val model by lazy {
-        Firebase.ai.generativeModel("gemini-3.8-flash")
+        Firebase.ai(backend = GenerativeBackend.googleAI())
+            .generativeModel("gemini-3.8-flash")
     }
 
     private val _summaryState = MutableStateFlow<AiUiState>(AiUiState.Idle)
@@ -64,7 +66,7 @@ class AiViewModel : ViewModel() {
                 throw e
             } catch (e: Exception) {
                 Log.e(TAG, "AI generation failed", e)
-                _summaryState.value = AiUiState.Error(e.localizedMessage ?: "Failed to generate summary.")
+                _summaryState.value = AiUiState.Error(AiErrorMessages.forThrowable(e))
             }
         }
     }
