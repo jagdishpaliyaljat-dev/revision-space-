@@ -1307,6 +1307,13 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
         repository.insertSubject(name, colorHex, examId, icon, totalTopicsExpected)
     }
 
+    /** Bulk CSV/JSON syllabus import. Existing names are reused, nothing is deleted. */
+    suspend fun importSyllabus(
+        tree: com.example.data.syllabus.SyllabusTree
+    ): com.example.data.syllabus.SyllabusImportOutcome {
+        return repository.importSyllabus(tree)
+    }
+
     fun addSubject(name: String, colorHex: String = "#0061A4", examId: String = "", icon: String = "book", totalTopicsExpected: Int = 0) = launchSafe {
         repository.insertSubject(name, colorHex, examId, icon, totalTopicsExpected)
     }

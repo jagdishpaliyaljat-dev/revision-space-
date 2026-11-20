@@ -315,6 +315,130 @@ open class RevisionRepository {
         try { db.collection("subjects").document(subject.id).set(subject) } catch (e: Exception) {}
     }
 
+    /**
+     * Bulk syllabus import (CSV/JSON parser lives in com.example.data.syllabus).
+     *
+     * Everything happens in one Room transaction, so a failure leaves the old
+     * syllabus untouched. Subjects, chapters and topics are matched by name
+     * (case and spacing ignored): a match is reused and only its spelling is
+     * refreshed, while progress, notes, revision history and dates stay as they
+     * are. Nothing is ever deleted, which makes re-importing the same file safe.
+     */
+    open suspend fun importSyllabus(
+        tree: com.example.data.syllabus.SyllabusTree
+    ): com.example.data.syllabus.SyllabusImportOutcome =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val rDb = roomDb
+                ?: throw IllegalStateException("Local database is not ready. Please restart the app.")
+            if (tree.subjects.isEmpty()) {
+                throw IllegalArgumentException("This file has no subjects to import.")
+            }
+
+            var subjectsAdded = 0
+            var subjectsMatched = 0
+            var chaptersAdded = 0
+            var chaptersMatched = 0
+            var topicsAdded = 0
+            var topicsMatched = 0
+
+            rDb.withTransaction {
+                val allSubjects = rDb.subjectDao().getSubjectsList("offline_user").toMutableList()
+                val allChapters = rDb.chapterDao().getChaptersList("offline_user").toMutableList()
+                val allTopics = rDb.topicDao().getTopicsList("offline_user").toMutableList()
+
+                tree.subjects.forEach { subject ->
+                    val subjectKey = com.example.data.syllabus.SyllabusImportFormat.normalize(subject.name)
+                    val storedSubject = allSubjects.firstOrNull {
+                        com.example.data.syllabus.SyllabusImportFormat.normalize(it.name) == subjectKey
+                    }
+                    val subjectId: String
+                    if (storedSubject == null) {
+                        val entity = com.example.data.local.SubjectEntity(
+                            id = java.util.UUID.randomUUID().toString(),
+                            name = subject.name
+                        )
+                        rDb.subjectDao().insert(entity)
+                        allSubjects += entity
+                        subjectId = entity.id
+                        subjectsAdded++
+                    } else {
+                        subjectId = storedSubject.id
+                        subjectsMatched++
+                        if (storedSubject.name != subject.name) {
+                            val renamed = storedSubject.copy(name = subject.name)
+                            rDb.subjectDao().insert(renamed)
+                            allSubjects[allSubjects.indexOf(storedSubject)] = renamed
+                        }
+                    }
+
+                    subject.chapters.forEach { chapter ->
+                        val chapterKey =
+                            com.example.data.syllabus.SyllabusImportFormat.normalize(chapter.name)
+                        val storedChapter = allChapters.firstOrNull {
+                            it.subjectId == subjectId &&
+                                com.example.data.syllabus.SyllabusImportFormat.normalize(it.name) == chapterKey
+                        }
+                        val chapterId: String
+                        if (storedChapter == null) {
+                            val entity = com.example.data.local.ChapterEntity(
+                                id = java.util.UUID.randomUUID().toString(),
+                                subjectId = subjectId,
+                                name = chapter.name
+                            )
+                            rDb.chapterDao().insert(entity)
+                            allChapters += entity
+                            chapterId = entity.id
+                            chaptersAdded++
+                        } else {
+                            chapterId = storedChapter.id
+                            chaptersMatched++
+                            if (storedChapter.name != chapter.name) {
+                                val renamed = storedChapter.copy(name = chapter.name)
+                                rDb.chapterDao().insert(renamed)
+                                allChapters[allChapters.indexOf(storedChapter)] = renamed
+                            }
+                        }
+
+                        chapter.topics.forEach { topic ->
+                            val topicKey =
+                                com.example.data.syllabus.SyllabusImportFormat.normalize(topic)
+                            val storedTopic = allTopics.firstOrNull {
+                                it.chapterId == chapterId &&
+                                    com.example.data.syllabus.SyllabusImportFormat.normalize(it.name) == topicKey
+                            }
+                            if (storedTopic == null) {
+                                val entity = com.example.data.local.TopicEntity(
+                                    id = java.util.UUID.randomUUID().toString(),
+                                    subjectId = subjectId,
+                                    chapterId = chapterId,
+                                    name = topic
+                                )
+                                rDb.topicDao().insert(entity)
+                                allTopics += entity
+                                topicsAdded++
+                            } else {
+                                topicsMatched++
+                                if (storedTopic.name != topic) {
+                                    val renamed = storedTopic.copy(name = topic)
+                                    rDb.topicDao().insert(renamed)
+                                    allTopics[allTopics.indexOf(storedTopic)] = renamed
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            com.example.data.syllabus.SyllabusImportOutcome(
+                subjectsAdded = subjectsAdded,
+                subjectsMatched = subjectsMatched,
+                chaptersAdded = chaptersAdded,
+                chaptersMatched = chaptersMatched,
+                topicsAdded = topicsAdded,
+                topicsMatched = topicsMatched
+            )
+        }
+
     open suspend fun updateSubject(subjectId: String, name: String, colorHex: String, icon: String, totalTopicsExpected: Int) {
         val rDb = roomDb
         if (rDb != null) {

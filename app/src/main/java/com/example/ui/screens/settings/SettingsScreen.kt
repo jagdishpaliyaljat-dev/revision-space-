@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +54,10 @@ import com.example.data.backup.BackupManager
 import com.example.data.backup.BackupPayload
 import com.example.data.backup.ImportMode
 import com.example.data.backup.ImportOutcome
+import com.example.data.syllabus.SyllabusImportException
+import com.example.data.syllabus.SyllabusImportFormat
+import com.example.data.syllabus.SyllabusImportOutcome
+import com.example.data.syllabus.SyllabusTree
 import com.example.notification.ReminderScheduler
 import com.example.services.SrsNotificationManager
 import com.example.viewmodel.RevisionViewModel
@@ -101,6 +106,13 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
     var lastBackupAtMs by remember {
         mutableStateOf(sharedPrefs.getLong(BackupManager.KEY_LAST_BACKUP_MS, 0L))
     }
+
+    // ---- Bulk syllabus import (CSV / JSON) ----
+    var syllabusImportInProgress by remember { mutableStateOf(false) }
+    var pendingSyllabus by remember { mutableStateOf<PendingSyllabus?>(null) }
+    var syllabusOutcome by remember { mutableStateOf<SyllabusImportOutcome?>(null) }
+    var syllabusError by remember { mutableStateOf<String?>(null) }
+    var showSyllabusFormat by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         safetySnapshot = withContext(Dispatchers.IO) {
@@ -270,6 +282,88 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                 importOutcome = outcome
             }.onFailure { error ->
                 importError = error.message ?: "Import failed. Your data was not changed."
+            }
+        }
+    }
+
+    // ---- Bulk syllabus import: read + validate the file, then import. ----
+    val syllabusLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        syllabusImportInProgress = true
+        scope.launch {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val fileName = BackupManager.displayName(context, uri) ?: "syllabus.csv"
+                    val text = BackupManager.readBackupFile(context, uri)
+                    PendingSyllabus(fileName, SyllabusImportFormat.parse(text, fileName))
+                }
+            }
+            syllabusImportInProgress = false
+            result.onSuccess { pending -> pendingSyllabus = pending }
+                .onFailure { error ->
+                    val raw = error.message.orEmpty()
+                    syllabusError = when {
+                        error is SyllabusImportException -> raw.ifBlank { "This file isn't a valid syllabus." }
+                        raw.contains("too large", ignoreCase = true) ->
+                            "This file is too large. Keep syllabus files under 25 MB."
+                        raw.contains("Couldn't open", ignoreCase = true) ->
+                            "Couldn't open the selected file. Try choosing it again."
+                        else -> raw.ifBlank { "Couldn't read the selected file." }
+                    }
+                }
+        }
+    }
+
+    // Writes a template so the format is discoverable without leaving the app.
+    val sampleSyllabusLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val saved = withContext(Dispatchers.IO) {
+                runCatching {
+                    BackupManager.writeBackupFile(context, uri, SyllabusImportFormat.sampleCsv())
+                }.isSuccess
+            }
+            Toast.makeText(
+                context,
+                if (saved) "Sample syllabus saved" else "Couldn't save the sample file",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    fun runSyllabusImport(tree: SyllabusTree) {
+        pendingSyllabus = null
+        syllabusImportInProgress = true
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val db = runCatching { com.example.MyApplication.database }.getOrNull()
+                    // Same safety net as the full backup import: copy first so an
+                    // unexpected result can be undone from "Restore previous data".
+                    val safety = db?.let {
+                        runCatching {
+                            BackupManager.saveSafetySnapshot(context, it, BuildConfig.VERSION_NAME)
+                        }.getOrNull()
+                    }
+                    viewModel.importSyllabus(tree) to safety
+                }
+            }
+            syllabusImportInProgress = false
+            result.onSuccess { (outcome, safety) ->
+                safety?.let { safetySnapshot = it }
+                syllabusOutcome = outcome
+            }.onFailure { error ->
+                syllabusError = error.message ?: "Import failed. Your data was not changed."
             }
         }
     }
@@ -608,6 +702,39 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
                     }
                 }
             }
+
+            SectionLabel("Syllabus")
+            SettingsItemRow(
+                icon = Icons.Default.MenuBook,
+                iconBg = MaterialTheme.colorScheme.primaryContainer,
+                iconTint = MaterialTheme.colorScheme.primary,
+                title = if (syllabusImportInProgress) "Importing syllabus…" else "Import Syllabus",
+                subtitle = "Bulk add subjects, chapters and topics from a CSV or JSON file",
+                testTag = "settings_import_syllabus_item",
+                onClick = {
+                    if (!syllabusImportInProgress) {
+                        syllabusLauncher.launch(
+                            arrayOf(
+                                "text/csv",
+                                "text/comma-separated-values",
+                                "text/plain",
+                                "application/json",
+                                "application/octet-stream",
+                                "*/*"
+                            )
+                        )
+                    }
+                }
+            )
+            SettingsItemRow(
+                icon = Icons.Default.Description,
+                iconBg = MaterialTheme.colorScheme.secondaryContainer,
+                iconTint = MaterialTheme.colorScheme.secondary,
+                title = "Syllabus file format",
+                subtitle = "See CSV/JSON examples and save a sample CSV",
+                testTag = "settings_syllabus_format_item",
+                onClick = { showSyllabusFormat = true }
+            )
 
             // Dark Mode
             Card(
@@ -1163,6 +1290,244 @@ fun SettingsScreen(viewModel: RevisionViewModel, navController: NavController) {
             }
         )
     }
+
+    // ---- Syllabus import: preview (nothing is written until Import) ----
+    pendingSyllabus?.let { pending ->
+        AlertDialog(
+            onDismissRequest = { if (!syllabusImportInProgress) pendingSyllabus = null },
+            modifier = Modifier.testTag("syllabus_import_preview_dialog"),
+            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Import syllabus?", fontWeight = FontWeight.SemiBold, fontSize = 18.sp) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 380.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        pending.fileName,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        pending.tree.summary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "Subjects, chapters and topics with the same name are reused — study progress is never overwritten and nothing is deleted.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (pending.tree.warnings.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            "Please check:",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        pending.tree.warnings.take(6).forEach { warning ->
+                            Text(
+                                "• $warning",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (pending.tree.warnings.size > 6) {
+                            Text(
+                                "• +${pending.tree.warnings.size - 6} more",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "A safety copy is saved first, so this can be undone from \"Restore previous data\".",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { runSyllabusImport(pending.tree) },
+                    enabled = !syllabusImportInProgress,
+                    modifier = Modifier.testTag("confirm_syllabus_import_button")
+                ) {
+                    Text(
+                        if (syllabusImportInProgress) "Importing…" else "Import",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { pendingSyllabus = null },
+                    enabled = !syllabusImportInProgress,
+                    modifier = Modifier.testTag("cancel_syllabus_import_button")
+                ) {
+                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        )
+    }
+
+    // ---- Syllabus import: result ----
+    syllabusOutcome?.let { outcome ->
+        AlertDialog(
+            onDismissRequest = { syllabusOutcome = null },
+            modifier = Modifier.testTag("syllabus_import_result_dialog"),
+            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Syllabus imported", fontWeight = FontWeight.SemiBold, fontSize = 18.sp) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 360.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        if (outcome.totalAdded == 0) {
+                            "Everything in that file was already on this device — nothing was duplicated."
+                        } else {
+                            "${outcome.totalAdded} new items added to your syllabus."
+                        },
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SyllabusCountRow("Subjects", outcome.subjectsAdded, outcome.subjectsMatched)
+                    SyllabusCountRow("Chapters", outcome.chaptersAdded, outcome.chaptersMatched)
+                    SyllabusCountRow("Topics", outcome.topicsAdded, outcome.topicsMatched)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        "Re-importing the same file is safe: names are matched ignoring case and extra spaces.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { syllabusOutcome = null },
+                    modifier = Modifier.testTag("dismiss_syllabus_result_button")
+                ) {
+                    Text("Done", fontWeight = FontWeight.SemiBold)
+                }
+            }
+        )
+    }
+
+    // ---- Syllabus import: error ----
+    syllabusError?.let { message ->
+        AlertDialog(
+            onDismissRequest = { syllabusError = null },
+            modifier = Modifier.testTag("syllabus_import_error_dialog"),
+            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Can't import this syllabus", fontWeight = FontWeight.SemiBold, fontSize = 18.sp) },
+            text = {
+                Column {
+                    Text(message, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Your current syllabus was not changed. Tap \"Syllabus file format\" in Settings to see a working example.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { syllabusError = null },
+                    modifier = Modifier.testTag("dismiss_syllabus_error_button")
+                ) {
+                    Text("OK", fontWeight = FontWeight.SemiBold)
+                }
+            }
+        )
+    }
+
+    // ---- Syllabus file format + sample CSV ----
+    if (showSyllabusFormat) {
+        AlertDialog(
+            onDismissRequest = { showSyllabusFormat = false },
+            modifier = Modifier.testTag("syllabus_format_dialog"),
+            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Syllabus file format", fontWeight = FontWeight.SemiBold, fontSize = 18.sp) },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 420.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        "CSV",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        "Header is optional. Columns: subject, chapter, topic.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    FormatCodeBlock(SyllabusImportFormat.sampleCsv())
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "JSON",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        "A list of subjects, each with chapters and topics.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    FormatCodeBlock(SyllabusImportFormat.sampleJson())
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "• Topic is optional — a row can stop at the chapter.\n" +
+                            "• Blank subject/chapter cells reuse the value above them.\n" +
+                            "• Names are matched ignoring case, so importing twice never duplicates.\n" +
+                            "• Existing progress, notes and revision history are kept.",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSyllabusFormat = false
+                        sampleSyllabusLauncher.launch(SyllabusImportFormat.SAMPLE_CSV_FILE_NAME)
+                    },
+                    modifier = Modifier.testTag("save_sample_syllabus_button")
+                ) {
+                    Text("Save sample CSV", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSyllabusFormat = false }) {
+                    Text("Close", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        )
+    }
 }
 
 /** A parsed backup waiting for the user to choose Merge or Replace. */
@@ -1170,6 +1535,57 @@ private data class PendingBackup(
     val fileName: String,
     val payload: BackupPayload
 )
+
+/** A parsed syllabus file waiting for the user to confirm the import. */
+private data class PendingSyllabus(
+    val fileName: String,
+    val tree: SyllabusTree
+)
+
+@Composable
+private fun SyllabusCountRow(label: String, added: Int, matched: Int) {
+    if (added == 0 && matched == 0) {
+        return
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            buildString {
+                if (added > 0) append("$added new")
+                if (added > 0 && matched > 0) append(" · ")
+                if (matched > 0) append("$matched matched")
+            },
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun FormatCodeBlock(code: String) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 6.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Text(
+            text = code.trim(),
+            fontFamily = FontFamily.Monospace,
+            fontSize = 10.sp,
+            lineHeight = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(10.dp)
+        )
+    }
+}
 
 private fun formatBackupDate(createdAtMs: Long): String {
     if (createdAtMs <= 0L) return "unknown date"
