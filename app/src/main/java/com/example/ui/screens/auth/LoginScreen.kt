@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,9 @@ import com.example.ui.theme.AppPalette
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 fun LoginScreen(
@@ -64,6 +68,45 @@ fun LoginScreen(
             onSignInFailed("Google sign-in failed (code ${e.statusCode}). You can still continue as guest.")
         } catch (e: Exception) {
             onSignInFailed("Sign-in failed: ${e.localizedMessage ?: "unknown error"}. You can still continue as guest.")
+        }
+    }
+
+    val scope = rememberCoroutineScope()
+
+    /**
+     * Opens Google's sign-in dialog. When [forceAccountChooser] is set the cached
+     * Google session is cleared first, so Google always shows its account picker
+     * instead of silently reusing the previously used Gmail ID.
+     */
+    fun startGoogleSignIn(forceAccountChooser: Boolean) {
+        // Launching Google's dialog while offline makes it hang on its own
+        // spinner. Skip it and go straight into the app in that case.
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE)
+            as? android.net.ConnectivityManager
+        val network = cm?.activeNetwork
+        val caps = network?.let { cm?.getNetworkCapabilities(it) }
+        val online = caps?.hasCapability(
+            android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
+        ) == true
+        if (!online) {
+            onGuestContinue()
+            return
+        }
+
+        awaitingGoogle = true
+        scope.launch {
+            if (forceAccountChooser) {
+                // Bounded: a slow Play Services must not stall the login button.
+                withTimeoutOrNull(8_000L) {
+                    runCatching { googleSignInClient.signOut().await() }
+                }
+            }
+            try {
+                launcher.launch(googleSignInClient.signInIntent)
+            } catch (e: Exception) {
+                awaitingGoogle = false
+                onSignInFailed("Could not start Google sign-in. Please continue as guest.")
+            }
         }
     }
 
@@ -129,28 +172,7 @@ fun LoginScreen(
             }
 
             Button(
-                onClick = {
-                    // Launching Google's dialog while offline makes it hang on its own
-                    // spinner. Skip it and go straight into the app in that case.
-                    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE)
-                        as? android.net.ConnectivityManager
-                    val network = cm?.activeNetwork
-                    val caps = network?.let { cm?.getNetworkCapabilities(it) }
-                    val online = caps?.hasCapability(
-                        android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
-                    ) == true
-                    if (!online) {
-                        onGuestContinue()
-                    } else {
-                        awaitingGoogle = true
-                        try {
-                            launcher.launch(googleSignInClient.signInIntent)
-                        } catch (e: Exception) {
-                            awaitingGoogle = false
-                            onSignInFailed("Could not start Google sign-in. Please continue as guest.")
-                        }
-                    }
-                },
+                onClick = { startGoogleSignIn(forceAccountChooser = false) },
                 enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,7 +194,24 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+
+            TextButton(
+                onClick = { startGoogleSignIn(forceAccountChooser = true) },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("login_use_another_account_button")
+            ) {
+                Text(
+                    "Use another Google account",
+                    color = Color.White.copy(alpha = 0.92f),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             TextButton(
                 onClick = onGuestContinue,

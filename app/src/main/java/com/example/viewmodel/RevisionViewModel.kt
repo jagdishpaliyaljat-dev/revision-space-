@@ -2042,6 +2042,13 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
             try {
                 com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
 
+                // Firebase sign-out alone is not enough: com.google.android.gms.auth
+                // keeps the last Google account cached for this app, so the next
+                // "Continue with Google" silently signs the same Gmail ID back in and
+                // the user can never pick a different account. Clearing the cached
+                // Google session makes Google show its account picker again.
+                clearCachedGoogleAccount(context)
+
                 // Also clear the guest bypass flag. It lives in a different prefs file
                 // ("revision_space_prefs"); without this, Splash keeps routing straight
                 // to the dashboard after logout and the login screen never returns.
@@ -2057,6 +2064,27 @@ fun addTopic(chapterId: String, name: String, notes: String, tags: List<String> 
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    /**
+     * Signs out of the Google Sign-In client so its cached account is dropped.
+     * Bounded and exception-safe: a Play Services problem must never block logout.
+     */
+    private suspend fun clearCachedGoogleAccount(context: android.content.Context) {
+        try {
+            val options = com.google.android.gms.auth.api.signin.GoogleSignInOptions
+                .Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build()
+            val client = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(context, options)
+            kotlinx.coroutines.withTimeoutOrNull(5_000L) {
+                client.signOut().await()
+            }
+        } catch (e: Exception) {
+            // Play Services unavailable / not installed: Google's cached account does
+            // not exist either, so there is nothing to clear.
+            e.printStackTrace()
         }
     }
 }
