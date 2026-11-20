@@ -72,7 +72,7 @@ class StudyChatPromptTest {
 
         assertTrue(prompt.contains("Student: Message 20"))
         assertTrue(prompt.contains("Study Buddy: Message 19"))
-        assertTrue(!prompt.contains("Message 1"))
+        assertTrue(!prompt.contains("Message 7"))
         assertTrue(!prompt.contains("Message 8"))
     }
 
