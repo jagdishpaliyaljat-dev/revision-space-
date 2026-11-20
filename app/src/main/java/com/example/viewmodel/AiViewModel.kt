@@ -24,7 +24,7 @@ sealed interface AiUiState {
 
 class AiViewModel : ViewModel() {
     private val model by lazy {
-        Firebase.ai.generativeModel("gemini-1.5-flash")
+        Firebase.ai.generativeModel("gemini-3.8-flash")
     }
 
     private val _summaryState = MutableStateFlow<AiUiState>(AiUiState.Idle)

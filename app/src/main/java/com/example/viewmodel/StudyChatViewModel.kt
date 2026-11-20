@@ -28,7 +28,7 @@ data class ChatMessage(
 class StudyChatViewModel : ViewModel() {
 
     private val model by lazy {
-        Firebase.ai.generativeModel("gemini-1.5-flash")
+        Firebase.ai.generativeModel("gemini-3.8-flash")
     }
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
