@@ -12,8 +12,8 @@ class RoomConverters {
 
     @TypeConverter
     fun toIntList(data: String?): List<Int> {
-        if (data.isNullOrEmpty()) return listOf(1, 3, 7, 14, 30)
-        return data.split(",").mapNotNull { it.trim().toIntOrNull() }
+        if (data.isNullOrEmpty()) return emptyList()
+        return data.replace("[", "").replace("]", "").split(",").mapNotNull { it.trim().toIntOrNull() }
     }
 
     @TypeConverter

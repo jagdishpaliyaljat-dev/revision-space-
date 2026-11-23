@@ -117,7 +117,7 @@ exports.sendAdminNotification = functions.firestore
                         tokens: tokensChunk
                     };
                     
-                    const p = admin.messaging().sendMulticast(pushMessage).then(async (response) => {
+                    const p = admin.messaging().sendEachForMulticast(pushMessage).then(async (response) => {
                         deliveredCount += response.successCount;
                         failedCount += response.failureCount;
                         if (response.failureCount > 0) {

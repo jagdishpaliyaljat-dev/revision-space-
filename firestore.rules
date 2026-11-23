@@ -29,7 +29,12 @@ service cloud.firestore {
       // Users can manage their own profile; Admins can manage all profiles
       // Signed-in users can read profiles for calculating leaderboard and rank badges
       allow read: if isSignedIn();
-      allow write: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && (!request.resource.data.keys().hasAny(['role', 'isBanned']) || request.resource.data.role != 'Admin');
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isBanned']))
+      );
+      allow delete: if isAdmin();
       
       // All nested collections under a user document inherit the same ownership rules
       match /{document=**} {
@@ -52,6 +57,11 @@ service cloud.firestore {
     }
 
     match /topics/{topicId} {
+      allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+      allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
+    }
+
+    match /flashcards/{flashcardId} {
       allow read, update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
       allow create: if isSignedIn() && (request.auth.uid == request.resource.data.userId || isAdmin());
     }
@@ -91,7 +101,7 @@ service cloud.firestore {
       // Both referrer and referred users can read the referral record
       allow read: if isSignedIn() && (request.auth.uid == resource.data.referrerId || request.auth.uid == resource.data.referredId || isAdmin());
       allow create: if isSignedIn(); 
-      allow update: if isSignedIn() || isAdmin(); 
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.referrerId || request.auth.uid == resource.data.referredId || isAdmin()); 
       allow delete: if isAdmin();
     }
 
