@@ -335,6 +335,59 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
         .catch { e: Throwable -> e.printStackTrace() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    val allFlashcards: StateFlow<List<com.example.data.Flashcard>> = repository.allFlashcards
+        .catch { e: Throwable -> e.printStackTrace() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val dueFlashcards: StateFlow<List<com.example.data.Flashcard>> = repository.getDueFlashcards()
+        .catch { e: Throwable -> e.printStackTrace() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val dueFlashcardsCount: StateFlow<Int> = repository.getDueFlashcardsCount()
+        .catch { e: Throwable -> e.printStackTrace() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
+    val flashcardStats: StateFlow<com.example.data.FlashcardStats> = allFlashcards.map { cards ->
+        val now = System.currentTimeMillis()
+        val total = cards.size
+        val due = cards.count { it.nextReviewDateMs <= now }
+        val mastered = cards.count { it.intervalDays >= 21 }
+        val learning = cards.count { it.intervalDays < 7 }
+        val review = cards.count { it.intervalDays in 7..20 }
+        val reviewedToday = cards.count { 
+            val last = it.lastReviewedMs
+            last > 0L && (now - last) < 24L * 60L * 60L * 1000L
+        }
+        val totalLapses = cards.sumOf { it.lapses }
+        val totalReps = cards.sumOf { it.repetitionCount }
+        val retention = if (totalReps + totalLapses > 0) {
+            ((totalReps.toDouble() / (totalReps + totalLapses)) * 100).toInt().coerceIn(0, 100)
+        } else 100
+        com.example.data.FlashcardStats(
+            totalCards = total,
+            dueToday = due,
+            masteredCards = mastered,
+            learningCards = learning,
+            reviewCards = review,
+            reviewedTodayCount = reviewedToday,
+            retentionRatePercentage = retention
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, com.example.data.FlashcardStats())
+
+    fun getFlashcardsByTopic(topicId: String) = repository.getFlashcardsByTopic(topicId)
+
+    fun saveFlashcard(card: com.example.data.Flashcard) = launchSafe {
+        repository.saveFlashcard(card)
+    }
+
+    fun deleteFlashcard(cardId: String) = launchSafe {
+        repository.deleteFlashcard(cardId)
+    }
+
+    fun reviewFlashcard(card: com.example.data.Flashcard, rating: com.example.data.SrsRating) = launchSafe {
+        repository.recordFlashcardReview(card, rating)
+    }
+
     fun updateChapter(chapter: Chapter) = launchSafe {
         repository.updateChapter(chapter)
     }

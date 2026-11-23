@@ -102,7 +102,8 @@ fun DashboardScreen(
     
     onLogout: () -> Unit,
     onNavigateToLanguage: () -> Unit = {},
-    onNavigateToHelpAndSupport: () -> Unit = {}
+    onNavigateToHelpAndSupport: () -> Unit = {},
+    onNavigateToFlashcards: () -> Unit = {}
 ) {
     val allExams by viewModel.allExams.collectAsStateWithLifecycle()
     val allTopics by viewModel.allTopics.collectAsStateWithLifecycle(emptyList())
@@ -676,6 +677,64 @@ fun DashboardScreen(
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
+                        }
+                    }
+                }
+
+                // 2A. FLASHCARDS DUE BANNER
+                item {
+                    val dueCardsCount by viewModel.dueFlashcardsCount.collectAsStateWithLifecycle(0)
+                    val allFlashcardsList by viewModel.allFlashcards.collectAsStateWithLifecycle(emptyList())
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 6.dp)
+                            .clickable { onNavigateToFlashcards() },
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)),
+                        shape = RoundedCornerShape(14.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                    modifier = Modifier.size(42.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text("🗂️", fontSize = 20.sp)
+                                    }
+                                }
+                                Column {
+                                    Text(
+                                        "Spaced Repetition Flashcards",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        if (dueCardsCount > 0) "$dueCardsCount cards due for revision today" else "${allFlashcardsList.size} cards saved • Tap to practice",
+                                        fontSize = 12.sp,
+                                        color = if (dueCardsCount > 0) Color(0xFFEF4444) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = if (dueCardsCount > 0) FontWeight.SemiBold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                            Icon(
+                                Icons.Default.KeyboardArrowRight,
+                                contentDescription = "Open Flashcards",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
                 }

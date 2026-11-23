@@ -543,3 +543,42 @@ internal fun decodeFocusSettings(raw: String?): FocusSettings {
         defaults
     }
 }
+
+fun FlashcardEntity.toDomain(): Flashcard = Flashcard(
+    id = id,
+    userId = userId,
+    subjectId = subjectId,
+    chapterId = chapterId,
+    topicId = topicId,
+    front = front,
+    back = back,
+    hint = hint,
+    difficulty = difficulty,
+    intervalDays = intervalDays,
+    easeFactor = easeFactor,
+    repetitionCount = repetitionCount,
+    lapses = lapses,
+    nextReviewDateMs = nextReviewDateMs,
+    lastReviewedMs = lastReviewedMs,
+    createdAtMs = createdAtMs
+)
+
+fun Flashcard.toEntity(): FlashcardEntity = FlashcardEntity(
+    id = id.ifBlank { java.util.UUID.randomUUID().toString() },
+    userId = userId.ifBlank { "offline_user" },
+    subjectId = subjectId,
+    chapterId = chapterId,
+    topicId = topicId,
+    front = front,
+    back = back,
+    hint = hint,
+    difficulty = difficulty,
+    intervalDays = intervalDays,
+    easeFactor = easeFactor,
+    repetitionCount = repetitionCount,
+    lapses = lapses,
+    nextReviewDateMs = nextReviewDateMs,
+    lastReviewedMs = lastReviewedMs,
+    createdAtMs = if (createdAtMs > 0L) createdAtMs else System.currentTimeMillis()
+)
+

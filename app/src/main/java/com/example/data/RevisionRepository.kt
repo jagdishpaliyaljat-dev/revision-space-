@@ -113,6 +113,62 @@ open class RevisionRepository {
         }
     }
 
+    open val allFlashcards: Flow<List<Flashcard>> = flow {
+        val rDb = roomDb
+        if (rDb != null) {
+            emitAll(rDb.flashcardDao().getAllFlashcards("offline_user").map { list -> list.map { it.toDomain() } })
+        } else {
+            emit(emptyList())
+        }
+    }
+
+    open fun getFlashcardsByTopic(topicId: String): Flow<List<Flashcard>> = flow {
+        val rDb = roomDb
+        if (rDb != null) {
+            emitAll(rDb.flashcardDao().getFlashcardsByTopic("offline_user", topicId).map { list -> list.map { it.toDomain() } })
+        } else {
+            emit(emptyList())
+        }
+    }
+
+    open fun getDueFlashcards(nowMs: Long = System.currentTimeMillis()): Flow<List<Flashcard>> = flow {
+        val rDb = roomDb
+        if (rDb != null) {
+            emitAll(rDb.flashcardDao().getDueFlashcards("offline_user", nowMs).map { list -> list.map { it.toDomain() } })
+        } else {
+            emit(emptyList())
+        }
+    }
+
+    open fun getDueFlashcardsCount(nowMs: Long = System.currentTimeMillis()): Flow<Int> = flow {
+        val rDb = roomDb
+        if (rDb != null) {
+            emitAll(rDb.flashcardDao().getDueCount("offline_user", nowMs))
+        } else {
+            emit(0)
+        }
+    }
+
+    open suspend fun saveFlashcard(flashcard: Flashcard) {
+        val cardId = if (flashcard.id.isNotBlank()) flashcard.id else java.util.UUID.randomUUID().toString()
+        val cardToSave = flashcard.copy(
+            id = cardId,
+            userId = "offline_user",
+            createdAtMs = if (flashcard.createdAtMs > 0L) flashcard.createdAtMs else System.currentTimeMillis()
+        )
+        roomDb?.flashcardDao()?.insert(cardToSave.toEntity())
+    }
+
+    open suspend fun deleteFlashcard(cardId: String) {
+        roomDb?.flashcardDao()?.delete(cardId, "offline_user")
+    }
+
+    open suspend fun recordFlashcardReview(card: Flashcard, rating: SrsRating, nowMs: Long = System.currentTimeMillis()) {
+        val updatedCard = com.example.services.SrsCardEngine.calculateNextReview(card, rating, nowMs)
+        saveFlashcard(updatedCard)
+    }
+
+
     suspend fun insertExam(name: String, examDateMs: Long?, targetStudyHours: Int?, category: String = "", targetRank: String = "", totalSubjects: Int = 0) {
         val examId = java.util.UUID.randomUUID().toString()
         val exam = ExamCountdown(

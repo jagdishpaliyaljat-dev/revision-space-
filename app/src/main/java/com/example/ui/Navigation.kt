@@ -99,6 +99,8 @@ import androidx.compose.ui.text.style.TextAlign
 @Serializable object ReminderSettingsRoute
 @Serializable object NotificationsRoute
 @Serializable object MyTestScoresRoute
+@Serializable data class FlashcardStudyRoute(val topicId: String = "", val subjectId: String = "")
+@Serializable data class FlashcardManageRoute(val topicId: String = "", val subjectId: String = "")
 
 @Composable
 fun AppNavigation(
@@ -401,7 +403,8 @@ fun AppNavigation(
                             }
                         },
                         onNavigateToLanguage = { navController.navigate(LanguageRoute) },
-                        onNavigateToHelpAndSupport = { navController.navigate(HelpAndSupportRoute) }
+                        onNavigateToHelpAndSupport = { navController.navigate(HelpAndSupportRoute) },
+                        onNavigateToFlashcards = { navController.navigate(FlashcardStudyRoute("", "")) }
                     )
                 }
             }
@@ -550,7 +553,26 @@ fun AppNavigation(
         composable<MyTestScoresRoute> {
             MyTestScoresScreen(viewModel = viewModel, navController = navController)
         }
+        composable<FlashcardStudyRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<FlashcardStudyRoute>()
+            FlashcardStudyScreen(
+                viewModel = viewModel,
+                navController = navController,
+                topicId = route.topicId,
+                subjectId = route.subjectId
+            )
+        }
+        composable<FlashcardManageRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<FlashcardManageRoute>()
+            FlashcardManageScreen(
+                viewModel = viewModel,
+                navController = navController,
+                topicId = route.topicId,
+                subjectId = route.subjectId
+            )
+        }
         }
         }
     }
 }
+

@@ -23,7 +23,7 @@ class MyApplication : Application() {
             database = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "offline_database"
-            ).addMigrations(AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5)
+            ).addMigrations(AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5, AppDatabase.MIGRATION_5_6)
              // Upgrades must NEVER wipe user data: every schema change ships a real
              // migration above. Only installing an OLDER build may reset the DB.
              .fallbackToDestructiveMigrationOnDowngrade(true)

@@ -484,3 +484,63 @@ interface AppNotificationDao {
     @Query("DELETE FROM app_notifications WHERE userId = :userId")
     fun deleteAllForUserSync(userId: String = "offline_user")
 }
+
+@Entity(
+    tableName = "flashcards",
+    indices = [
+        Index(value = ["userId", "topicId"]),
+        Index(value = ["userId", "nextReviewDateMs"])
+    ]
+)
+data class FlashcardEntity(
+    @PrimaryKey val id: String,
+    val userId: String = "offline_user",
+    val subjectId: String = "",
+    val chapterId: String = "",
+    val topicId: String = "",
+    val front: String = "",
+    val back: String = "",
+    val hint: String = "",
+    val difficulty: String = "Medium",
+    val intervalDays: Int = 1,
+    val easeFactor: Float = 2.5f,
+    val repetitionCount: Int = 0,
+    val lapses: Int = 0,
+    val nextReviewDateMs: Long = 0L,
+    val lastReviewedMs: Long = 0L,
+    val createdAtMs: Long = 0L
+)
+
+@Dao
+interface FlashcardDao {
+    @Query("SELECT * FROM flashcards WHERE userId = :userId ORDER BY nextReviewDateMs ASC")
+    fun getAllFlashcards(userId: String = "offline_user"): Flow<List<FlashcardEntity>>
+
+    @Query("SELECT * FROM flashcards WHERE userId = :userId AND topicId = :topicId ORDER BY nextReviewDateMs ASC")
+    fun getFlashcardsByTopic(userId: String = "offline_user", topicId: String): Flow<List<FlashcardEntity>>
+
+    @Query("SELECT * FROM flashcards WHERE userId = :userId AND subjectId = :subjectId ORDER BY nextReviewDateMs ASC")
+    fun getFlashcardsBySubject(userId: String = "offline_user", subjectId: String): Flow<List<FlashcardEntity>>
+
+    @Query("SELECT * FROM flashcards WHERE userId = :userId AND nextReviewDateMs <= :nowMs ORDER BY nextReviewDateMs ASC")
+    fun getDueFlashcards(userId: String = "offline_user", nowMs: Long): Flow<List<FlashcardEntity>>
+
+    @Query("SELECT COUNT(*) FROM flashcards WHERE userId = :userId AND nextReviewDateMs <= :nowMs")
+    fun getDueCount(userId: String = "offline_user", nowMs: Long): Flow<Int>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(card: FlashcardEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(cards: List<FlashcardEntity>)
+
+    @Query("DELETE FROM flashcards WHERE id = :id AND userId = :userId")
+    suspend fun delete(id: String, userId: String = "offline_user")
+
+    @Query("DELETE FROM flashcards WHERE topicId = :topicId AND userId = :userId")
+    suspend fun deleteByTopic(topicId: String, userId: String = "offline_user")
+
+    @Query("DELETE FROM flashcards WHERE userId = :userId")
+    fun deleteAllForUserSync(userId: String = "offline_user")
+}
+

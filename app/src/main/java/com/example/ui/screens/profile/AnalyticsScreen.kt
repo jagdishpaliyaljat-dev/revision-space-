@@ -219,6 +219,13 @@ fun AnalyticsScreen(viewModel: RevisionViewModel, navController: NavController) 
                 item { StreaksCard(metrics = analyticsMetrics, isStreakSystemEnabled = globalConfig.isStreakSystemEnabled) }
                 item { RevisionStats(metrics = analyticsMetrics) }
                 item { ExamReadinessCard(metrics = readinessMetrics) }
+                item {
+                    val flashcardStats by viewModel.flashcardStats.collectAsStateWithLifecycle()
+                    FlashcardAnalyticsCard(
+                        stats = flashcardStats,
+                        onStudyClick = { navController.navigate(com.example.ui.FlashcardStudyRoute("", "")) }
+                    )
+                }
                 
                 if (analyticsMetrics.subjectProgress.isNotEmpty()) {
                     item {
@@ -801,3 +808,140 @@ fun PremiumSubjectCard(prog: com.example.data.SubjectProgress, onClick: () -> Un
         }
     }
 }
+
+@Composable
+fun FlashcardAnalyticsCard(
+    stats: com.example.data.FlashcardStats,
+    onStudyClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFF3B82F6).copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("🗂️", fontSize = 18.sp)
+                    }
+                    Column {
+                        Text(
+                            "Flashcards & SRS Retention",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            "Active recall memory progress",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = Color(0xFF10B981).copy(alpha = 0.15f)
+                ) {
+                    Text(
+                        "${stats.retentionRatePercentage}% Retention",
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF10B981)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text("${stats.totalCards}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text("Total Cards", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text("${stats.dueToday}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = if (stats.dueToday > 0) Color(0xFFEF4444) else MaterialTheme.colorScheme.onSurface)
+                    Text("Due Today", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text("${stats.masteredCards}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                    Text("Mastered", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                    Text("${stats.learningCards}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFF59E0B))
+                    Text("Learning", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mastery progress breakdown
+            if (stats.totalCards > 0) {
+                val masteredWeight = stats.masteredCards.toFloat() / stats.totalCards
+                val reviewWeight = stats.reviewCards.toFloat() / stats.totalCards
+                val learningWeight = (stats.totalCards - stats.masteredCards - stats.reviewCards).coerceAtLeast(0).toFloat() / stats.totalCards
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                ) {
+                    if (masteredWeight > 0f) {
+                        Box(modifier = Modifier.weight(masteredWeight).fillMaxHeight().background(Color(0xFF10B981)))
+                    }
+                    if (reviewWeight > 0f) {
+                        Box(modifier = Modifier.weight(reviewWeight).fillMaxHeight().background(Color(0xFF3B82F6)))
+                    }
+                    if (learningWeight > 0f) {
+                        Box(modifier = Modifier.weight(learningWeight).fillMaxHeight().background(Color(0xFFF59E0B)))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("● Mastered (>=21d)", fontSize = 10.sp, color = Color(0xFF10B981), fontWeight = FontWeight.SemiBold)
+                    Text("● Review (7-20d)", fontSize = 10.sp, color = Color(0xFF3B82F6), fontWeight = FontWeight.SemiBold)
+                    Text("● Learning (<7d)", fontSize = 10.sp, color = Color(0xFFF59E0B), fontWeight = FontWeight.SemiBold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            OutlinedButton(
+                onClick = onStudyClick,
+                modifier = Modifier.fillMaxWidth().height(42.dp),
+                shape = RoundedCornerShape(10.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+            ) {
+                Text("Practice Flashcards", color = MaterialTheme.colorScheme.primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+

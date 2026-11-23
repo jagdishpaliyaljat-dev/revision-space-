@@ -887,6 +887,93 @@ fun TopicDetailScreen(
                     }
                 }
 
+                // Topic Flashcards (SRS)
+                val topicCards by viewModel.getFlashcardsByTopic(topic.topicId).collectAsStateWithLifecycle(emptyList())
+                val nowTime = remember { System.currentTimeMillis() }
+                val dueCardsCount = remember(topicCards) { topicCards.count { it.nextReviewDateMs <= nowTime } }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = TdCardWhite),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFF3B82F6).copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("🗂️", fontSize = 18.sp)
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Topic Flashcards", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TdTextPrimary)
+                                Text(
+                                    if (topicCards.isEmpty()) "Quick active recall & formulas"
+                                    else "${topicCards.size} cards • $dueCardsCount due for review",
+                                    fontSize = 11.sp,
+                                    color = TdTextSecondary
+                                )
+                            }
+                            if (topicCards.isNotEmpty()) {
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = if (dueCardsCount > 0) Color(0xFFEF4444).copy(alpha = 0.15f) else TdGreen.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        if (dueCardsCount > 0) "$dueCardsCount Due" else "Up to date",
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (dueCardsCount > 0) Color(0xFFEF4444) else TdGreen
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    navController.navigate(com.example.ui.FlashcardStudyRoute(topic.topicId, topic.subjectId))
+                                },
+                                modifier = Modifier.weight(1f).height(44.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                            ) {
+                                Text(
+                                    if (topicCards.isNotEmpty()) "Practice Flashcards" else "Create Cards",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 13.sp
+                                )
+                            }
+
+                            OutlinedButton(
+                                onClick = {
+                                    navController.navigate(com.example.ui.FlashcardManageRoute(topic.topicId, topic.subjectId))
+                                },
+                                modifier = Modifier.height(44.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, Color(0xFF3B82F6))
+                            ) {
+                                Text("Manage", color = Color(0xFF3B82F6), fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
+
                 // Spaced Repetition Schedule
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),

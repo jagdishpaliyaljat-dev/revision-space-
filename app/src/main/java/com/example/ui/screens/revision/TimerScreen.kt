@@ -201,6 +201,7 @@ fun TimerScreen(
         when (activeMode) {
             "Study Mode" -> settings.studyModeDurationMins
             "Revision Mode" -> settings.revisionModeDurationMins
+            "Flashcard Mode" -> 20
             "Practice Mode" -> settings.practiceModeDurationMins
             "Mock Test Mode" -> settings.mockTestModeDurationMins
             "Writing Practice Mode" -> settings.writingPracticeModeDurationMins
@@ -255,6 +256,7 @@ fun TimerScreen(
                             focusDuration = when (targetMode) {
                                 "Study Mode" -> settings.studyModeDurationMins
                                 "Revision Mode" -> settings.revisionModeDurationMins
+                                "Flashcard Mode" -> 20
                                 "Practice Mode" -> settings.practiceModeDurationMins
                                 "Mock Test Mode" -> settings.mockTestModeDurationMins
                                 "Writing Practice Mode" -> settings.writingPracticeModeDurationMins
@@ -451,6 +453,7 @@ fun TimerScreen(
     val statusLabel = when (activeMode) {
         "Study Mode" -> "STUDYING"
         "Revision Mode" -> "REVISING"
+        "Flashcard Mode" -> "FLASHCARDS"
         "Practice Mode" -> "PRACTICING"
         "Mock Test Mode" -> "TESTING"
         "Writing Practice Mode" -> "WRITING"
@@ -576,6 +579,7 @@ fun TimerScreen(
                     val modeOptions = listOf(
                         "Study Mode",
                         "Revision Mode",
+                        "Flashcard Mode",
                         "Practice Mode",
                         "Mock Test Mode",
                         "Writing Practice Mode"
@@ -587,6 +591,20 @@ fun TimerScreen(
                             enabled = !isSavingMode && !isRunning && !isPaused,
                             onClick = { changeMode(mode) }
                         )
+                    }
+                }
+
+                if (activeMode == "Flashcard Mode") {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedButton(
+                        onClick = {
+                            navController.navigate(com.example.ui.FlashcardStudyRoute(topicId, subjectId))
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("🗂️ Open Flashcard Deck", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                     }
                 }
             }

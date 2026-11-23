@@ -18,9 +18,10 @@ import androidx.room.TypeConverters
         SubjectTestEntity::class,
         QuickTaskEntity::class,
         CoinTransactionEntity::class,
-        AppNotificationEntity::class
+        AppNotificationEntity::class,
+        FlashcardEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(RoomConverters::class)
@@ -38,6 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun quickTaskDao(): QuickTaskDao
     abstract fun coinTransactionDao(): CoinTransactionDao
     abstract fun appNotificationDao(): AppNotificationDao
+    abstract fun flashcardDao(): FlashcardDao
 
     companion object {
         val MIGRATION_3_4 = object : androidx.room.migration.Migration(3, 4) {
@@ -68,5 +70,34 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE user_profiles ADD COLUMN focusSettingsStr TEXT NOT NULL DEFAULT ''")
             }
         }
+
+        val MIGRATION_5_6 = object : androidx.room.migration.Migration(5, 6) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `flashcards` (
+                        `id` TEXT NOT NULL,
+                        `userId` TEXT NOT NULL,
+                        `subjectId` TEXT NOT NULL,
+                        `chapterId` TEXT NOT NULL,
+                        `topicId` TEXT NOT NULL,
+                        `front` TEXT NOT NULL,
+                        `back` TEXT NOT NULL,
+                        `hint` TEXT NOT NULL DEFAULT '',
+                        `difficulty` TEXT NOT NULL DEFAULT 'Medium',
+                        `intervalDays` INTEGER NOT NULL DEFAULT 1,
+                        `easeFactor` REAL NOT NULL DEFAULT 2.5,
+                        `repetitionCount` INTEGER NOT NULL DEFAULT 0,
+                        `lapses` INTEGER NOT NULL DEFAULT 0,
+                        `nextReviewDateMs` INTEGER NOT NULL DEFAULT 0,
+                        `lastReviewedMs` INTEGER NOT NULL DEFAULT 0,
+                        `createdAtMs` INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_flashcards_userId_topicId` ON `flashcards` (`userId`, `topicId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_flashcards_userId_nextReviewDateMs` ON `flashcards` (`userId`, `nextReviewDateMs`)")
+            }
+        }
     }
 }
+

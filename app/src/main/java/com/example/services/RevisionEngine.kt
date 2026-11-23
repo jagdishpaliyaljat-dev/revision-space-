@@ -7,6 +7,18 @@ object RevisionEngine {
     val MEDIUM_PATTERN: List<Int> = listOf(1, 3, 7, 14, 21, 30)
     val HARD_PATTERN: List<Int> = listOf(1, 2, 4, 7, 14, 21, 28)
 
+    val PRESET_STANDARD: List<Int> = MEDIUM_PATTERN
+    val PRESET_INTENSIVE: List<Int> = listOf(1, 2, 4, 7, 14)
+    val PRESET_LONG_TERM: List<Int> = listOf(1, 7, 16, 35, 90)
+    val PRESET_LEITNER: List<Int> = listOf(1, 3, 5, 10, 20)
+
+    val PRESETS = mapOf(
+        "Standard (1, 3, 7, 14, 21, 30)" to PRESET_STANDARD,
+        "Intensive (1, 2, 4, 7, 14)" to PRESET_INTENSIVE,
+        "Long-Term (1, 7, 16, 35, 90)" to PRESET_LONG_TERM,
+        "Leitner (1, 3, 5, 10, 20)" to PRESET_LEITNER
+    )
+
     val DEFAULT_PATTERN: List<Int> = MEDIUM_PATTERN
     const val RECURRING_INTERVAL_DAYS: Int = 30
 
@@ -105,4 +117,22 @@ object RevisionEngine {
         }
         return Pair(true, "")
     }
+
+    /**
+     * Returns a list of (intervalDays, formattedDate) for user-friendly preview.
+     */
+    fun calculateSchedulePreview(
+        pattern: List<Int>,
+        startDateMs: Long = System.currentTimeMillis()
+    ): List<Pair<Int, String>> {
+        val activePattern = if (pattern.isNotEmpty()) pattern else DEFAULT_PATTERN
+        val sdf = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault())
+        val calendar = Calendar.getInstance()
+        return activePattern.map { intervalDays ->
+            calendar.timeInMillis = startDateMs
+            calendar.add(Calendar.DAY_OF_YEAR, intervalDays)
+            Pair(intervalDays, sdf.format(calendar.time))
+        }
+    }
 }
+

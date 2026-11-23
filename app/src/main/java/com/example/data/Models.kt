@@ -549,3 +549,40 @@ data class AppNotification(
     var chapterId: String = "",
     var revisionId: String = ""
 )
+
+enum class SrsRating(val value: Int, val label: String) {
+    AGAIN(1, "Again"),
+    HARD(2, "Hard"),
+    GOOD(3, "Good"),
+    EASY(4, "Easy")
+}
+
+data class Flashcard(
+    var id: String = "",
+    var userId: String = "",
+    var subjectId: String = "",
+    var chapterId: String = "",
+    var topicId: String = "",
+    var front: String = "",
+    var back: String = "",
+    var hint: String = "",
+    var difficulty: String = "Medium",
+    var intervalDays: Int = 1,
+    var easeFactor: Float = 2.5f,
+    var repetitionCount: Int = 0,
+    var lapses: Int = 0,
+    var nextReviewDateMs: Long = 0L,
+    var lastReviewedMs: Long = 0L,
+    var createdAtMs: Long = 0L
+)
+
+data class FlashcardStats(
+    var totalCards: Int = 0,
+    var dueToday: Int = 0,
+    var masteredCards: Int = 0,
+    var learningCards: Int = 0,
+    var reviewCards: Int = 0,
+    var reviewedTodayCount: Int = 0,
+    var retentionRatePercentage: Int = 100
+)
+

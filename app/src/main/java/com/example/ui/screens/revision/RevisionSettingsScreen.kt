@@ -155,17 +155,108 @@ fun RevisionSettingsScreen(viewModel: RevisionViewModel, navController: NavContr
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // 1. Revision Pattern
-            SettingsCard(title = "Revision Pattern (Days)") {
-                OutlinedTextField(
-                    value = patternInput, onValueChange = { patternInput = it },
-                    label = { Text("Intervals (comma separated)") }, modifier = Modifier.fillMaxWidth(),
-                    supportingText = { Text("e.g. 1, 3, 7, 14, 30 (इसके बाद हर 30 दिन में स्वतः रिपीट होगा)") }
+            SettingsCard(title = "Revision Pattern & Spaced Presets") {
+                Text(
+                    "Choose a scientifically backed interval preset or customize your own:",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("शुरुआती अंतराल 1, 3, 7, 14, 30 दिन। इसके बाद हर 30 दिन बाद नियमित रिवीजन होगा।", fontSize = 12.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = patternInput.trim() == "1, 3, 7, 14, 21, 30",
+                        onClick = { patternInput = "1, 3, 7, 14, 21, 30" },
+                        label = { Text("Standard (1, 3, 7, 14, 21, 30)") }
+                    )
+                    FilterChip(
+                        selected = patternInput.trim() == "1, 2, 4, 7, 14",
+                        onClick = { patternInput = "1, 2, 4, 7, 14" },
+                        label = { Text("Intensive (1, 2, 4, 7, 14)") }
+                    )
+                    FilterChip(
+                        selected = patternInput.trim() == "1, 7, 16, 35, 90",
+                        onClick = { patternInput = "1, 7, 16, 35, 90" },
+                        label = { Text("Long-Term (1, 7, 16, 35, 90)") }
+                    )
+                    FilterChip(
+                        selected = patternInput.trim() == "1, 3, 5, 10, 20",
+                        onClick = { patternInput = "1, 3, 5, 10, 20" },
+                        label = { Text("Leitner (1, 3, 5, 10, 20)") }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = patternInput,
+                    onValueChange = { patternInput = it },
+                    label = { Text("Intervals (days, comma separated)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    supportingText = { Text("Recurring interval repeats every 30 days afterwards") }
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val parsedPattern = remember(patternInput) {
+                    runCatching {
+                        patternInput.split(",").mapNotNull { it.trim().toIntOrNull() }.filter { it > 0 }
+                    }.getOrDefault(listOf(1, 3, 7, 14, 30))
+                }
+
+                if (parsedPattern.isNotEmpty()) {
+                    Text(
+                        "Schedule Timeline Preview (from today):",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    val previews = remember(parsedPattern) {
+                        com.example.services.RevisionEngine.calculateSchedulePreview(parsedPattern)
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        previews.forEachIndexed { index, pair ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                    horizontalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        "Rev ${index + 1}",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        "+${pair.first}d",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        pair.second,
+                                        fontSize = 10.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
