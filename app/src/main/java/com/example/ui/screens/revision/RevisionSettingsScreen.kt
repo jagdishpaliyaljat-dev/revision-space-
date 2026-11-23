@@ -12,8 +12,10 @@ import com.example.ui.screens.admin.*
 import com.example.ui.components.*
 import com.example.ui.utils.*
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -234,7 +236,7 @@ fun RevisionSettingsScreen(viewModel: RevisionViewModel, navController: NavContr
                             ) {
                                 Column(
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                    horizontalAlignment = Alignment.CenterVertically
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
                                         "Rev ${index + 1}",
