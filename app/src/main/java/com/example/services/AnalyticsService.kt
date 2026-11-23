@@ -47,45 +47,67 @@ class AnalyticsService {
             }
         }
         
-        val pendingAllRev = filteredRevisions.filter { it.status == "Overdue" }
-        val todayDueRev = filteredRevisions.filter { it.status == "Today" }
-        val upcomingRev = filteredRevisions.filter { it.status == "Upcoming" }
+        val revMap = filteredRevisions.associateBy { it.topicId }
+        val enrichedTopics = topics.map { topic ->
+            val rev = revMap[topic.topicId]
+            if (rev != null) {
+                topic.copy(
+                    revisionCount = rev.revisionCount,
+                    lastRevisionDateMs = rev.lastRevisionDateMs,
+                    nextRevisionDateMs = rev.nextRevisionDateMs,
+                    status = rev.status
+                )
+            } else if (topic.status != "Completed" && topic.status != "Complete") {
+                val computedStatus = when {
+                    topic.nextRevisionDateMs <= 0L -> "Pending"
+                    topic.nextRevisionDateMs < startOfTodayMs -> "Overdue"
+                    topic.nextRevisionDateMs in startOfTodayMs..endOfTodayMs -> "Today"
+                    else -> "Upcoming"
+                }
+                topic.copy(status = computedStatus)
+            } else {
+                topic
+            }
+        }
+
+        val todayDueTopics = enrichedTopics.filter { it.status == "Today" }
+        val pendingAllTopics = enrichedTopics.filter { it.status == "Pending" || it.status == "Overdue" }
+            .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
+        val upcomingTopics = enrichedTopics.filter { it.status == "Upcoming" }
+            .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
+        val completedTopics = enrichedTopics.filter { it.status == "Completed" || it.status == "Complete" }
         val weakTopics = topics.filter { it.masteryScore in 0..40 }
-        val todayRevisedCount = filteredRevisions.filter { it.lastRevisionDateMs in startOfTodayMs..endOfTodayMs }.size
-        
-        val todayDueTopics = todayDueRev.mapNotNull { rev ->
-            topics.find { it.topicId == rev.topicId }?.copy(
-                revisionCount = rev.revisionCount,
-                lastRevisionDateMs = rev.lastRevisionDateMs,
-                nextRevisionDateMs = rev.nextRevisionDateMs
+        val todayRevisedCount = enrichedTopics.count { it.lastRevisionDateMs in startOfTodayMs..endOfTodayMs }
+
+        val existingTopicIdsInRevisions = filteredRevisions.map { it.topicId }.toSet()
+        val synthesizedRevisions = enrichedTopics.filter { it.topicId !in existingTopicIdsInRevisions && it.status != "Completed" && it.status != "Complete" }.map { topic ->
+            Revision(
+                id = "topic_rev_${topic.topicId}",
+                userId = "offline_user",
+                subjectId = topic.subjectId,
+                chapterId = topic.chapterId,
+                topicId = topic.topicId,
+                subjectName = topic.subjectName,
+                chapterName = topic.chapterName,
+                topicName = topic.topicName,
+                revisionCount = topic.revisionCount,
+                lastRevisionDateMs = topic.lastRevisionDateMs,
+                nextRevisionDateMs = topic.nextRevisionDateMs,
+                status = topic.status,
+                duration = topic.estimatedRevisionTimeMins.coerceAtLeast(15)
             )
         }
-        
-        val upcomingTopics = upcomingRev.mapNotNull { rev ->
-            topics.find { it.topicId == rev.topicId }?.copy(
-                revisionCount = rev.revisionCount,
-                lastRevisionDateMs = rev.lastRevisionDateMs,
-                nextRevisionDateMs = rev.nextRevisionDateMs
-            )
-        }.sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
-
-        val pendingAllTopics = pendingAllRev.mapNotNull { rev ->
-            topics.find { it.topicId == rev.topicId }?.copy(
-                revisionCount = rev.revisionCount,
-                lastRevisionDateMs = rev.lastRevisionDateMs,
-                nextRevisionDateMs = rev.nextRevisionDateMs
-            )
-        }.sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
+        val combinedRevisions = filteredRevisions + synthesizedRevisions
 
         return DashboardMetrics(
             todayDue = todayDueTopics,
             pendingRevisions = pendingAllTopics,
             upcomingRevisions = upcomingTopics,
-            completedTotal = topics.filter { it.status == "Completed" || it.status == "Complete" },
+            completedTotal = completedTopics,
             studyTimeTodayStr = formatTime(todayStudyTimeMs),
             weakTopics = weakTopics,
             todayRevisedCount = todayRevisedCount,
-            allRevisions = filteredRevisions
+            allRevisions = combinedRevisions
         )
     }
 

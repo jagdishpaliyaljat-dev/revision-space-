@@ -1114,73 +1114,104 @@ open class RevisionRepository {
             }
         } else {
             null
-        } ?: return
+        }
 
-        val durationMs = (rev.duration.takeIf { it > 0 } ?: 30) * 60 * 1000L
+        if (rev != null) {
+            val durationMs = (rev.duration.takeIf { it > 0 } ?: 30) * 60 * 1000L
 
-        // 1. Mark current revision record as Completed
-        rDb?.revisionDao()?.insert(
-            rev.copy(
-                status = "Completed",
-                nextRevisionDateMs = 0L,
-                lastRevisionDateMs = now
-            ).toEntity()
-        )
-        if (rDb == null) {
+            // 1. Mark current revision record as Completed
+            rDb?.revisionDao()?.insert(
+                rev.copy(
+                    status = "Completed",
+                    nextRevisionDateMs = 0L,
+                    lastRevisionDateMs = now
+                ).toEntity()
+            )
+            if (rDb == null) {
+                try {
+                    val ref = db.collection("users").document(userId).collection("revisions").document(revisionId)
+                    ref.update("status", "Completed", "nextRevisionDateMs", 0L, "lastRevisionDateMs", now).await()
+                    if (rev.chapterId.isNotEmpty()) {
+                        updateChapterProgress(rev.chapterId)
+                    }
+                } catch (e: Exception) {}
+            }
+
+            // 2. Record study session and schedule NEXT revision (repeats every 30 days)
+            if (rev.topicId.isNotEmpty()) {
+                recordStudySessionTransaction(rev.topicId, isRevision = true, durationMs = durationMs, dateRaw = dateRaw)
+            }
+            
+            // 3. Award coins for completion based on priority
             try {
-                val ref = db.collection("users").document(userId).collection("revisions").document(revisionId)
-                ref.update("status", "Completed", "nextRevisionDateMs", 0L, "lastRevisionDateMs", now).await()
-                if (rev.chapterId.isNotEmpty()) {
-                    updateChapterProgress(rev.chapterId)
+                val coinsToAward = when (rev.priority.lowercase()) {
+                    "high" -> 50
+                    "medium" -> 30
+                    else -> 20
+                }
+                awardCoins(coinsToAward, "Completed revision for ${rev.topicName}", "revision_${rev.id}_$now")
+                
+                val todayStr = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+                recordStudyTime(todayStr, true, 15 * 60000L)
+                
+                if (rDb != null) {
+                    val uid = userId.ifEmpty { "offline_user" }
+                    val currentProfile = rDb.userProfileDao().getProfileSync(uid)?.toDomain() ?: UserProfile(id = uid)
+                    rDb.userProfileDao().insert(
+                        currentProfile.copy(
+                            totalRevisions = currentProfile.totalRevisions + 1,
+                            lastActiveTimeMs = now
+                        ).toEntity()
+                    )
+                } else {
+                    val docRef = db.collection("users").document(userId)
+                    db.runTransaction { tx ->
+                        val userSnap = tx.get(docRef)
+                        if (userSnap.exists()) {
+                            val currentRevs = userSnap.getLong("totalRevisions") ?: 0L
+                            tx.update(docRef, "totalRevisions", currentRevs + 1, "lastActiveTimeMs", System.currentTimeMillis())
+                        }
+                        null
+                    }.await()
+                    evaluateDailyRewardsAndStreak(userId)
                 }
             } catch (e: Exception) {}
-        }
-
-        // 2. Record study session and schedule NEXT revision (repeats every 30 days)
-        if (rev.topicId.isNotEmpty()) {
-            recordStudySessionTransaction(rev.topicId, isRevision = true, durationMs = durationMs, dateRaw = dateRaw)
-        }
-        
-        // 3. Award coins for completion based on priority
-        try {
-            val coinsToAward = when (rev.priority.lowercase()) {
-                "high" -> 50
-                "medium" -> 30
-                else -> 20
-            }
-            awardCoins(coinsToAward, "Completed revision for ${rev.topicName}", "revision_${rev.id}_$now")
-            
-            val todayStr = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
-            recordStudyTime(todayStr, true, 15 * 60000L)
-            
-            if (rDb != null) {
-                val uid = userId.ifEmpty { "offline_user" }
-                val currentProfile = rDb.userProfileDao().getProfileSync(uid)?.toDomain() ?: UserProfile(id = uid)
-                rDb.userProfileDao().insert(
-                    currentProfile.copy(
-                        totalRevisions = currentProfile.totalRevisions + 1,
-                        lastActiveTimeMs = now
-                    ).toEntity()
-                )
+        } else {
+            val candidateTopicId = if (revisionId.startsWith("topic_rev_")) {
+                revisionId.removePrefix("topic_rev_")
             } else {
-                val docRef = db.collection("users").document(userId)
-                db.runTransaction { tx ->
-                    val userSnap = tx.get(docRef)
-                    if (userSnap.exists()) {
-                        val currentRevs = userSnap.getLong("totalRevisions") ?: 0L
-                        tx.update(docRef, "totalRevisions", currentRevs + 1, "lastActiveTimeMs", System.currentTimeMillis())
-                    }
-                    null
-                }.await()
-                evaluateDailyRewardsAndStreak(userId)
+                revisionId
             }
-        } catch (e: Exception) {}
+            val topic = rDb?.topicDao()?.getTopicById(candidateTopicId)?.toDomain()
+            if (topic != null) {
+                val durationMs = topic.estimatedRevisionTimeMins.coerceAtLeast(15) * 60000L
+                recordStudySessionTransaction(topic.id, isRevision = true, durationMs = durationMs, dateRaw = dateRaw)
+                try {
+                    awardCoins(30, "Completed revision for ${topic.name}", "revision_${topic.id}_$now")
+                    recordStudyTime(dateRaw, true, durationMs)
+                    val uid = userId.ifEmpty { "offline_user" }
+                    val currentProfile = rDb.userProfileDao().getProfileSync(uid)?.toDomain() ?: UserProfile(id = uid)
+                    rDb.userProfileDao().insert(
+                        currentProfile.copy(
+                            totalRevisions = currentProfile.totalRevisions + 1,
+                            lastActiveTimeMs = now
+                        ).toEntity()
+                    )
+                } catch (e: Exception) {}
+            }
+        }
     }
     
     suspend fun updateRevision(revision: Revision) {
         val rDb = roomDb
         if (rDb != null) {
             rDb.revisionDao().insert(revision.toEntity())
+            if (revision.topicId.isNotEmpty()) {
+                val topic = rDb.topicDao().getTopicById(revision.topicId)
+                if (topic != null) {
+                    rDb.topicDao().insert(topic.copy(nextRevisionDateMs = revision.nextRevisionDateMs, nextRevisionDate = revision.nextRevisionDateMs))
+                }
+            }
             return
         }
         if (userId.isEmpty()) return

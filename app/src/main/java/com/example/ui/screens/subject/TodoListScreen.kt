@@ -121,7 +121,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
         it.lastRevisionDateMs in startOfToday..endOfToday || it.status == "Completed"
     }.distinctBy { it.topicId.ifEmpty { it.id } }
     val pendingOrOverdueTodayRevisions = allRevisions.filter {
-        it.status == "Today" || it.status == "Overdue"
+        it.status == "Today" || it.status == "Overdue" || it.status == "Pending"
     }.distinctBy { it.topicId.ifEmpty { it.id } }
 
     val completedTodayCount = completedTodayRevisions.size + completedQuickTasksToday.size
@@ -937,7 +937,7 @@ fun TodayTaskCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val indicatorColor = if (isCompleted) Color(0xFF10B981) else if (isOverdue) Color(0xFFEF4444) else TodoPurple
+            val indicatorColor = if (isCompleted) Color(0xFF10B981) else if (isOverdue) Color(0xFFEF4444) else if (revision.status == "Pending") Color(0xFF3B82F6) else TodoPurple
             Box(
                 modifier = Modifier
                     .size(12.dp)
@@ -954,8 +954,21 @@ fun TodayTaskCard(
                     color = TodoTextDark,
                     completedColor = TodoTextGray
                 )
-                if (revision.subjectName.isNotBlank()) {
-                    Text("${revision.subjectName} • ${revision.chapterName}", fontSize = 12.sp, color = TodoTextGray)
+                val subText = buildString {
+                    if (revision.subjectName.isNotBlank()) {
+                        append(revision.subjectName)
+                        if (revision.chapterName.isNotBlank()) {
+                            append(" • ")
+                            append(revision.chapterName)
+                        }
+                    }
+                    if (revision.status.isNotBlank()) {
+                        if (isNotEmpty()) append(" • ")
+                        append(revision.status)
+                    }
+                }
+                if (subText.isNotBlank()) {
+                    Text(subText, fontSize = 12.sp, color = TodoTextGray)
                 }
             }
             if (!isCompleted) {

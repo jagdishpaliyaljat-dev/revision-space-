@@ -95,8 +95,9 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
             val baseList = when (selectedFilter) {
                 "Today" -> metrics.todayDue
+                "Pending" -> metrics.pendingRevisions
                 "Upcoming" -> metrics.upcomingRevisions
-                "Overdue" -> metrics.pendingRevisions
+                "Overdue" -> metrics.pendingRevisions.filter { it.status == "Overdue" }
                 "Completed" -> metrics.completedTotal
                 else -> metrics.todayDue
             }
@@ -191,7 +192,7 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
                 modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("Today", "Upcoming", "Overdue", "Completed").forEach { filter ->
+                listOf("Today", "Pending", "Upcoming", "Overdue", "Completed").forEach { filter ->
                     FilterChip(
                         selected = selectedFilter == filter,
                         onClick = { selectedFilter = filter },

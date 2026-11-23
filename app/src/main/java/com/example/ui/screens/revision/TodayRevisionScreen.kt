@@ -155,7 +155,18 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
         }
         currentView == "overdue" -> {
             OverdueRevisionsView(
-                overdueTopics = metrics.pendingRevisions,
+                overdueTopics = metrics.pendingRevisions.filter { it.status == "Overdue" },
+                navController = navController,
+                onBack = { currentView = "dashboard" }
+            )
+        }
+        currentView == "pending" -> {
+            val pendingOnly = remember(metrics.pendingRevisions, allTopics) {
+                val list = metrics.pendingRevisions.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) }
+                if (list.isNotEmpty()) list else allTopics.filter { it.status != "Completed" && it.status != "Complete" && it.status != "Overdue" }
+            }
+            PendingRevisionsView(
+                pendingTopics = pendingOnly,
                 navController = navController,
                 onBack = { currentView = "dashboard" }
             )
@@ -194,7 +205,13 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
             val completionFraction = (completionPercentage / 100f).coerceIn(0f, 1f)
 
             val todayList = metrics.todayDue
-            val overdueList = metrics.pendingRevisions
+            val overdueList = remember(metrics.pendingRevisions) {
+                metrics.pendingRevisions.filter { it.status == "Overdue" }
+            }
+            val pendingOnlyList = remember(metrics.pendingRevisions, allTopics) {
+                val list = metrics.pendingRevisions.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) }
+                if (list.isNotEmpty()) list else allTopics.filter { it.status != "Completed" && it.status != "Complete" && it.status != "Overdue" }
+            }
             val upcomingList = metrics.upcomingRevisions
             val totalTimeMins = remember(todayList) { todayList.sumOf { it.estimatedRevisionTimeMins } }
 
@@ -421,7 +438,11 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                     ProgressStat(
                                         value = pendingCount.toString(),
                                         label = "Pending",
-                                        modifier = Modifier.weight(1f).testTag("overview_pending")
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable { currentView = "pending" }
+                                            .testTag("overview_pending")
                                     )
                                     Box(
                                         modifier = Modifier
@@ -614,6 +635,20 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                         ) {
                             Column(modifier = Modifier.padding(vertical = 6.dp)) {
                                 QueueRowItem(
+                                    title = "Pending",
+                                    count = pendingOnlyList.size.coerceAtLeast(pendingCount),
+                                    icon = Icons.Default.Schedule,
+                                    iconColor = Color(0xFF3B82F6),
+                                    borderColor = Color(0xFF3B82F6),
+                                    bgColor = Color(0xFFEFF6FF),
+                                    onClick = { currentView = "pending" },
+                                    tag = "queue_pending"
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 18.dp),
+                                    color = Color(0xFFEFF1F6)
+                                )
+                                QueueRowItem(
                                     title = "Overdue",
                                     count = overdueList.size,
                                     icon = Icons.Default.Circle,
@@ -801,6 +836,7 @@ fun QueueRowItem(
     tag: String
 ) {
     val subtitle = when (title) {
+        "Pending" -> "Waiting to be revised"
         "Overdue" -> "Needs your attention"
         "Today" -> "Scheduled for today"
         else -> "Coming up next"
@@ -1308,6 +1344,348 @@ fun OverdueInfoRow(
             fontWeight = FontWeight.SemiBold,
             color = RevTextDark
         )
+    }
+}
+
+// Screen 2B – Pending Revisions Screen
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PendingRevisionsView(
+    pendingTopics: List<TopicWithSubjectAndChapter>,
+    navController: NavController,
+    onBack: () -> Unit
+) {
+    var selectedSubjectFilter by remember { mutableStateOf("All") }
+    var showFilterMenu by remember { mutableStateOf(false) }
+
+    val availableSubjects = remember(pendingTopics) {
+        listOf("All") + pendingTopics.map { it.subjectName }.filter { it.isNotBlank() }.distinct().sorted()
+    }
+
+    val filteredPendingTopics = remember(pendingTopics, selectedSubjectFilter) {
+        if (selectedSubjectFilter == "All") {
+            pendingTopics
+        } else {
+            pendingTopics.filter { it.subjectName.equals(selectedSubjectFilter, ignoreCase = true) }
+        }
+    }
+
+    Scaffold(
+        containerColor = RevBgLight,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Pending Revisions",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = RevTextDark
+                        )
+                        Text(
+                            text = "(${filteredPendingTopics.size})",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF3B82F6)
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.testTag("pending_back_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = RevTextDark
+                        )
+                    }
+                },
+                actions = {
+                    if (availableSubjects.size > 1) {
+                        Box {
+                            IconButton(
+                                onClick = { showFilterMenu = true },
+                                modifier = Modifier.testTag("pending_filter_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.FilterList,
+                                    contentDescription = "Filter",
+                                    tint = RevTextDark
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = showFilterMenu,
+                                onDismissRequest = { showFilterMenu = false }
+                            ) {
+                                availableSubjects.forEach { subject ->
+                                    DropdownMenuItem(
+                                        text = { Text(subject, fontWeight = if (selectedSubjectFilter == subject) FontWeight.Bold else FontWeight.Normal) },
+                                        onClick = {
+                                            selectedSubjectFilter = subject
+                                            showFilterMenu = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White
+                ),
+                modifier = Modifier.shadow(1.dp)
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (pendingTopics.isEmpty()) {
+                // Empty state
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(96.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFEFF6FF)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = Color(0xFF3B82F6)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "No pending revisions",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            color = RevTextDark
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "All syllabus topics are up to date or completed.",
+                            fontSize = 14.sp,
+                            color = RevTextGray,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag("pending_scrollable_layout"),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Pending Banner
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("pending_info_banner"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF6FF)),
+                            border = BorderStroke(1.dp, Color(0xFFDBEAFE))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    tint = Color(0xFF3B82F6),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Column {
+                                    Text(
+                                        text = "Topics waiting for revision",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF1E40AF)
+                                    )
+                                    Text(
+                                        text = "Revising these topics will build long-term memory.",
+                                        fontSize = 13.sp,
+                                        color = Color(0xFF1E40AF)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // List of Pending Topic Cards
+                    items(filteredPendingTopics, key = { it.topicId }) { topic ->
+                        PendingTopicCard(
+                            topic = topic,
+                            onStartRevision = {
+                                navController.navigate(
+                                    com.example.ui.TopicDetailRoute(
+                                        topicId = topic.topicId,
+                                        subjectId = topic.subjectId,
+                                        chapterId = topic.chapterId
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PendingTopicCard(
+    topic: TopicWithSubjectAndChapter,
+    onStartRevision: () -> Unit
+) {
+    val formattedLastDate = remember(topic.lastRevisionDateMs) {
+        if (topic.lastRevisionDateMs > 0L) {
+            val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            sdf.format(Date(topic.lastRevisionDateMs))
+        } else {
+            "Not revised yet"
+        }
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pending_topic_card_${topic.topicId}"),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, Color(0xFFE5E7EB))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Card Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = topic.topicName,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = RevTextDark,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (topic.chapterName.isNotBlank()) {
+                        Column {
+                            Text(
+                                text = "Chapter",
+                                fontSize = 11.sp,
+                                color = RevTextGray
+                            )
+                            Text(
+                                text = topic.chapterName,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color(0xFF3B82F6)
+                            )
+                        }
+                    }
+                    if (topic.subjectName.isNotBlank()) {
+                        Text(
+                            text = topic.subjectName,
+                            fontSize = 12.sp,
+                            color = RevTextGray
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFFEFF6FF))
+                        .border(1.dp, Color(0xFFDBEAFE), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "Pending",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF3B82F6)
+                    )
+                }
+            }
+
+            // Info rows
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OverdueInfoRow(
+                    icon = Icons.Outlined.CalendarToday,
+                    label = "Last Revision",
+                    value = formattedLastDate
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
+
+                OverdueInfoRow(
+                    icon = Icons.Outlined.History,
+                    label = "Total Revisions",
+                    value = topic.revisionCount.toString()
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
+
+                OverdueInfoRow(
+                    icon = Icons.Outlined.HourglassEmpty,
+                    label = "Expected Time",
+                    value = formatEstimatedTime(topic.estimatedRevisionTimeMins)
+                )
+            }
+
+            // Start Revision Button
+            Button(
+                onClick = onStartRevision,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .testTag("start_revision_button_${topic.topicId}"),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF3B82F6)
+                )
+            ) {
+                Text(
+                    text = "Start Revision",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
     }
 }
 
