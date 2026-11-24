@@ -139,7 +139,10 @@ class AnalyticsService {
         val todayRevisedCount = allEnrichedTopics.count { it.lastRevisionDateMs in startOfTodayMs..endOfTodayMs }
 
         val existingTopicIdsInRevisions = filteredRevisions.map { it.topicId }.toSet()
-        val synthesizedRevisions = allEnrichedTopics.filter { it.topicId !in existingTopicIdsInRevisions && it.status != "Completed" && it.status != "Complete" }.map { topic ->
+        val synthesizedRevisions = allEnrichedTopics.filter { 
+            it.topicId !in existingTopicIdsInRevisions && 
+            (it.status == "Today" || it.status == "Overdue" || it.status == "Upcoming") 
+        }.map { topic ->
             Revision(
                 id = "topic_rev_${topic.topicId}",
                 userId = "offline_user",
@@ -156,7 +159,7 @@ class AnalyticsService {
                 duration = topic.estimatedRevisionTimeMins.coerceAtLeast(15)
             )
         }
-        val combinedRevisions = filteredRevisions + synthesizedRevisions
+        val combinedRevisions = filteredRevisions.filter { it.status != "Pending" } + synthesizedRevisions
 
         return DashboardMetrics(
             todayDue = todayDueTopics,

@@ -121,7 +121,10 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
         it.lastRevisionDateMs in startOfToday..endOfToday || it.status == "Completed"
     }.distinctBy { it.topicId.ifEmpty { it.id } }
     val pendingOrOverdueTodayRevisions = allRevisions.filter {
-        it.status == "Today" || it.status == "Overdue" || it.status == "Pending"
+        it.status == "Today" || it.status == "Overdue"
+    }.distinctBy { it.topicId.ifEmpty { it.id } }
+    val upcomingRevisions = allRevisions.filter {
+        it.status == "Upcoming"
     }.distinctBy { it.topicId.ifEmpty { it.id } }
 
     val completedTodayCount = completedTodayRevisions.size + completedQuickTasksToday.size
@@ -265,7 +268,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                         }
                     }
                 } else {
-                    if (pendingOrOverdueTodayRevisions.isNotEmpty() || completedTodayRevisions.isNotEmpty() || pendingQuickTasks.isNotEmpty() || completedQuickTasksToday.isNotEmpty()) {
+                    if (pendingOrOverdueTodayRevisions.isNotEmpty() || upcomingRevisions.isNotEmpty() || completedTodayRevisions.isNotEmpty() || pendingQuickTasks.isNotEmpty() || completedQuickTasksToday.isNotEmpty()) {
                         LazyColumn(
                             contentPadding = PaddingValues(bottom = 100.dp),
                             modifier = Modifier.fillMaxSize()
@@ -387,6 +390,55 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                 }
                             }
 
+                            if (upcomingRevisions.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = "Upcoming Revisions (${upcomingRevisions.size})",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TodoTextGray,
+                                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                                    )
+                                }
+                                items(upcomingRevisions.sortedBy { it.nextRevisionDateMs }, key = { "rev_up_${it.id}" }) { rev ->
+                                    val isCompleting = completingTaskIds.contains(rev.id)
+                                    AnimatedVisibility(
+                                        visible = !isCompleting,
+                                        exit = fadeOut(animationSpec = tween(350)) + shrinkVertically(animationSpec = tween(350)),
+                                        enter = fadeIn(animationSpec = tween(350)) + expandVertically(animationSpec = tween(350))
+                                    ) {
+                                        TodayTaskCard(
+                                            revision = rev,
+                                            isOverdue = false,
+                                            isCompleting = isCompleting,
+                                            onComplete = {
+                                                completingTaskIds.add(rev.id)
+                                                scope.launch {
+                                                    AudioFeedback.playCompletionSound(context)
+                                                    delay(350)
+                                                    showSuccessEffect = true
+                                                    viewModel.markRevisionComplete(rev.id)
+                                                    completingTaskIds.remove(rev.id)
+                                                    Toast.makeText(context, "Revision saved!", Toast.LENGTH_SHORT).show()
+                                                }
+                                            },
+                                            onDelete = {
+                                                completingTaskIds.add(rev.id)
+                                                scope.launch {
+                                                    delay(350)
+                                                    viewModel.deleteRevision(context, rev.id)
+                                                    completingTaskIds.remove(rev.id)
+                                                    Toast.makeText(context, "Revision deleted", Toast.LENGTH_SHORT).show()
+                                                }
+                                            },
+                                            onReschedule = {
+                                                selectedRevisionForReschedule = rev
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
                             if (sortedCompleted.isNotEmpty() || completedQuickTasksToday.isNotEmpty()) {
                                 item {
                                     val totalCompletedCount = sortedCompleted.size + completedQuickTasksToday.size
@@ -398,7 +450,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                         modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
                                     )
                                 }
-                                if (sortedPending.isEmpty() && pendingQuickTasks.isEmpty()) {
+                                if (sortedPending.isEmpty() && upcomingRevisions.isEmpty() && pendingQuickTasks.isEmpty()) {
                                     item {
                                         Card(
                                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),

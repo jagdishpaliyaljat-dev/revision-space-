@@ -440,13 +440,13 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                                             .background(MaterialTheme.colorScheme.outlineVariant)
                                     )
                                     ProgressStat(
-                                        value = pendingCount.toString(),
-                                        label = "Pending",
+                                        value = overdueList.size.toString(),
+                                        label = "Due",
                                         modifier = Modifier
                                             .weight(1f)
                                             .clip(RoundedCornerShape(8.dp))
-                                            .clickable { currentView = "pending" }
-                                            .testTag("overview_pending")
+                                            .clickable { currentView = "overdue" }
+                                            .testTag("overview_due")
                                     )
                                     Box(
                                         modifier = Modifier
@@ -638,20 +638,6 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
                             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                         ) {
                             Column(modifier = Modifier.padding(vertical = 6.dp)) {
-                                QueueRowItem(
-                                    title = "Pending",
-                                    count = pendingOnlyList.size.coerceAtLeast(pendingCount),
-                                    icon = Icons.Default.Schedule,
-                                    iconColor = Color(0xFF3B82F6),
-                                    borderColor = Color(0xFF3B82F6),
-                                    bgColor = Color(0xFFEFF6FF),
-                                    onClick = { currentView = "pending" },
-                                    tag = "queue_pending"
-                                )
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 18.dp),
-                                    color = Color(0xFFEFF1F6)
-                                )
                                 QueueRowItem(
                                     title = "Overdue",
                                     count = overdueList.size,
