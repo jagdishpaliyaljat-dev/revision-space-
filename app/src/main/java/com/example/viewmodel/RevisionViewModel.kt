@@ -446,6 +446,7 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
     private val cachedTopics = java.util.concurrent.ConcurrentHashMap<String, Topic>()
     private var lastChaptersMap = emptyMap<String, Chapter>()
     private var lastSubjectsMap = emptyMap<String, Subject>()
+    private var lastComputedDayStart = 0L
 
     val allTopicsWithDetails = combine(
         repository.allTopics,
@@ -453,6 +454,14 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
         repository.allSubjects
     ) { topics, chapters, subjects ->
         _isTopicsLoaded.value = true
+        val todayStart = getStartOfDayMs(System.currentTimeMillis())
+        val dayChanged = todayStart != lastComputedDayStart
+        if (dayChanged) {
+            lastComputedDayStart = todayStart
+            cachedTopics.clear()
+            cachedTopicsDetails.clear()
+        }
+
         val chaptersMap = chapters.associateBy { it.id }
         val subjectsMap = subjects.associateBy { it.id }
 
@@ -467,7 +476,7 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
             .filter { it.id.isNotBlank() && it.subjectId.isNotBlank() && subjectIds.contains(it.subjectId) }
             .associate { it.id to it.subjectId }
 
-        val validTopics = topics.filter { it.id.isNotBlank() && it.chapterId.isNotBlank() && chapterIdToSubjectId.containsKey(it.chapterId) }
+        val validTopics = topics.filter { it.id.isNotBlank() }
         val validTopicIds = validTopics.map { it.id }.toSet()
         
         val toRemove = cachedTopics.keys - validTopicIds
@@ -478,10 +487,14 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
 
         validTopics.forEach { topic ->
                 val cached = cachedTopics[topic.id]
-                if (cached != topic || chaptersChanged || subjectsChanged) {
+                if (cached != topic || chaptersChanged || subjectsChanged || dayChanged) {
                     val chapterId = topic.chapterId
-                    val resolvedSubjectId = chapterIdToSubjectId[chapterId] ?: ""
                     val chapter = chaptersMap[chapterId]
+                    val resolvedSubjectId = if (topic.subjectId.isNotBlank()) {
+                        topic.subjectId
+                    } else {
+                        chapterIdToSubjectId[chapterId] ?: chapter?.subjectId ?: ""
+                    }
                     val subject = subjectsMap[resolvedSubjectId]
                     
                     val todayStart = getStartOfDayMs(System.currentTimeMillis())
@@ -568,6 +581,7 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
             } else {
                 val nextRevStart = getStartOfDayMs(r.nextRevisionDateMs)
                 val revStatus = when {
+                    r.nextRevisionDateMs <= 0L -> "Pending"
                     nextRevStart > todayStart -> "Upcoming"
                     nextRevStart == todayStart -> "Today"
                     else -> "Overdue"
@@ -1025,18 +1039,19 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
     val selectedExamId = _selectedExamId.asStateFlow()
 
     val activeExamId = combine(_selectedExamId, allExams) { selectedId, exams ->
-
-        if (exams.isEmpty()) {
-            ""
-        } else if (selectedId.isEmpty() || selectedId == "all" || exams.none { it.id == selectedId }) {
-            exams.first().id
-        } else {
+        if (selectedId.isEmpty() || selectedId == "all") {
+            "all"
+        } else if (exams.isNotEmpty() && exams.any { it.id == selectedId }) {
             selectedId
+        } else {
+            "all"
         }
     }.catch { e: Throwable -> e.printStackTrace() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "all")
 
-    fun selectExam(examId: String) {}
+    fun selectExam(examId: String) {
+        _selectedExamId.value = examId.ifEmpty { "all" }
+    }
     private val _analyticsTimeFilter = MutableStateFlow("Overall")
     val analyticsTimeFilter = _analyticsTimeFilter.asStateFlow()
     fun setAnalyticsTimeFilter(filter: String ) {

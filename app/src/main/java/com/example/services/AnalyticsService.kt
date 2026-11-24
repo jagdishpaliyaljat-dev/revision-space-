@@ -23,7 +23,8 @@ class AnalyticsService {
         val topics = if (activeId.isEmpty() || activeId == "all") {
             allTopics
         } else {
-            allTopics.filter { it.examIds.contains(activeId) }
+            val matching = allTopics.filter { it.examIds.contains(activeId) }
+            if (matching.isNotEmpty()) matching else allTopics
         }
         val todayStr = currentDayString()
         val todayLog = logs.find { it.dateString == todayStr }
@@ -33,7 +34,7 @@ class AnalyticsService {
         val endOfTodayMs = startOfTodayMs + 86400000L - 1
         
         val activeTopicIds = topics.map { it.topicId }.toSet()
-        val filteredRevisions = revisions.filter { it.topicId in activeTopicIds }.distinctBy { it.topicId.ifEmpty { it.id } }.map { rev ->
+        val filteredRevisions = revisions.distinctBy { it.topicId.ifEmpty { it.id } }.map { rev ->
             if (rev.status == "Completed" || rev.status == "Complete") {
                 rev
             } else {
@@ -104,20 +105,41 @@ class AnalyticsService {
             }
         }
 
-        val todayDueTopics = enrichedTopics.filter { it.status == "Today" }
+        val coveredTopicIds = enrichedTopics.map { it.topicId }.toSet()
+        val orphanTopics = filteredRevisions.filter {
+            it.topicId.isNotEmpty() && it.topicId !in coveredTopicIds && it.status != "Completed" && it.status != "Complete"
+        }.map { rev ->
+            TopicWithSubjectAndChapter(
+                topicId = rev.topicId,
+                topicName = rev.topicName.ifEmpty { "Revision Item" },
+                chapterId = rev.chapterId,
+                chapterName = rev.chapterName.ifEmpty { "General" },
+                subjectId = rev.subjectId,
+                subjectName = rev.subjectName.ifEmpty { "General Subject" },
+                nextRevisionDateMs = rev.nextRevisionDateMs,
+                status = rev.status,
+                revisionStatus = rev.status,
+                revisionCount = rev.revisionCount,
+                lastRevisionDateMs = rev.lastRevisionDateMs,
+                estimatedRevisionTimeMins = rev.duration.coerceAtLeast(15)
+            )
+        }
+        val allEnrichedTopics = enrichedTopics + orphanTopics
+
+        val todayDueTopics = allEnrichedTopics.filter { it.status == "Today" }
             .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
-        val overdueTopics = enrichedTopics.filter { it.status == "Overdue" }
+        val overdueTopics = allEnrichedTopics.filter { it.status == "Overdue" }
             .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
-        val upcomingTopics = enrichedTopics.filter { it.status == "Upcoming" }
+        val upcomingTopics = allEnrichedTopics.filter { it.status == "Upcoming" }
             .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
-        val pendingOnlyTopics = enrichedTopics.filter { it.status == "Pending" }
+        val pendingOnlyTopics = allEnrichedTopics.filter { it.status == "Pending" }
             .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.topicName })
-        val completedTopics = enrichedTopics.filter { it.status == "Completed" || it.status == "Complete" }
-        val weakTopics = topics.filter { it.masteryScore in 0..40 }
-        val todayRevisedCount = enrichedTopics.count { it.lastRevisionDateMs in startOfTodayMs..endOfTodayMs }
+        val completedTopics = allEnrichedTopics.filter { it.status == "Completed" || it.status == "Complete" }
+        val weakTopics = allEnrichedTopics.filter { it.masteryScore in 0..40 }
+        val todayRevisedCount = allEnrichedTopics.count { it.lastRevisionDateMs in startOfTodayMs..endOfTodayMs }
 
         val existingTopicIdsInRevisions = filteredRevisions.map { it.topicId }.toSet()
-        val synthesizedRevisions = enrichedTopics.filter { it.topicId !in existingTopicIdsInRevisions && it.status != "Completed" && it.status != "Complete" }.map { topic ->
+        val synthesizedRevisions = allEnrichedTopics.filter { it.topicId !in existingTopicIdsInRevisions && it.status != "Completed" && it.status != "Complete" }.map { topic ->
             Revision(
                 id = "topic_rev_${topic.topicId}",
                 userId = "offline_user",
@@ -164,7 +186,8 @@ class AnalyticsService {
         val topics = if (activeId.isEmpty() || activeId == "all") {
             allTopics
         } else {
-            allTopics.filter { it.examIds.contains(activeId) }
+            val matching = allTopics.filter { it.examIds.contains(activeId) }
+            if (matching.isNotEmpty()) matching else allTopics
         }
         
         val activeTopicIds = topics.map { it.topicId }.toSet()

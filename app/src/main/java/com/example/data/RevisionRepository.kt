@@ -957,14 +957,18 @@ open class RevisionRepository {
         val rDb = roomDb
         if (rDb != null) {
             try {
+                val endOfToday = startOfToday + 86400000L - 1
                 val localRevs = rDb.revisionDao().getRevisionsList(userId.ifEmpty { "offline_user" }).map { it.toDomain() }
                 for (rev in localRevs) {
                     if (rev.status == "Completed") continue
-                    val shouldBeOverdue = rev.nextRevisionDateMs in 1 until startOfToday
-                    if (shouldBeOverdue && rev.status != "Overdue") {
-                        rDb.revisionDao().insert(rev.copy(status = "Overdue").toEntity())
-                    } else if (!shouldBeOverdue && rev.status == "Overdue") {
-                        rDb.revisionDao().insert(rev.copy(status = "Pending").toEntity())
+                    val newStatus = when {
+                        rev.nextRevisionDateMs <= 0L -> "Pending"
+                        rev.nextRevisionDateMs < startOfToday -> "Overdue"
+                        rev.nextRevisionDateMs in startOfToday..endOfToday -> "Today"
+                        else -> "Upcoming"
+                    }
+                    if (rev.status != newStatus) {
+                        rDb.revisionDao().insert(rev.copy(status = newStatus).toEntity())
                     }
                 }
             } catch (e: Exception) {
@@ -980,13 +984,16 @@ open class RevisionRepository {
                 val rev = doc.toObject(Revision::class.java) ?: continue
                 if (rev.status == "Completed") continue
                 
-                val shouldBeOverdue = rev.nextRevisionDateMs < startOfToday && rev.nextRevisionDateMs > 0L
+                val endOfToday = startOfToday + 86400000L - 1
+                val newStatus = when {
+                    rev.nextRevisionDateMs <= 0L -> "Pending"
+                    rev.nextRevisionDateMs < startOfToday -> "Overdue"
+                    rev.nextRevisionDateMs in startOfToday..endOfToday -> "Today"
+                    else -> "Upcoming"
+                }
                 val currentStatus = rev.status
-                
-                if (shouldBeOverdue && currentStatus != "Overdue") {
-                    doc.reference.update("status", "Overdue").await()
-                } else if (!shouldBeOverdue && currentStatus == "Overdue") {
-                    doc.reference.update("status", "Pending").await()
+                if (currentStatus != newStatus) {
+                    doc.reference.update("status", newStatus).await()
                 }
             }
         } catch (e: Exception) {
@@ -1025,7 +1032,14 @@ open class RevisionRepository {
                 val index = rev.revisionCount.coerceIn(0, newPattern.size - 1)
                 val daysMulti = newPattern[index]
                 val nextDate = baseDate + (daysMulti * 86400000L)
-                val status = if (nextDate < getStartOfTodayMs()) "Overdue" else "Pending"
+                val startOfToday = getStartOfTodayMs()
+                val endOfToday = startOfToday + 86400000L - 1
+                val status = when {
+                    nextDate <= 0L -> "Pending"
+                    nextDate < startOfToday -> "Overdue"
+                    nextDate in startOfToday..endOfToday -> "Today"
+                    else -> "Upcoming"
+                }
                 rDb.revisionDao().insert(
                     rev.copy(
                         pattern = newPattern,
@@ -1073,7 +1087,14 @@ open class RevisionRepository {
                 val index = rev.revisionCount.coerceIn(0, newPattern.size - 1)
                 val daysMulti = newPattern[index]
                 val nextDate = baseDate + (daysMulti * 86400000L)
-                val status = if (nextDate < getStartOfTodayMs()) "Overdue" else "Pending"
+                val startOfToday = getStartOfTodayMs()
+                val endOfToday = startOfToday + 86400000L - 1
+                val status = when {
+                    nextDate <= 0L -> "Pending"
+                    nextDate < startOfToday -> "Overdue"
+                    nextDate in startOfToday..endOfToday -> "Today"
+                    else -> "Upcoming"
+                }
                 
                 doc.reference.update(
                     mapOf(
@@ -1535,7 +1556,14 @@ open class RevisionRepository {
 
     private suspend fun syncRevisionDocument(topic: Topic, pattern: List<Int>, isFirstCompletion: Boolean) {
         val nextDate = topic.nextRevisionDateMs
-        val status = if (nextDate < getStartOfTodayMs()) "Overdue" else "Pending"
+        val startOfToday = getStartOfTodayMs()
+        val endOfToday = startOfToday + 86400000L - 1
+        val status = when {
+            nextDate <= 0L -> "Pending"
+            nextDate < startOfToday -> "Overdue"
+            nextDate in startOfToday..endOfToday -> "Today"
+            else -> "Upcoming"
+        }
 
         val rDb = roomDb
         var sName = ""
@@ -2117,7 +2145,12 @@ open class RevisionRepository {
                             pattern = activePattern,
                             lastRevisionDateMs = now,
                             nextRevisionDateMs = nextRevisionMs,
-                            status = if (nextRevisionMs <= endOfToday) "Pending" else "Upcoming",
+                            status = when {
+                                nextRevisionMs <= 0L -> "Pending"
+                                nextRevisionMs < startOfToday -> "Overdue"
+                                nextRevisionMs in startOfToday..endOfToday -> "Today"
+                                else -> "Upcoming"
+                            },
                             duration = kotlin.math.ceil(durationMs / 60000.0).toInt().coerceAtLeast(15)
                         )
                         rDb.revisionDao().insert(revision.toEntity())
