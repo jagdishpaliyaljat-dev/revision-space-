@@ -344,7 +344,7 @@ fun TodoListScreen(viewModel: RevisionViewModel, navController: NavController) {
                                     )
                                 }
                                 items(sortedPending, key = { "rev_${it.id}" }) { rev ->
-                                    val isOverdue = rev.nextRevisionDateMs < startOfToday
+                                    val isOverdue = rev.status == "Overdue" || (rev.nextRevisionDateMs in 1 until startOfToday)
                                     val isCompleting = completingTaskIds.contains(rev.id)
                                     AnimatedVisibility(
                                         visible = !isCompleting,

@@ -492,7 +492,8 @@ data class DashboardMetrics(
     var studyTimeTodayStr: String = "0h 0m",
     var weakTopics: List<TopicWithSubjectAndChapter> = emptyList(),
     var todayRevisedCount: Int = 0,
-    var allRevisions: List<Revision> = emptyList()
+    var allRevisions: List<Revision> = emptyList(),
+    var pendingTopics: List<TopicWithSubjectAndChapter> = emptyList()
 )
 
 

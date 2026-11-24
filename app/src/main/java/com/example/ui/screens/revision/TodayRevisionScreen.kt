@@ -155,15 +155,18 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
         }
         currentView == "overdue" -> {
             OverdueRevisionsView(
-                overdueTopics = metrics.pendingRevisions.filter { it.status == "Overdue" },
+                overdueTopics = metrics.pendingRevisions,
                 navController = navController,
                 onBack = { currentView = "dashboard" }
             )
         }
         currentView == "pending" -> {
-            val pendingOnly = remember(metrics.pendingRevisions, allTopics) {
-                val list = metrics.pendingRevisions.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) }
-                if (list.isNotEmpty()) list else allTopics.filter { it.status != "Completed" && it.status != "Complete" && it.status != "Overdue" }
+            val pendingOnly = remember(metrics.pendingTopics, allTopics) {
+                if (metrics.pendingTopics.isNotEmpty()) {
+                    metrics.pendingTopics
+                } else {
+                    allTopics.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) }
+                }
             }
             PendingRevisionsView(
                 pendingTopics = pendingOnly,
@@ -205,12 +208,13 @@ fun TodayRevisionScreen(viewModel: RevisionViewModel, navController: NavControll
             val completionFraction = (completionPercentage / 100f).coerceIn(0f, 1f)
 
             val todayList = metrics.todayDue
-            val overdueList = remember(metrics.pendingRevisions) {
-                metrics.pendingRevisions.filter { it.status == "Overdue" }
-            }
-            val pendingOnlyList = remember(metrics.pendingRevisions, allTopics) {
-                val list = metrics.pendingRevisions.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) }
-                if (list.isNotEmpty()) list else allTopics.filter { it.status != "Completed" && it.status != "Complete" && it.status != "Overdue" }
+            val overdueList = metrics.pendingRevisions
+            val pendingOnlyList = remember(metrics.pendingTopics, allTopics) {
+                if (metrics.pendingTopics.isNotEmpty()) {
+                    metrics.pendingTopics
+                } else {
+                    allTopics.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) }
+                }
             }
             val upcomingList = metrics.upcomingRevisions
             val totalTimeMins = remember(todayList) { todayList.sumOf { it.estimatedRevisionTimeMins } }

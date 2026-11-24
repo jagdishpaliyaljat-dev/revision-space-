@@ -34,16 +34,17 @@ class AnalyticsService {
         
         val activeTopicIds = topics.map { it.topicId }.toSet()
         val filteredRevisions = revisions.filter { it.topicId in activeTopicIds }.distinctBy { it.topicId.ifEmpty { it.id } }.map { rev ->
-            if (rev.status == "Pending" || rev.status == "Today" || rev.status == "Overdue" || rev.status == "Upcoming") {
+            if (rev.status == "Completed" || rev.status == "Complete") {
+                rev
+            } else {
+                val nextRevStart = getStartOfDayMs(rev.nextRevisionDateMs)
                 val calculatedStatus = when {
                     rev.nextRevisionDateMs <= 0L -> "Pending"
-                    rev.nextRevisionDateMs < startOfTodayMs -> "Overdue"
-                    rev.nextRevisionDateMs in startOfTodayMs..endOfTodayMs -> "Today"
+                    nextRevStart < startOfTodayMs -> "Overdue"
+                    nextRevStart == startOfTodayMs -> "Today"
                     else -> "Upcoming"
                 }
                 rev.copy(status = calculatedStatus)
-            } else {
-                rev
             }
         }
         
@@ -51,30 +52,66 @@ class AnalyticsService {
         val enrichedTopics = topics.map { topic ->
             val rev = revMap[topic.topicId]
             if (rev != null) {
-                topic.copy(
-                    revisionCount = rev.revisionCount,
-                    lastRevisionDateMs = rev.lastRevisionDateMs,
-                    nextRevisionDateMs = rev.nextRevisionDateMs,
-                    status = rev.status
-                )
-            } else if (topic.status != "Completed" && topic.status != "Complete") {
-                val computedStatus = when {
-                    topic.nextRevisionDateMs <= 0L -> "Pending"
-                    topic.nextRevisionDateMs < startOfTodayMs -> "Overdue"
-                    topic.nextRevisionDateMs in startOfTodayMs..endOfTodayMs -> "Today"
-                    else -> "Upcoming"
+                val effectiveNextDate = if (rev.nextRevisionDateMs > 0L) {
+                    rev.nextRevisionDateMs
+                } else if ((topic.nextRevisionDate ?: 0L) > 0L) {
+                    topic.nextRevisionDate ?: 0L
+                } else {
+                    topic.nextRevisionDateMs
                 }
-                topic.copy(status = computedStatus)
+                val isCompleted = (rev.status == "Completed" || rev.status == "Complete" || topic.status == "Completed" || topic.status == "Complete") && effectiveNextDate <= 0L
+                val calculatedStatus = if (isCompleted) {
+                    "Completed"
+                } else if (effectiveNextDate <= 0L) {
+                    "Pending"
+                } else {
+                    val nextRevStart = getStartOfDayMs(effectiveNextDate)
+                    when {
+                        nextRevStart < startOfTodayMs -> "Overdue"
+                        nextRevStart == startOfTodayMs -> "Today"
+                        else -> "Upcoming"
+                    }
+                }
+                topic.copy(
+                    revisionCount = if (rev.revisionCount > 0) rev.revisionCount else topic.revisionCount,
+                    lastRevisionDateMs = if (rev.lastRevisionDateMs > 0L) rev.lastRevisionDateMs else topic.lastRevisionDateMs,
+                    nextRevisionDateMs = effectiveNextDate,
+                    status = calculatedStatus
+                )
             } else {
-                topic
+                val effectiveNextDate = if ((topic.nextRevisionDate ?: 0L) > 0L) {
+                    topic.nextRevisionDate ?: 0L
+                } else {
+                    topic.nextRevisionDateMs
+                }
+                val isCompleted = (topic.status == "Completed" || topic.status == "Complete") && effectiveNextDate <= 0L
+                val calculatedStatus = if (isCompleted) {
+                    "Completed"
+                } else if (effectiveNextDate <= 0L) {
+                    "Pending"
+                } else {
+                    val nextRevStart = getStartOfDayMs(effectiveNextDate)
+                    when {
+                        nextRevStart < startOfTodayMs -> "Overdue"
+                        nextRevStart == startOfTodayMs -> "Today"
+                        else -> "Upcoming"
+                    }
+                }
+                topic.copy(
+                    nextRevisionDateMs = effectiveNextDate,
+                    status = calculatedStatus
+                )
             }
         }
 
         val todayDueTopics = enrichedTopics.filter { it.status == "Today" }
-        val pendingAllTopics = enrichedTopics.filter { it.status == "Pending" || it.status == "Overdue" }
+            .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
+        val overdueTopics = enrichedTopics.filter { it.status == "Overdue" }
             .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
         val upcomingTopics = enrichedTopics.filter { it.status == "Upcoming" }
             .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.nextRevisionDateMs }.thenBy { it.topicName })
+        val pendingOnlyTopics = enrichedTopics.filter { it.status == "Pending" }
+            .sortedWith(compareBy<TopicWithSubjectAndChapter> { it.topicName })
         val completedTopics = enrichedTopics.filter { it.status == "Completed" || it.status == "Complete" }
         val weakTopics = topics.filter { it.masteryScore in 0..40 }
         val todayRevisedCount = enrichedTopics.count { it.lastRevisionDateMs in startOfTodayMs..endOfTodayMs }
@@ -101,13 +138,14 @@ class AnalyticsService {
 
         return DashboardMetrics(
             todayDue = todayDueTopics,
-            pendingRevisions = pendingAllTopics,
+            pendingRevisions = overdueTopics,
             upcomingRevisions = upcomingTopics,
             completedTotal = completedTopics,
             studyTimeTodayStr = formatTime(todayStudyTimeMs),
             weakTopics = weakTopics,
             todayRevisedCount = todayRevisedCount,
-            allRevisions = combinedRevisions
+            allRevisions = combinedRevisions,
+            pendingTopics = pendingOnlyTopics
         )
     }
 
@@ -526,6 +564,17 @@ class AnalyticsService {
     
     private fun getStartOfDayMs(): Long {
         val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+    
+    private fun getStartOfDayMs(timeMs: Long): Long {
+        if (timeMs <= 0L) return 0L
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timeMs
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)

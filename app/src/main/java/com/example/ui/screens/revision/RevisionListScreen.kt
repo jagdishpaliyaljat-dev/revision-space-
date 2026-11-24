@@ -95,9 +95,9 @@ fun RevisionListScreen(viewModel: RevisionViewModel, navController: NavControlle
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
             val baseList = when (selectedFilter) {
                 "Today" -> metrics.todayDue
-                "Pending" -> metrics.pendingRevisions
+                "Pending" -> metrics.pendingTopics.ifEmpty { allTopics.filter { it.status == "Pending" || (it.status != "Completed" && it.status != "Complete" && it.nextRevisionDateMs <= 0L) } }
                 "Upcoming" -> metrics.upcomingRevisions
-                "Overdue" -> metrics.pendingRevisions.filter { it.status == "Overdue" }
+                "Overdue" -> metrics.pendingRevisions
                 "Completed" -> metrics.completedTotal
                 else -> metrics.todayDue
             }
