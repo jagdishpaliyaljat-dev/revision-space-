@@ -94,6 +94,7 @@ fun AppDrawerHost(
                         when (destination) {
                             DrawerDestination.Home -> navController.navigateTab(DashboardRoute)
                             DrawerDestination.Subjects -> navController.navigateTab(SubjectsRoute)
+                            DrawerDestination.Syllabus -> navController.navigateSafely(SyllabusRoute)
                             DrawerDestination.Focus -> navController.navigateTab(TimerRoute("", false))
                             DrawerDestination.Tasks -> navController.navigateTab(TodoListRoute)
                             DrawerDestination.Analytics -> navController.navigateSafely(AnalyticsRoute)

@@ -249,6 +249,7 @@ fun DashboardScreen(
                     when (destination) {
                         DrawerDestination.Home -> Unit
                         DrawerDestination.Subjects -> onNavigateToSubjects()
+                        DrawerDestination.Syllabus -> onNavigateToSyllabus()
                         DrawerDestination.Focus -> onNavigateToTimer()
                         DrawerDestination.Tasks -> onNavigateToTodoList()
                         DrawerDestination.Analytics -> onNavigateToAnalytics()

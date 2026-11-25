@@ -523,6 +523,21 @@ open class RevisionRepository {
         } catch (e: Exception) {}
     }
 
+    open suspend fun updateSubjectExam(subjectId: String, examId: String) {
+        val rDb = roomDb
+        if (rDb != null) {
+            val existingList = rDb.subjectDao().getSubjects("offline_user").firstOrNull() ?: emptyList()
+            val existing = existingList.find { it.id == subjectId }
+            if (existing != null) {
+                val updated = existing.copy(examId = examId)
+                rDb.subjectDao().insert(updated.toEntity())
+            }
+        }
+        try {
+            db.collection("subjects").document(subjectId).update("examId", examId)
+        } catch (e: Exception) {}
+    }
+
     open suspend fun deleteSubject(id: String) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val rDb = roomDb
         if (rDb != null) {

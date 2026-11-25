@@ -1390,6 +1390,10 @@ class RevisionViewModel(private val repository: RevisionRepository) : ViewModel(
         repository.updateSubject(subjectId, name, colorHex, icon, totalTopicsExpected)
     }
 
+    fun updateSubjectExam(subjectId: String, examId: String) = launchSafe {
+        repository.updateSubjectExam(subjectId, examId)
+    }
+
 
 
 

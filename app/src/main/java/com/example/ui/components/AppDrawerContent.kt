@@ -37,7 +37,7 @@ import com.example.viewmodel.RevisionViewModel
 
 /** Every place the hamburger menu can take the user. */
 enum class DrawerDestination {
-    Home, Subjects, Focus, Tasks, Analytics, Profile, Coins, Streak, Settings, OfflineNotes, Language, Help
+    Home, Subjects, Syllabus, Focus, Tasks, Analytics, Profile, Coins, Streak, Settings, OfflineNotes, Language, Help
 }
 
 /**
@@ -224,6 +224,12 @@ fun AppDrawerContent(
                 label = "Subjects",
                 selected = route.contains("SubjectsRoute"),
                 onClick = { goTo(DrawerDestination.Subjects) }
+            )
+            DrawerNavItem(
+                icon = Icons.Outlined.Layers,
+                label = "Syllabus Tracker",
+                selected = route.contains("SyllabusRoute"),
+                onClick = { goTo(DrawerDestination.Syllabus) }
             )
             DrawerNavItem(
                 icon = Icons.Outlined.Timer,
